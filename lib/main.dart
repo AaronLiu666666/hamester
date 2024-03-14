@@ -4,6 +4,9 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:hamster/widget/MediaShowWidget.dart';
 import 'package:hamster/widget/VideoPlayWidget.dart';
 import 'package:hamster/widget/debug_widget.dart';
+import 'package:hamster/widget/video/video_player_page.dart';
+import 'package:hamster/widget/video/video_player_ui.dart';
+import 'package:video_player/video_player.dart';
 import 'config/db/flutter_data_base.dart';
 import 'db/db_init.dart';
 import 'res/listData.dart';
@@ -329,6 +332,12 @@ class StackWidget extends StatelessWidget {
 }
 
 class MaterialAppScaffoldWidget extends StatelessWidget {
+
+  // 定义路由变量
+  final routes = {
+    '/videoPlay': (context, {arguments}) => VideoPlayerPage(videoUrl: arguments['videoSource'] as String),
+  };
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -358,19 +367,39 @@ class MaterialAppScaffoldWidget extends StatelessWidget {
             // ),
             // body: MainPageWidget(),
             // body: FileListWidget(),
-            // body: Column(
-            //   children: <Widget>[
-            //     DebugWidget(),
-            //     Expanded(
-            //       child: MediaShowWidget(),
-            //     ),
-            //   ],
-            // )),
-          body: VideoApp(videoSource: "/storage/emulated/0/Download/D3.mp4"),
+            body: Column(
+              children: <Widget>[
+                DebugWidget(),
+                Expanded(
+                  child: MediaShowWidget(),
+                ),
+              ],
+            ),
+          // body: VideoApp(videoSource: "/storage/emulated/0/Download/D3.mp4"),
+          // body: VideoPlayerUI(),
+          // body: VideoPlayerPage(),
         ),
         theme: ThemeData(
           primarySwatch: Colors.yellow,
-        ));
+        ),
+        onGenerateRoute: (RouteSettings settings) {
+          // 统一处理
+          final String? name = settings.name;
+          final Function? pageContentBuilder = routes[name];
+          if (pageContentBuilder != null) {
+            if (settings.arguments != null) {
+              final Route route = MaterialPageRoute(
+                  builder: (context) =>
+                      pageContentBuilder(context, arguments: settings.arguments));
+              return route;
+            } else {
+              final Route route = MaterialPageRoute(
+                  builder: (context) => pageContentBuilder(context));
+              return route;
+            }
+          }
+        }
+    );
   }
 }
 

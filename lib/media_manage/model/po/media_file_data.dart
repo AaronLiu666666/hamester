@@ -9,29 +9,31 @@ import 'package:floor/floor.dart';
 class MediaFileData {
   @PrimaryKey(autoGenerate: true)
   final int? id;
-  String path;
+  String? path;
   @ColumnInfo(name: "file_name")
-  String fileName;
+  String? fileName;
   @ColumnInfo(name: "file_alias")
-  String fileAlias;
+  String?fileAlias;
   @ColumnInfo(name: "file_md5")
-  String fileMd5;
+  String?fileMd5;
   @ColumnInfo(name: "source_url")
-  String sourceUrl;
+  String?sourceUrl;
   @ColumnInfo(name:"memo")
-  String memo;
+  String?memo;
   @ColumnInfo(name:"cover")
-  String cover;
+  String?cover;
   @ColumnInfo(name:"last_play_moment")
-  int lastPlayMoment;
+  int?lastPlayMoment;
   @ColumnInfo(name:"last_play_time")
-  int lastPlayTime;
+  int?lastPlayTime;
   @ColumnInfo(name:"play_num")
-  int playNum;
+  int?playNum;
+  @ColumnInfo(name:"file_create_time")
+  int?fileCreateTime;
   @ColumnInfo(name: "create_time")
-  int createTime; // 修改为 int 类型
+  int?createTime;
   @ColumnInfo(name: "update_time")
-  int updateTime; // 修改为 int 类型
+  int?updateTime;
 
   MediaFileData(this.id, this.path, this.fileName, this.fileAlias, this.fileMd5,
       this.memo,
@@ -43,6 +45,6 @@ class MediaFileData {
       this.createTime, this.updateTime);
 
   // 可以添加一些帮助方法，用于在需要时转换为 DateTime
-  DateTime get createTimeAsDateTime => DateTime.fromMillisecondsSinceEpoch(createTime);
-  DateTime get updateTimeAsDateTime => DateTime.fromMillisecondsSinceEpoch(updateTime);
+  DateTime get createTimeAsDateTime => DateTime.fromMillisecondsSinceEpoch(createTime!);
+  DateTime get updateTimeAsDateTime => DateTime.fromMillisecondsSinceEpoch(updateTime!);
 }

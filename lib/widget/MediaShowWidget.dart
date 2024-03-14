@@ -24,6 +24,9 @@ class MediaShowWidget extends StatelessWidget {
           // 数据加载完成，构建 UI
           List<CardContentData> cardContentDataList = snapshot.data!
               .map((mediaFileData) => CardContentData(
+                    id : mediaFileData.id??0,
+                    path: mediaFileData.path??"",
+                    fileName: mediaFileData.fileName??"",
                     url: "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}.jpg",
                     text: mediaFileData.fileName,
                   ))

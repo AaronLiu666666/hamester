@@ -49,6 +49,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.11.0"
+  auto_orientation:
+    dependency: "direct main"
+    description:
+      name: auto_orientation
+      sha256: cd56bb59b36fa54cc28ee254bc600524f022a4862f31d5ab20abd7bb1c54e678
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -57,6 +65,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  brightness_volume:
+    dependency: "direct main"
+    description:
+      name: brightness_volume
+      sha256: "543b2ef64130b25a48fb2e49a6c91d60a41cc99c516b9a2021a64e14b0443124"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.3"
   build:
     dependency: transitive
     description:
@@ -344,6 +360,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.2.0"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      sha256: e4e7335ede17452b391ed3b2ede016545706c01a02292a6c97619705e7d2a85e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.6.6"
   glob:
     dependency: transitive
     description:

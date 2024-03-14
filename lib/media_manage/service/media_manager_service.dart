@@ -53,7 +53,7 @@ class MediaManageService {
     final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
     MediaFileData mediaFileData = MediaFileData(
         null,
-        "path",
+        "/storage/emulated/0/Download/D3.mp4",
         "fileName",
         "fileAlias",
         "fileMd5",

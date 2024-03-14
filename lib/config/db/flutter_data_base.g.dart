@@ -63,6 +63,10 @@ class _$FlutterDataBase extends FlutterDataBase {
 
   MediaFileDataDao? _mediaFileDataDaoInstance;
 
+  TagInfoDao? _tagInfoDaoInstance;
+
+  MediaTagRelationDao? _mediaTagRelationDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -86,6 +90,10 @@ class _$FlutterDataBase extends FlutterDataBase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `media_file_data` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `path` TEXT NOT NULL, `file_name` TEXT NOT NULL, `file_alias` TEXT NOT NULL, `file_md5` TEXT NOT NULL, `source_url` TEXT NOT NULL, `memo` TEXT NOT NULL, `cover` TEXT NOT NULL, `last_play_moment` INTEGER NOT NULL, `last_play_time` INTEGER NOT NULL, `play_num` INTEGER NOT NULL, `create_time` INTEGER NOT NULL, `update_time` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `tag_info` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `media_id` INTEGER, `tag_id` INTEGER, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -97,6 +105,17 @@ class _$FlutterDataBase extends FlutterDataBase {
   MediaFileDataDao get mediaFileDataDao {
     return _mediaFileDataDaoInstance ??=
         _$MediaFileDataDao(database, changeListener);
+  }
+
+  @override
+  TagInfoDao get tagInfoDao {
+    return _tagInfoDaoInstance ??= _$TagInfoDao(database, changeListener);
+  }
+
+  @override
+  MediaTagRelationDao get mediaTagRelationDao {
+    return _mediaTagRelationDaoInstance ??=
+        _$MediaTagRelationDao(database, changeListener);
   }
 }
 
@@ -159,6 +178,76 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   @override
   Future<void> insertMembers(List<MediaFileData> list) async {
     await _mediaFileDataInsertionAdapter.insertList(
+        list, OnConflictStrategy.abort);
+  }
+}
+
+class _$TagInfoDao extends TagInfoDao {
+  _$TagInfoDao(
+    this.database,
+    this.changeListener,
+  ) : _tagInfoInsertionAdapter = InsertionAdapter(
+            database,
+            'tag_info',
+            (TagInfo item) => <String, Object?>{
+                  'id': item.id,
+                  'tag_name': item.tagName,
+                  'tag_desc': item.tagDesc,
+                  'tag_pic': item.tagPic,
+                  'create_time': item.createTime,
+                  'update_time': item.updateTime
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final InsertionAdapter<TagInfo> _tagInfoInsertionAdapter;
+
+  @override
+  Future<void> insertOne(TagInfo tagInfo) async {
+    await _tagInfoInsertionAdapter.insert(tagInfo, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> insertList(List<TagInfo> list) async {
+    await _tagInfoInsertionAdapter.insertList(list, OnConflictStrategy.abort);
+  }
+}
+
+class _$MediaTagRelationDao extends MediaTagRelationDao {
+  _$MediaTagRelationDao(
+    this.database,
+    this.changeListener,
+  ) : _mediaTagRelationInsertionAdapter = InsertionAdapter(
+            database,
+            'r_media_tag',
+            (MediaTagRelation item) => <String, Object?>{
+                  'id': item.id,
+                  'media_id': item.mediaId,
+                  'tag_id': item.tagId,
+                  'media_moment': item.mediaMoment,
+                  'relation_desc': item.relationDesc,
+                  'media_moment_pic': item.mediaMomentPic,
+                  'create_time': item.createTime,
+                  'update_time': item.updateTime
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final InsertionAdapter<MediaTagRelation> _mediaTagRelationInsertionAdapter;
+
+  @override
+  Future<void> insertOne(MediaTagRelation mediaTagRelation) async {
+    await _mediaTagRelationInsertionAdapter.insert(
+        mediaTagRelation, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> insertList(List<MediaTagRelation> list) async {
+    await _mediaTagRelationInsertionAdapter.insertList(
         list, OnConflictStrategy.abort);
   }
 }

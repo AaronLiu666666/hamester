@@ -1,7 +1,9 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hamster/widget/video/video_player_page.dart';
+
+import '../widget/VideoPlayWidget.dart';
 
 // List list = [{
 //   "url": "https://picx.zhimg.com/50/v2-139627556961d50c4f9b27badce0b99e_720w.jpg?source=1def8aca",
@@ -29,10 +31,17 @@ List list = [
 ];
 
 class CardContentData {
+  final int id;
+  final String path;
+  final String fileName;
   final String url;
-  final String text;
+  final String? text;
 
-  CardContentData({required this.url, required this.text});
+  CardContentData({
+    required this.id,
+    required this.path,
+    required this.fileName,
+    required this.url, required this.text});
 }
 
 class CardContentWidget extends StatelessWidget {
@@ -49,7 +58,7 @@ class CardContentWidget extends StatelessWidget {
           flex: 1,
           child: Image.file(File(data.url), fit: BoxFit.cover),
         ),
-        Text(data.text),
+        Text(data.text ?? ""),
       ],
     );
   }
@@ -62,10 +71,29 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: CardContentWidget(data: data),
-    );
+    return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, '/videoPlay', arguments: {
+            "videoSource": data.path,
+          });
+        },
+        onLongPress: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              // builder: (context) => VideoApp(videoSource: data.url),
+              builder: (context) => VideoPlayerPage(videoUrl: data.url),
+            ),
+          );
+        },
+        child: Card(
+          margin: EdgeInsets.all(10),
+          child: CardContentWidget(data: data),
+        ));
+    // return Card(
+    //   margin: EdgeInsets.all(10),
+    //   child: CardContentWidget(data: data),
+    // );
   }
 }
 
