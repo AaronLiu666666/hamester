@@ -1,6 +1,8 @@
 /// Created by RongCheng on 2022/1/17.
 
 import 'dart:io';
+import 'dart:ui';
+
 
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:brightness_volume/brightness_volume.dart';
@@ -183,6 +185,7 @@ class VideoPlayerUtils{
       _instance._controller = null;
     }
   }
+
 
 
   ///  ---------------------  private ------------------------

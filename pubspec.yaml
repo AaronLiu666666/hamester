@@ -52,6 +52,7 @@ dependencies:
   brightness_volume: ^1.0.3
   # 状态管理
   get: ^4.6.6
+  external_path: ^1.0.3
 
 
   # The following adds the Cupertino Icons font to your application.

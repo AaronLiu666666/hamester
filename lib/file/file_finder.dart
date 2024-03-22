@@ -37,7 +37,7 @@ class FileFinder {
         print('App External Directory: ${externalStorageDir.path}');
         // 构建Downloads目录路径
         // String downloadsDir = '${externalStorageDir.path}/Download';
-        String downloadsDir = '/storage/emulated/0/Download';
+        String downloadsDir = '/storage/emulated/0/Pictures';
         List<File>? files = findFiles(Directory(downloadsDir));
 
         // 构建文件路径列表
@@ -118,4 +118,9 @@ Future<bool> requestStoragePermission() async {
       return false;
     }
   }
+
+
+
+
+
 }
