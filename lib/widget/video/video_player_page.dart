@@ -29,6 +29,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   VideoPlayerTop? _top;
   VideoPlayerBottom? _bottom;
   LockIcon? _lockIcon; // 控制是否沉浸式的widget
+  CameraIcon? _cameraIcon;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -42,6 +44,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
           _bottom!.opacityCallback(!TempValue.isLocked);
         },);
         // liurong todo 初始化截图 _cameraIcon
+        _cameraIcon ??= CameraIcon();
         _bottom ??= VideoPlayerBottom();
         // liurong question —_playerUI 是该widget自己？ _playerUI 在这里指代的是当前 VideoPlayerPage 对象本身，或者说是 VideoPlayerPage 类的一个实例。
         _playerUI = widget;
@@ -103,6 +106,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             ),
             _top!,
             _lockIcon!,
+            _cameraIcon!,
             _bottom!
           ],
         ) : Container(

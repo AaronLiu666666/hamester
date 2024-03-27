@@ -3,8 +3,8 @@ import 'package:floor/floor.dart';
 /// 数据库标签实体
 @Entity(tableName: "tag_info")
 class TagInfo {
-  @PrimaryKey(autoGenerate: true)
-  final int? id;
+  @PrimaryKey()
+  String? id;
 
   @ColumnInfo(name: "tag_name")
   String? tagName;

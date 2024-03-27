@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hamster/widget/video/video_player_page.dart';
 
 import '../widget/VideoPlayWidget.dart';
+import '../widget/video_chewie/video_chewie_page.dart';
 
 // List list = [{
 //   "url": "https://picx.zhimg.com/50/v2-139627556961d50c4f9b27badce0b99e_720w.jpg?source=1def8aca",
@@ -82,7 +83,8 @@ class CardWidget extends StatelessWidget {
             context,
             MaterialPageRoute(
               // builder: (context) => VideoApp(videoSource: data.url),
-              builder: (context) => VideoPlayerPage(videoUrl: data.url),
+              // builder: (context) => VideoPlayerPage(videoUrl: data.url),
+              builder: (context) => VideoChewiePage(videoId:data.id,videoPath: data.path),
             ),
           );
         },

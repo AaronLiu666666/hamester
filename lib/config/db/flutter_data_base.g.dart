@@ -89,11 +89,11 @@ class _$FlutterDataBase extends FlutterDataBase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `media_file_data` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `path` TEXT NOT NULL, `file_name` TEXT NOT NULL, `file_alias` TEXT NOT NULL, `file_md5` TEXT NOT NULL, `source_url` TEXT NOT NULL, `memo` TEXT NOT NULL, `cover` TEXT NOT NULL, `last_play_moment` INTEGER NOT NULL, `last_play_time` INTEGER NOT NULL, `play_num` INTEGER NOT NULL, `create_time` INTEGER NOT NULL, `update_time` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `media_file_data` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `path` TEXT, `file_name` TEXT, `file_alias` TEXT, `file_md5` TEXT, `source_url` TEXT, `memo` TEXT, `cover` TEXT, `last_play_moment` INTEGER, `last_play_time` INTEGER, `play_num` INTEGER, `file_create_time` INTEGER, `create_time` INTEGER, `update_time` INTEGER)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `tag_info` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `tag_info` (`id` TEXT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `media_id` INTEGER, `tag_id` INTEGER, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER)');
+            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -139,6 +139,7 @@ class _$MediaFileDataDao extends MediaFileDataDao {
                   'last_play_moment': item.lastPlayMoment,
                   'last_play_time': item.lastPlayTime,
                   'play_num': item.playNum,
+                  'file_create_time': item.fileCreateTime,
                   'create_time': item.createTime,
                   'update_time': item.updateTime
                 });
@@ -156,18 +157,18 @@ class _$MediaFileDataDao extends MediaFileDataDao {
     return _queryAdapter.queryList('select * from media_file_data',
         mapper: (Map<String, Object?> row) => MediaFileData(
             row['id'] as int?,
-            row['path'] as String,
-            row['file_name'] as String,
-            row['file_alias'] as String,
-            row['file_md5'] as String,
-            row['memo'] as String,
-            row['cover'] as String,
-            row['source_url'] as String,
-            row['last_play_moment'] as int,
-            row['last_play_time'] as int,
-            row['play_num'] as int,
-            row['create_time'] as int,
-            row['update_time'] as int));
+            row['path'] as String?,
+            row['file_name'] as String?,
+            row['file_alias'] as String?,
+            row['file_md5'] as String?,
+            row['memo'] as String?,
+            row['cover'] as String?,
+            row['source_url'] as String?,
+            row['last_play_moment'] as int?,
+            row['last_play_time'] as int?,
+            row['play_num'] as int?,
+            row['create_time'] as int?,
+            row['update_time'] as int?));
   }
 
   @override
@@ -186,7 +187,8 @@ class _$TagInfoDao extends TagInfoDao {
   _$TagInfoDao(
     this.database,
     this.changeListener,
-  ) : _tagInfoInsertionAdapter = InsertionAdapter(
+  )   : _queryAdapter = QueryAdapter(database),
+        _tagInfoInsertionAdapter = InsertionAdapter(
             database,
             'tag_info',
             (TagInfo item) => <String, Object?>{
@@ -202,7 +204,22 @@ class _$TagInfoDao extends TagInfoDao {
 
   final StreamController<String> changeListener;
 
+  final QueryAdapter _queryAdapter;
+
   final InsertionAdapter<TagInfo> _tagInfoInsertionAdapter;
+
+  @override
+  Future<List<TagInfo>> queryTagsByTagName(String tagName) async {
+    return _queryAdapter.queryList('SELECT * FROM tag_info WHERE tag_name = ?1',
+        mapper: (Map<String, Object?> row) => TagInfo(
+            id: row['id'] as String?,
+            tagName: row['tag_name'] as String?,
+            tagDesc: row['tag_desc'] as String?,
+            tagPic: row['tag_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
+        arguments: [tagName]);
+  }
 
   @override
   Future<void> insertOne(TagInfo tagInfo) async {

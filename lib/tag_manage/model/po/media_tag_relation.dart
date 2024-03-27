@@ -1,34 +1,29 @@
-
-
 import 'package:floor/floor.dart';
 
-@Entity(
-  tableName: "r_media_tag"
-)
+@Entity(tableName: "r_media_tag")
 class MediaTagRelation {
-
-  @PrimaryKey(autoGenerate: true)
-  final int? id;
+  @PrimaryKey()
+  String? id;
 
   @ColumnInfo(name: "media_id")
   int? mediaId;
 
-  @ColumnInfo(name:"tag_id")
-  int? tagId;
+  @ColumnInfo(name: "tag_id")
+  String? tagId;
 
-  @ColumnInfo(name:"media_moment")
+  @ColumnInfo(name: "media_moment")
   int? mediaMoment;
 
-  @ColumnInfo(name:"relation_desc")
+  @ColumnInfo(name: "relation_desc")
   String? relationDesc;
 
-  @ColumnInfo(name:"media_moment_pic")
+  @ColumnInfo(name: "media_moment_pic")
   String? mediaMomentPic;
 
   @ColumnInfo(name: "create_time")
   int? createTime;
 
-  @ColumnInfo(name:"update_time")
+  @ColumnInfo(name: "update_time")
   int? updateTime;
 
   MediaTagRelation({

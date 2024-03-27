@@ -27,7 +27,7 @@ class MediaShowWidget extends StatelessWidget {
                     id : mediaFileData.id??0,
                     path: mediaFileData.path??"",
                     fileName: mediaFileData.fileName??"",
-                    url: "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}.jpg",
+                    url: "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}",
                     text: mediaFileData.fileName,
                   ))
               .toList();

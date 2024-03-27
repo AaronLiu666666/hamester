@@ -13,4 +13,7 @@ abstract class TagInfoDao {
   @insert
   Future<void> insertList(List<TagInfo> list);
 
+  @Query('SELECT * FROM tag_info WHERE tag_name = :tagName')
+  Future<List<TagInfo>> queryTagsByTagName(String tagName);
+
 }

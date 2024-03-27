@@ -6,6 +6,7 @@ import 'package:hamster/widget/VideoPlayWidget.dart';
 import 'package:hamster/widget/debug_widget.dart';
 import 'package:hamster/widget/video/video_player_page.dart';
 import 'package:hamster/widget/video/video_player_ui.dart';
+import 'package:hamster/widget/video_chewie/video_chewie_page.dart';
 import 'package:video_player/video_player.dart';
 import 'config/db/flutter_data_base.dart';
 import 'db/db_init.dart';
@@ -336,6 +337,7 @@ class MaterialAppScaffoldWidget extends StatelessWidget {
   // 定义路由变量
   final routes = {
     '/videoPlay': (context, {arguments}) => VideoPlayerPage(videoUrl: arguments['videoSource'] as String),
+    '/videoPlayChewie':(context,{arguments})=>VideoChewiePage(videoId: arguments["videoId"] as int,videoPath: arguments['videoPath'] as String)
   };
 
   @override

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../other/temp_value.dart';
+import '../../utils/video_player_utils.dart';
 
 /// center 右中部 实时截图按钮
 class CameraIcon extends StatefulWidget {
@@ -25,7 +26,7 @@ class _CameraIconState extends State<CameraIcon> {
           padding: EdgeInsets.zero,
           onPressed: () {
             // liurong todo 点击进行截图
-
+            VideoPlayerUtils.captureCurrentFrame();
           },
           icon: Icon(Icons.camera_outlined,color:Colors.white,size:25,)
         ),

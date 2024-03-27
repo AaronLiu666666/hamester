@@ -23,7 +23,7 @@ class MediaManageService {
     // List<File> mediaFileList = await FileFinder.findVideoFiles();
     await requestPermissionDefault();
 
-    Directory directory = Directory("/storage/emulated/0/Pictures");
+    Directory directory = Directory("/storage/emulated/0/Download");
     List<File> mediaFileList = await findFilesAsync(directory);
     if (mediaFileList.isNotEmpty) {
       print("视频文件：");
@@ -59,29 +59,41 @@ class MediaManageService {
 
     //
     String picStoreDir = ConfigManager.getString('pic_store_dir');
-    String picFilename = UuidGenerator.generateUuid();
-    getFirstFrame(mediaFileList[0].path, "$picStoreDir/$picFilename.jpg");
-
     final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
-    MediaFileData mediaFileData = MediaFileData(
-        null,
-        "/storage/emulated/0/Download/D3.mp4",
-        "fileName",
-        "fileAlias",
-        "fileMd5",
-        "memo",
-        picFilename,
-        "sourceUrl",
-        0,
-        0,
-        0,
-        DateTime.now().millisecondsSinceEpoch,
-        DateTime.now().millisecondsSinceEpoch);
-    await dataBase.mediaFileDataDao.insertMember(mediaFileData);
+    List<MediaFileData> allMediaInDb = await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
+    // 过滤掉数据库中路径为空的媒体文件数据，并将路径转换为 Set
+    Set<String> allMediaFilePathInDbSet = allMediaInDb
+        .where((mediaData) => mediaData.path != null && mediaData.path!.isNotEmpty)
+        .map((mediaData) => mediaData.path!)
+        .toSet();
+    List<File> mediaFilteredList = mediaFileList.where((mediaData){
+      return !allMediaFilePathInDbSet.contains(mediaData.path);
+    }).toList();
+
+    for(var video in mediaFilteredList){
+      String picFilename = UuidGenerator.generateUuid()+".jpg";
+      String picPath = "$picStoreDir/$picFilename";
+      getFirstFrame(video.path, picPath);
+      MediaFileData mediaFileData = MediaFileData(
+          null,
+          video.path,
+          getFileDisplayName(video),
+          null,
+          calculateMD5(video),
+          null,
+          picFilename,
+          null,
+          0,
+          0,
+          0,
+          DateTime.now().millisecondsSinceEpoch,
+          DateTime.now().millisecondsSinceEpoch);
+          await dataBase.mediaFileDataDao.insertMember(mediaFileData);
+    }
     List<MediaFileData> list =
         await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
 
-    List<MediaFileData> list2 =
-        await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
+    print("媒体文件扫描结束");
+
   }
 }
