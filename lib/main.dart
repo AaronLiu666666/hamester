@@ -4,6 +4,7 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:hamster/widget/MediaShowWidget.dart';
 import 'package:hamster/widget/VideoPlayWidget.dart';
 import 'package:hamster/widget/debug_widget.dart';
+import 'package:hamster/widget/list_page/media_home_page.dart';
 import 'package:hamster/widget/video/video_player_page.dart';
 import 'package:hamster/widget/video/video_player_ui.dart';
 import 'package:hamster/widget/video_chewie/video_chewie_page.dart';
@@ -343,44 +344,45 @@ class MaterialAppScaffoldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-              title: Text("Flutter Demo"),
-              backgroundColor: Colors.blue,
-            ),
-            // body: CenterWidget(),
-            // body: ContainerTextWidget(),
-            // body: ContainerImageWidget(),
-            // body: ContainerImageWidget(),
-            // body: ContainerBoxDecorationImageClass(),
-            // body: ContainerClipOvalImageWidget(),
-            // body: ContainerClipOvalAssetImageWidget(),
-            // body: VerticalListViewWidget(),
-            // body: ListViewBuilderWidget(),
-            // body: HorizontalListViewWidget(),
-            // body: GridViewCountWidget(),
-            // body: GridViewBuilderWidget(),
-            // body: ExpandedWidget(),
-            // body: CardWidget(
-            //   data: CardContentData(
-            //     url: imageUrl1,
-            //     text: "测试文本",
-            //   ),
-            // ),
-            // body: MainPageWidget(),
-            // body: FileListWidget(),
-            body: Column(
-              children: <Widget>[
-                DebugWidget(),
-                Expanded(
-                  child: MediaShowWidget(),
-                ),
-              ],
-            ),
-          // body: VideoApp(videoSource: "/storage/emulated/0/Download/D3.mp4"),
-          // body: VideoPlayerUI(),
-          // body: VideoPlayerPage(),
-        ),
+        home: MediaHomePage(),
+        // Scaffold(
+        //     appBar: AppBar(
+        //       title: Text("Flutter Demo"),
+        //       backgroundColor: Colors.blue,
+        //     ),
+        //     // body: CenterWidget(),
+        //     // body: ContainerTextWidget(),
+        //     // body: ContainerImageWidget(),
+        //     // body: ContainerImageWidget(),
+        //     // body: ContainerBoxDecorationImageClass(),
+        //     // body: ContainerClipOvalImageWidget(),
+        //     // body: ContainerClipOvalAssetImageWidget(),
+        //     // body: VerticalListViewWidget(),
+        //     // body: ListViewBuilderWidget(),
+        //     // body: HorizontalListViewWidget(),
+        //     // body: GridViewCountWidget(),
+        //     // body: GridViewBuilderWidget(),
+        //     // body: ExpandedWidget(),
+        //     // body: CardWidget(
+        //     //   data: CardContentData(
+        //     //     url: imageUrl1,
+        //     //     text: "测试文本",
+        //     //   ),
+        //     // ),
+        //     // body: MainPageWidget(),
+        //     // body: FileListWidget(),
+        //     body: Column(
+        //       children: <Widget>[
+        //         DebugWidget(),
+        //         Expanded(
+        //           child: MediaHomePage(),
+        //         ),
+        //       ],
+        //     ),
+        //   // body: VideoApp(videoSource: "/storage/emulated/0/Download/D3.mp4"),
+        //   // body: VideoPlayerUI(),
+        //   // body: VideoPlayerPage(),
+        // ),
         theme: ThemeData(
           primarySwatch: Colors.yellow,
         ),

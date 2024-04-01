@@ -97,6 +97,7 @@ flutter:
   assets:
     - assets/image/image_1.png
     - assets/image/image_2.png
+    - assets/image/no-pictures.png
     - .env
 
   # To add assets to your application, add an assets section, like this:

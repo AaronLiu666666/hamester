@@ -16,4 +16,7 @@ abstract class TagInfoDao {
   @Query('SELECT * FROM tag_info WHERE tag_name = :tagName')
   Future<List<TagInfo>> queryTagsByTagName(String tagName);
 
+  @Query("select * from tag_info")
+  Future<List<TagInfo>> queryAllDataList();
+
 }

@@ -3,9 +3,18 @@ import 'package:hamster/tag_manage/model/po/media_tag_relation.dart';
 import '../config/db/flutter_data_base.dart';
 import '../config/db/flutter_database_manager.dart';
 import '../config/id_generator/id_generator.dart';
+import 'model/dto/search_dto.dart';
 import 'model/po/tag_info.dart';
 
 class TagManageService {}
+
+// 根据条件查询符合条件的媒体信息列表
+Future<List<TagInfo>> getTagData(SearchDTO searchDto) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<TagInfo> list =
+  await dataBase.tagInfoDao.queryAllDataList();
+  return list;
+}
 
 /// 创建标签-媒体关联数据 （如果同名标签不存在则先创建标签再创建关联关系）
 Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {

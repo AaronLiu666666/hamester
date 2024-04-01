@@ -222,6 +222,18 @@ class _$TagInfoDao extends TagInfoDao {
   }
 
   @override
+  Future<List<TagInfo>> queryAllDataList() async {
+    return _queryAdapter.queryList('select * from tag_info',
+        mapper: (Map<String, Object?> row) => TagInfo(
+            id: row['id'] as String?,
+            tagName: row['tag_name'] as String?,
+            tagDesc: row['tag_desc'] as String?,
+            tagPic: row['tag_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?));
+  }
+
+  @override
   Future<void> insertOne(TagInfo tagInfo) async {
     await _tagInfoInsertionAdapter.insert(tagInfo, OnConflictStrategy.abort);
   }
@@ -236,7 +248,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   _$MediaTagRelationDao(
     this.database,
     this.changeListener,
-  ) : _mediaTagRelationInsertionAdapter = InsertionAdapter(
+  )   : _queryAdapter = QueryAdapter(database),
+        _mediaTagRelationInsertionAdapter = InsertionAdapter(
             database,
             'r_media_tag',
             (MediaTagRelation item) => <String, Object?>{
@@ -254,7 +267,23 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
 
   final StreamController<String> changeListener;
 
+  final QueryAdapter _queryAdapter;
+
   final InsertionAdapter<MediaTagRelation> _mediaTagRelationInsertionAdapter;
+
+  @override
+  Future<List<MediaTagRelation>> queryAllDataList() async {
+    return _queryAdapter.queryList('select * from r_media_tag',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(
+            id: row['id'] as String?,
+            mediaId: row['media_id'] as int?,
+            tagId: row['tag_id'] as String?,
+            mediaMoment: row['media_moment'] as int?,
+            relationDesc: row['relation_desc'] as String?,
+            mediaMomentPic: row['media_moment_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?));
+  }
 
   @override
   Future<void> insertOne(MediaTagRelation mediaTagRelation) async {

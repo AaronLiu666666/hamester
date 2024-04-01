@@ -13,4 +13,7 @@ abstract class MediaTagRelationDao {
   @insert
   Future<void> insertList(List<MediaTagRelation> list);
 
+  @Query("select * from r_media_tag")
+  Future<List<MediaTagRelation>> queryAllDataList();
+
 }
