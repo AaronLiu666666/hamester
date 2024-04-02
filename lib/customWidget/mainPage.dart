@@ -74,11 +74,9 @@ class CardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/videoPlay', arguments: {
-            "videoSource": data.path,
-          });
-        },
-        onLongPress: () {
+        //   Navigator.pushNamed(context, '/videoPlay', arguments: {
+        //     "videoSource": data.path,
+        //   });
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -88,6 +86,17 @@ class CardWidget extends StatelessWidget {
             ),
           );
         },
+
+        // onLongPress: () {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       // builder: (context) => VideoApp(videoSource: data.url),
+        //       // builder: (context) => VideoPlayerPage(videoUrl: data.url),
+        //       builder: (context) => VideoChewiePage(videoId:data.id,videoPath: data.path),
+        //     ),
+        //   );
+        // },
         child: Card(
           margin: EdgeInsets.all(10),
           child: CardContentWidget(data: data),

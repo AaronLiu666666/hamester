@@ -16,4 +16,7 @@ abstract class MediaFileDataDao {
   Future<void> insertMembers(List<MediaFileData> list);
 
 
+  @Query("SELECT * FROM media_file_data WHERE id IN (:ids)")
+  Future<List<MediaFileData>> queryDatasByIds(List<int> ids);
+
 }

@@ -86,6 +86,8 @@ class _VideoTagAddPageState extends State<VideoTagAddPage> {
                   picPath: widget.imagePath,
                   mediaMoment: widget.mediaMoment
                 ));
+                // 返回上一个页面
+                Navigator.pop(context);
               },
               child: Text('保存'),
             ),

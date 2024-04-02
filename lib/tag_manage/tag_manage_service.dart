@@ -16,6 +16,21 @@ Future<List<TagInfo>> getTagData(SearchDTO searchDto) async {
   return list;
 }
 
+Future<TagInfo?> queryDataById(String id) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  TagInfo? tagInfo =
+      await dataBase.tagInfoDao.queryDataById(id);
+  return tagInfo;
+}
+
+Future<void> updateData(TagInfo tagInfo) async {
+  if (tagInfo == null) {
+    return;
+  }
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  await dataBase.tagInfoDao.updateData(tagInfo);
+}
+
 /// 创建标签-媒体关联数据 （如果同名标签不存在则先创建标签再创建关联关系）
 Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();

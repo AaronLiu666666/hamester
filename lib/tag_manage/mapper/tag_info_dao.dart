@@ -19,4 +19,9 @@ abstract class TagInfoDao {
   @Query("select * from tag_info")
   Future<List<TagInfo>> queryAllDataList();
 
+  @Query("select * from tag_info where id = :id")
+  Future<TagInfo?> queryDataById(String id);
+
+  @update
+  Future<void> updateData(TagInfo tagInfo);
 }

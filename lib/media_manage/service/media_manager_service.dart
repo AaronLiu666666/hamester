@@ -86,18 +86,27 @@ class MediaManageService {
     return list;
   }
 
-  Future<List<CardContentData>> getMediaData2CardContentData(SearchDTO searchDto) async {
+  Future<List<CardContentData>> getMediaData2CardContentData(
+      SearchDTO searchDto) async {
     List<MediaFileData> mediaFileDataList = await getMediaData(searchDto);
-    List<CardContentData> cardContentDataList = mediaFileDataList.map((mediaFileData) {
+    List<CardContentData> cardContentDataList =
+        mediaFileDataList.map((mediaFileData) {
       return CardContentData(
-        id : mediaFileData.id??0,
-        path: mediaFileData.path??"",
-        fileName: mediaFileData.fileName??"",
-        url: "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}",
+        id: mediaFileData.id ?? 0,
+        path: mediaFileData.path ?? "",
+        fileName: mediaFileData.fileName ?? "",
+        url:
+            "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}",
         text: mediaFileData.fileName,
       );
     }).toList();
     return cardContentDataList;
   }
+}
 
+Future<List<MediaFileData>> queryDatasByIds(List<int> ids) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaFileData> mediaDataList =
+      await dataBase.mediaFileDataDao.queryDatasByIds(ids);
+  return mediaDataList;
 }

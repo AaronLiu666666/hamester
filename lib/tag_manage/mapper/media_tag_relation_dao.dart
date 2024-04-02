@@ -16,4 +16,6 @@ abstract class MediaTagRelationDao {
   @Query("select * from r_media_tag")
   Future<List<MediaTagRelation>> queryAllDataList();
 
+  @Query("select * from r_media_tag where tag_id = :tagId")
+  Future<List<MediaTagRelation>> queryRelationsByTagId(String tagId);
 }

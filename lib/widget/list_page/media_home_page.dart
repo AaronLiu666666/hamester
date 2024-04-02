@@ -1,5 +1,8 @@
-  import 'package:flutter/cupertino.dart';
+  import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
   import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
   import '../../tag_manage/model/dto/search_dto.dart';
   import 'media_list_page.dart';
@@ -24,9 +27,16 @@
     @override
     Widget build(BuildContext context) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Media Home Page'),
-        ),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(0), // 设置高度为0
+            child: AppBar(
+              backgroundColor: Colors.transparent, // 设置背景色为透明
+              elevation: 0,
+            ),
+          ),
+        // AppBar(
+        //   title: Text('Media Home Page'),
+        // ),
         // body: Column(
         //   crossAxisAlignment: CrossAxisAlignment.stretch,
         //   children: [
@@ -148,110 +158,102 @@
           children: [
             // 搜索框 自适应
             Expanded(
-              child: TextField(
+              child: TextFormField(
                 onChanged: (value) {
                   setState(() {
                     _searchText = value;
                   });
                 },
                 decoration: InputDecoration(
-                  hintText: '',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+                  hintText: '搜索内容...', // 提示文本
+                  prefixIcon: Icon(Icons.search), // 前缀图标
+                  border: OutlineInputBorder( // 边框样式
+                    borderRadius: BorderRadius.circular(10.0), // 边框圆角
+                    borderSide: BorderSide(color: Colors.grey), // 边框颜色
+                  ),
+                  focusedBorder: OutlineInputBorder( // 获得焦点时的边框样式
+                    borderRadius: BorderRadius.circular(10.0), // 边框圆角
+                    borderSide: BorderSide(color: Colors.blue), // 边框颜色
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0), // 调整文本的垂直内边距
                 ),
               ),
             ),
-            SizedBox(width: 10),
+            // SizedBox(width: 10),
             // 下拉框
-            DropdownButton<String>(
-              // 下拉框不下拉时显示第一个搜索内容
-              value: _fields.isNotEmpty ? _fields.first : null,
-              onChanged: (String? newValue) {
-                setState(() {
-                  if (_selectedFields.contains(newValue)) {
-                    _selectedFields.remove(newValue);
-                  } else {
-                    _selectedFields.add(newValue!);
-                  }
-                  _toggleOrderType(newValue!); // 更新排序类型
-                });
-              },
-              items: _fields.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          value,
-                          style: TextStyle(
-                            // 如果选择了该排序规则则显示蓝色，否则显示默认颜色黑色
-                            color: _selectedFields.contains(value) ? Colors.blue : null,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        _buildArrowIcon(value),
-                      ],
+            // DropdownButton<String>(
+            //   // 下拉框不下拉时显示第一个搜索内容
+            //   value: _fields.isNotEmpty ? _fields.first : null,
+            //   onChanged: (String? newValue) {
+            //     setState(() {
+            //       if (_selectedFields.contains(newValue)) {
+            //         _selectedFields.remove(newValue);
+            //       } else {
+            //         _selectedFields.add(newValue!);
+            //       }
+            //       _toggleOrderType(newValue!); // 更新排序类型
+            //     });
+            //   },
+            //   items: _fields.map<DropdownMenuItem<String>>((String value) {
+            //     return DropdownMenuItem<String>(
+            //       value: value,
+            //       child: Padding(
+            //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+            //         child: Row(
+            //           children: [
+            //             Text(
+            //               value,
+            //               style: TextStyle(
+            //                 // 如果选择了该排序规则则显示蓝色，否则显示默认颜色黑色
+            //                 color: _selectedFields.contains(value) ? Colors.blue : null,
+            //               ),
+            //             ),
+            //             SizedBox(width: 10),
+            //             _buildArrowIcon(value),
+            //           ],
+            //         ),
+            //       ),
+            //     );
+            //   }).toList(),
+            // ),
+            SizedBox(width:5),
+            SizedBox(
+              height: 50,
+              child: TextButton(
+                onPressed: () {
+                  // 构建搜索条件对象
+                  SearchDTO searchDTO = SearchDTO(
+                    content: _searchText,
+                    orders: _selectedFields.isNotEmpty
+                        ? _selectedFields.map((field) {
+                      return SearchOrder(
+                        field: field,
+                        orderType: _orderTypes[field]! ? 'asc' : 'desc',
+                      );
+                    }).toList()
+                        : null,
+                  );
+                  // 调用回调函数传递搜索条件
+                  widget.onSearch(searchDTO);
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // 设置按钮背景色
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // 设置文字颜色
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(15)), // 设置按钮内边距
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // 设置按钮圆角
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-            SizedBox(width: 10),
-            ElevatedButton(
-              onPressed: () {
-                // 构建搜索条件对象
-                SearchDTO searchDTO = SearchDTO(
-                  content: _searchText,
-                  orders: _selectedFields.isNotEmpty
-                      ? _selectedFields.map((field) {
-                    return SearchOrder(
-                      field: field,
-                      orderType: _orderTypes[field]! ? 'Ascending' : 'Descending',
-                    );
-                  }).toList()
-                      : null,
-                );
-                // 调用回调函数传递搜索条件
-                widget.onSearch(searchDTO);
-              },
-              child: Text('Search'),
-            ),
+                ),
+                child: Text('搜索'),
+              ),
+            )
           ],
         ),
       );
     }
 
-    // Widget _buildArrowIcon(String field) {
-    //   return IconButton(
-    //     icon: _orderTypes.containsKey(field)
-    //         ? _orderTypes[field]!
-    //         ? Icon(Icons.arrow_upward)
-    //         : Icon(Icons.arrow_downward)
-    //         : Icon(Icons.arrow_downward),
-    //     onPressed: () {
-    //       print('Arrow clicked for field: $field');
-    //       setState(() {
-    //         _toggleOrderType(field);
-    //         _updateArrowIcons();
-    //       });
-    //     },
-    //   );
-    // }
-    //
-    //
-    // void _toggleOrderType(String field) {
-    //   if (_orderTypes.containsKey(field)) {
-    //     _orderTypes[field] = !_orderTypes[field]!;
-    //   } else {
-    //     _orderTypes[field] = true;
-    //   }
-    // }
-    //
-    // void _updateArrowIcons() {
-    //   setState(() {}); // 触发重新构建以更新箭头图标
-    // }
     Widget _buildArrowIcon(String field) {
       bool? orderType = _orderTypes[field];
       if (orderType == null) {

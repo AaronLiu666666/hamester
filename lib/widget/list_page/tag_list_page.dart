@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hamster/tag_manage/tag_manage_service.dart';
+import 'package:hamster/widget/list_page/tag_detail_page.dart';
 
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/tag_info.dart';
@@ -24,6 +25,8 @@ class _TagListPageState extends State<TagListPage> {
 
   Future<void> _fetchData() async {
     List<TagInfo> tagInfoListFromDb = await getTagData(SearchDTO());
+    // todo 如果图片为空 则查询关联关系的图片
+
     setState(() {
       tagInfoList = tagInfoListFromDb;
     });
@@ -39,12 +42,15 @@ class _TagListPageState extends State<TagListPage> {
         TagInfo data = tagInfoList[index];
         return GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => VideoChewiePage(videoId:data.id,videoPath: data.path),
-            //   ),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TagDetailPage(id:data.id!),
+              ),
+            ).then((_) {
+              // 在返回到该页面时重新获取数据并更新列表
+              _fetchData();
+            });
           },
           onLongPress: () {
             // Navigator.push(

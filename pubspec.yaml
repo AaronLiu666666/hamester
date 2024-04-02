@@ -54,6 +54,7 @@ dependencies:
   get: ^4.6.6
   external_path: ^1.0.3
   chewie: 1.7.5
+  image_picker: ^0.8.4+4
 
 
   # The following adds the Cupertino Icons font to your application.

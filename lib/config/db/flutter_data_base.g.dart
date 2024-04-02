@@ -172,6 +172,33 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   }
 
   @override
+  Future<List<MediaFileData>> queryDatasByIds(List<int> ids) async {
+    const offset = 1;
+    final _sqliteVariablesForIds =
+        Iterable<String>.generate(ids.length, (i) => '?${i + offset}')
+            .join(',');
+    return _queryAdapter.queryList(
+        'SELECT * FROM media_file_data WHERE id IN (' +
+            _sqliteVariablesForIds +
+            ')',
+        mapper: (Map<String, Object?> row) => MediaFileData(
+            row['id'] as int?,
+            row['path'] as String?,
+            row['file_name'] as String?,
+            row['file_alias'] as String?,
+            row['file_md5'] as String?,
+            row['memo'] as String?,
+            row['cover'] as String?,
+            row['source_url'] as String?,
+            row['last_play_moment'] as int?,
+            row['last_play_time'] as int?,
+            row['play_num'] as int?,
+            row['create_time'] as int?,
+            row['update_time'] as int?),
+        arguments: [...ids]);
+  }
+
+  @override
   Future<void> insertMember(MediaFileData data) async {
     await _mediaFileDataInsertionAdapter.insert(data, OnConflictStrategy.abort);
   }
@@ -198,6 +225,18 @@ class _$TagInfoDao extends TagInfoDao {
                   'tag_pic': item.tagPic,
                   'create_time': item.createTime,
                   'update_time': item.updateTime
+                }),
+        _tagInfoUpdateAdapter = UpdateAdapter(
+            database,
+            'tag_info',
+            ['id'],
+            (TagInfo item) => <String, Object?>{
+                  'id': item.id,
+                  'tag_name': item.tagName,
+                  'tag_desc': item.tagDesc,
+                  'tag_pic': item.tagPic,
+                  'create_time': item.createTime,
+                  'update_time': item.updateTime
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -207,6 +246,8 @@ class _$TagInfoDao extends TagInfoDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<TagInfo> _tagInfoInsertionAdapter;
+
+  final UpdateAdapter<TagInfo> _tagInfoUpdateAdapter;
 
   @override
   Future<List<TagInfo>> queryTagsByTagName(String tagName) async {
@@ -234,6 +275,19 @@ class _$TagInfoDao extends TagInfoDao {
   }
 
   @override
+  Future<TagInfo?> queryDataById(String id) async {
+    return _queryAdapter.query('select * from tag_info where id = ?1',
+        mapper: (Map<String, Object?> row) => TagInfo(
+            id: row['id'] as String?,
+            tagName: row['tag_name'] as String?,
+            tagDesc: row['tag_desc'] as String?,
+            tagPic: row['tag_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
+        arguments: [id]);
+  }
+
+  @override
   Future<void> insertOne(TagInfo tagInfo) async {
     await _tagInfoInsertionAdapter.insert(tagInfo, OnConflictStrategy.abort);
   }
@@ -241,6 +295,11 @@ class _$TagInfoDao extends TagInfoDao {
   @override
   Future<void> insertList(List<TagInfo> list) async {
     await _tagInfoInsertionAdapter.insertList(list, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateData(TagInfo tagInfo) async {
+    await _tagInfoUpdateAdapter.update(tagInfo, OnConflictStrategy.abort);
   }
 }
 
@@ -283,6 +342,22 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?));
+  }
+
+  @override
+  Future<List<MediaTagRelation>> queryRelationsByTagId(String tagId) async {
+    return _queryAdapter.queryList(
+        'select * from r_media_tag where tag_id = ?1',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(
+            id: row['id'] as String?,
+            mediaId: row['media_id'] as int?,
+            tagId: row['tag_id'] as String?,
+            mediaMoment: row['media_moment'] as int?,
+            relationDesc: row['relation_desc'] as String?,
+            mediaMomentPic: row['media_moment_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
+        arguments: [tagId]);
   }
 
   @override
