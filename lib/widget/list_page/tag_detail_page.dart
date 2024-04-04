@@ -68,7 +68,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
       _mediaList = mediaList;
       _relationList = relations;
       if (null != tagInfo.tagPic) {
-        if(!tagInfo.tagPic!.isEmpty) {
+        if(tagInfo.tagPic!.isNotEmpty) {
           _picPath = tagInfo.tagPic!.split(',');
         }
       }
@@ -141,32 +141,6 @@ class _TagDetailPageState extends State<TagDetailPage> {
 
   void _showImageSelectionDialog() {
     _addImage();
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return AlertDialog(
-    //       title: Text('选择照片'),
-    //       content: Text('这里是选择照片的界面'),
-    //       actions: <Widget>[
-    //         TextButton(
-    //           onPressed: () {
-    //             Navigator.of(context).pop();
-    //           },
-    //           child: Text('取消'),
-    //         ),
-    //         TextButton(
-    //           onPressed: () async {
-    //             Navigator.of(context).pop();
-    //             // final pickedImage =
-    //             //     await ImagePicker().pickImage(source: ImageSource.gallery);
-    //             _addImage();
-    //           },
-    //           child: Text('确定'),
-    //         ),
-    //       ],
-    //     );
-    //   },
-    // );
   }
 
   void _addImage() async {
@@ -177,18 +151,6 @@ class _TagDetailPageState extends State<TagDetailPage> {
         _picPath.add(pickedFile.path);
       });
     }
-  }
-
-  /// 图片选取
-  Future<void> getImage() async {
-    final XFile? file = await ImagePicker().pickImage(
-      source: ImageSource.gallery, // 图库选择
-      maxWidth: 1000.0, // 设置图片最大宽度，间接压缩了图片的体积
-    );
-
-    /// 选取图片失败file为null，要注意判断下。
-    /// 获取图片路径后可以上传到服务器上
-    print('${file?.path}');
   }
 
   void _removeImage(int index) {

@@ -19,6 +19,13 @@ class MediaManageService {
     // 遍历文件目录寻找视频文件
     await requestPermissionDefault();
 
+    // 修改存储图片的路径为应用内部存储目录下的子目录
+    String picStorePath = await getPicStorePath();
+    // 检查目录是否存在，如果不存在则创建目录
+    Directory picStoreDir = Directory(picStorePath);
+    if (!await picStoreDir.exists()) {
+      picStoreDir.createSync(recursive: true);
+    }
     String mediaSearchDirStr = ConfigManager.getString("media_search_dir");
     Directory directory = Directory(mediaSearchDirStr);
     List<File> mediaFileList = await findFilesAsync(directory);
@@ -28,7 +35,6 @@ class MediaManageService {
     } else {
       print("未找到视频文件。");
     }
-    String picStoreDir = ConfigManager.getString('pic_store_dir');
     final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
     List<MediaFileData> allMediaInDb =
         await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
@@ -44,22 +50,24 @@ class MediaManageService {
 
     for (var video in mediaFilteredList) {
       String picFilename = UuidGenerator.generateUuid() + ".jpg";
-      String picPath = "$picStoreDir/$picFilename";
+      String picPath = "$picStorePath/$picFilename";
       getFirstFrame(video.path, picPath);
       MediaFileData mediaFileData = MediaFileData(
-          null,
-          video.path,
-          getFileDisplayName(video),
-          null,
-          calculateMD5(video),
-          null,
-          picFilename,
-          null,
-          0,
-          0,
-          0,
-          DateTime.now().millisecondsSinceEpoch,
-          DateTime.now().millisecondsSinceEpoch);
+          id: null,
+          path: video.path,
+          fileName: getFileDisplayName(video),
+          fileAlias: null,
+          // calculateMD5(video),
+          // md5 计算可以搞个类似于定时任务的，后台进行计算
+          fileMd5: null,
+          memo: null,
+          cover: picPath,
+          sourceUrl: null,
+          lastPlayMoment: 0,
+          lastPlayTime: 0,
+          playNum: 0,
+          createTime: DateTime.now().millisecondsSinceEpoch,
+          updateTime: DateTime.now().millisecondsSinceEpoch);
       await dataBase.mediaFileDataDao.insertMember(mediaFileData);
     }
     List<MediaFileData> list =
@@ -72,17 +80,6 @@ class MediaManageService {
     final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
     List<MediaFileData> list =
         await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
-    list.add(list[0]);
     return list;
   }
 
@@ -95,8 +92,7 @@ class MediaManageService {
         id: mediaFileData.id ?? 0,
         path: mediaFileData.path ?? "",
         fileName: mediaFileData.fileName ?? "",
-        url:
-            "${ConfigManager.getString("pic_store_dir")}/${mediaFileData.cover}",
+        url: mediaFileData.cover ?? "",
         text: mediaFileData.fileName,
       );
     }).toList();
@@ -104,9 +100,64 @@ class MediaManageService {
   }
 }
 
+Future<List<CardContentData>> getMediaData2CardContentData(
+    SearchDTO searchDto) async {
+  List<MediaFileData> mediaFileDataList = await getMediaData(searchDto);
+  List<CardContentData> cardContentDataList =
+      mediaFileDataList.map((mediaFileData) {
+    return CardContentData(
+      id: mediaFileData.id ?? 0,
+      path: mediaFileData.path ?? "",
+      fileName: mediaFileData.fileName ?? "",
+      url: mediaFileData.cover ?? "",
+      text: mediaFileData.fileName,
+    );
+  }).toList();
+  return cardContentDataList;
+}
+
+// 根据条件查询符合条件的媒体信息列表
+Future<List<MediaFileData>> getMediaData(SearchDTO searchDto) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaFileData> list =
+      await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
+  return list;
+}
+
 Future<List<MediaFileData>> queryDatasByIds(List<int> ids) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   List<MediaFileData> mediaDataList =
       await dataBase.mediaFileDataDao.queryDatasByIds(ids);
   return mediaDataList;
+}
+
+Future<MediaFileData?> queryMediaDataById(int id) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  MediaFileData? data = await dataBase.mediaFileDataDao.queryMediaDataById(id);
+  return data;
+}
+
+// 根据搜索条件搜索视频媒体列表
+Future<List<CardContentData>> searchMediaDataBySearchDTO(
+    SearchDTO searchDTO) async {
+  List<MediaFileData> mediaFileDataList = List.empty();
+  // 如果查询条件为空或者为null，则返回全部数据
+  if (searchDTO.content == null || searchDTO.content!.isEmpty) {
+    mediaFileDataList = await getMediaData(searchDTO);
+  } else {
+    final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+    mediaFileDataList =
+        await dataBase.mediaFileDataDao.searchMedia(searchDTO.content!);
+  }
+  List<CardContentData> cardContentDataList =
+      mediaFileDataList.map((mediaFileData) {
+    return CardContentData(
+      id: mediaFileData.id ?? 0,
+      path: mediaFileData.path ?? "",
+      fileName: mediaFileData.fileName ?? "",
+      url: mediaFileData.cover ?? "",
+      text: mediaFileData.fileName,
+    );
+  }).toList();
+  return cardContentDataList;
 }

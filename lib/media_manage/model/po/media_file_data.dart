@@ -35,14 +35,16 @@ class MediaFileData {
   @ColumnInfo(name: "update_time")
   int?updateTime;
 
-  MediaFileData(this.id, this.path, this.fileName, this.fileAlias, this.fileMd5,
-      this.memo,
-      this.cover,
-      this.sourceUrl,
-      this.lastPlayMoment,
-      this.lastPlayTime,
-      this.playNum,
-      this.createTime, this.updateTime);
+  MediaFileData({
+    this.id, this.path, this.fileName, this.fileAlias, this.fileMd5,
+    this.memo,
+    this.cover,
+    this.sourceUrl,
+    this.lastPlayMoment,
+    this.lastPlayTime,
+    this.playNum,
+    this.createTime, this.updateTime
+});
 
   // 可以添加一些帮助方法，用于在需要时转换为 DateTime
   DateTime get createTimeAsDateTime => DateTime.fromMillisecondsSinceEpoch(createTime!);

@@ -19,3 +19,14 @@ class SearchOrder {
 
   SearchOrder({this.field, this.orderType});
 }
+
+class SearchResult<T> {
+  // 查询结果列表
+  List<T>? dataList;
+
+  // 查询是否成功
+  bool success;
+
+  SearchResult({this.dataList, required this.success});
+}
+

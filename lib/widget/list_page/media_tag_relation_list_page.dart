@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
+import '../detail_page/relation_detial_page.dart';
 
 
 /// 媒体标签关联关系页面
@@ -45,12 +46,15 @@ class _MediaTagRelationListPage extends State<MediaTagRelationListPage> {
         MediaTagRelation data = relationList[index];
         return GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => VideoChewiePage(videoId:data.id,videoPath: data.path),
-            //   ),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RelationDetailPage(id:data.id!),
+              ),
+            ).then((_) {
+              // 在返回到该页面时重新获取数据并更新列表
+              _fetchData();
+            });
           },
           onLongPress: () {
             // Navigator.push(

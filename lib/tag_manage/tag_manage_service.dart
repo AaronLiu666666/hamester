@@ -50,7 +50,7 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   }
   MediaTagRelation mediaTagRelation = MediaTagRelation(
       id: UuidGenerator.generateUuid(),
-      mediaId: null,
+      mediaId: dto.mediaId,
       tagId: tagInfo.id,
       mediaMoment: dto.mediaMoment,
       relationDesc: dto.description,

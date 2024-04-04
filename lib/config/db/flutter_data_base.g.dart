@@ -156,19 +156,19 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   Future<List<MediaFileData>> queryAllMediaFileDataList() async {
     return _queryAdapter.queryList('select * from media_file_data',
         mapper: (Map<String, Object?> row) => MediaFileData(
-            row['id'] as int?,
-            row['path'] as String?,
-            row['file_name'] as String?,
-            row['file_alias'] as String?,
-            row['file_md5'] as String?,
-            row['memo'] as String?,
-            row['cover'] as String?,
-            row['source_url'] as String?,
-            row['last_play_moment'] as int?,
-            row['last_play_time'] as int?,
-            row['play_num'] as int?,
-            row['create_time'] as int?,
-            row['update_time'] as int?));
+            id: row['id'] as int?,
+            path: row['path'] as String?,
+            fileName: row['file_name'] as String?,
+            fileAlias: row['file_alias'] as String?,
+            fileMd5: row['file_md5'] as String?,
+            memo: row['memo'] as String?,
+            cover: row['cover'] as String?,
+            sourceUrl: row['source_url'] as String?,
+            lastPlayMoment: row['last_play_moment'] as int?,
+            lastPlayTime: row['last_play_time'] as int?,
+            playNum: row['play_num'] as int?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?));
   }
 
   @override
@@ -182,20 +182,48 @@ class _$MediaFileDataDao extends MediaFileDataDao {
             _sqliteVariablesForIds +
             ')',
         mapper: (Map<String, Object?> row) => MediaFileData(
-            row['id'] as int?,
-            row['path'] as String?,
-            row['file_name'] as String?,
-            row['file_alias'] as String?,
-            row['file_md5'] as String?,
-            row['memo'] as String?,
-            row['cover'] as String?,
-            row['source_url'] as String?,
-            row['last_play_moment'] as int?,
-            row['last_play_time'] as int?,
-            row['play_num'] as int?,
-            row['create_time'] as int?,
-            row['update_time'] as int?),
+            id: row['id'] as int?,
+            path: row['path'] as String?,
+            fileName: row['file_name'] as String?,
+            fileAlias: row['file_alias'] as String?,
+            fileMd5: row['file_md5'] as String?,
+            memo: row['memo'] as String?,
+            cover: row['cover'] as String?,
+            sourceUrl: row['source_url'] as String?,
+            lastPlayMoment: row['last_play_moment'] as int?,
+            lastPlayTime: row['last_play_time'] as int?,
+            playNum: row['play_num'] as int?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
         arguments: [...ids]);
+  }
+
+  @override
+  Future<MediaFileData?> queryMediaDataById(int id) async {
+    return _queryAdapter.query('SELECT * FROM media_file_data WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => MediaFileData(
+            id: row['id'] as int?,
+            path: row['path'] as String?,
+            fileName: row['file_name'] as String?,
+            fileAlias: row['file_alias'] as String?,
+            fileMd5: row['file_md5'] as String?,
+            memo: row['memo'] as String?,
+            cover: row['cover'] as String?,
+            sourceUrl: row['source_url'] as String?,
+            lastPlayMoment: row['last_play_moment'] as int?,
+            lastPlayTime: row['last_play_time'] as int?,
+            playNum: row['play_num'] as int?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<MediaFileData>> searchMedia(String content) async {
+    return _queryAdapter.queryList(
+        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN tag_info ti ON mfd.id = ti.id   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id   WHERE mfd.file_name LIKE \'%\' || ?1 || \'%\'      OR mfd.file_alias LIKE \'%\' || ?1 || \'%\'      OR mfd.memo LIKE \'%\' || ?1 || \'%\'      OR ti.tag_name LIKE \'%\' || ?1 || \'%\'      OR ti.tag_desc LIKE \'%\' || ?1 || \'%\'      OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\'',
+        mapper: (Map<String, Object?> row) => MediaFileData(id: row['id'] as int?, path: row['path'] as String?, fileName: row['file_name'] as String?, fileAlias: row['file_alias'] as String?, fileMd5: row['file_md5'] as String?, memo: row['memo'] as String?, cover: row['cover'] as String?, sourceUrl: row['source_url'] as String?, lastPlayMoment: row['last_play_moment'] as int?, lastPlayTime: row['last_play_time'] as int?, playNum: row['play_num'] as int?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [content]);
   }
 
   @override
@@ -320,6 +348,20 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
                   'media_moment_pic': item.mediaMomentPic,
                   'create_time': item.createTime,
                   'update_time': item.updateTime
+                }),
+        _mediaTagRelationUpdateAdapter = UpdateAdapter(
+            database,
+            'r_media_tag',
+            ['id'],
+            (MediaTagRelation item) => <String, Object?>{
+                  'id': item.id,
+                  'media_id': item.mediaId,
+                  'tag_id': item.tagId,
+                  'media_moment': item.mediaMoment,
+                  'relation_desc': item.relationDesc,
+                  'media_moment_pic': item.mediaMomentPic,
+                  'create_time': item.createTime,
+                  'update_time': item.updateTime
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -329,6 +371,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<MediaTagRelation> _mediaTagRelationInsertionAdapter;
+
+  final UpdateAdapter<MediaTagRelation> _mediaTagRelationUpdateAdapter;
 
   @override
   Future<List<MediaTagRelation>> queryAllDataList() async {
@@ -361,6 +405,21 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   }
 
   @override
+  Future<MediaTagRelation?> queryRelationById(String id) async {
+    return _queryAdapter.query('select * from r_media_tag where id = ?1',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(
+            id: row['id'] as String?,
+            mediaId: row['media_id'] as int?,
+            tagId: row['tag_id'] as String?,
+            mediaMoment: row['media_moment'] as int?,
+            relationDesc: row['relation_desc'] as String?,
+            mediaMomentPic: row['media_moment_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?),
+        arguments: [id]);
+  }
+
+  @override
   Future<void> insertOne(MediaTagRelation mediaTagRelation) async {
     await _mediaTagRelationInsertionAdapter.insert(
         mediaTagRelation, OnConflictStrategy.abort);
@@ -370,5 +429,11 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   Future<void> insertList(List<MediaTagRelation> list) async {
     await _mediaTagRelationInsertionAdapter.insertList(
         list, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateRelation(MediaTagRelation relation) async {
+    await _mediaTagRelationUpdateAdapter.update(
+        relation, OnConflictStrategy.abort);
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:hamster/permission/permission_util.dart';
+import 'package:path_provider/path_provider.dart';
 
 // 找视频文件
 List<File> findVideoFiles(Directory directory) {
@@ -15,7 +16,7 @@ List<File> findVideoFiles(Directory directory) {
           videoFiles.add(entity);
         }
       } else if (entity is Directory) {
-        // search(entity); // 递归遍历子文件夹
+        search(entity); // 递归遍历子文件夹
       }
     });
   }
@@ -38,4 +39,14 @@ void main() async {
   } else {
     print("未找到视频文件。");
   }
+}
+
+// 获取应用内部存储目录路径
+Future<String> getInternalStorageDirectory() async {
+  Directory appDocDir = await getApplicationDocumentsDirectory();
+  return appDocDir.path;
+}
+Future<String> getPicStorePath() async {
+  String internalStorageDir = await getInternalStorageDirectory();
+  return '$internalStorageDir/pic_store/';
 }

@@ -55,6 +55,8 @@ dependencies:
   external_path: ^1.0.3
   chewie: 1.7.5
   image_picker: ^0.8.4+4
+  provider: ^6.0.5
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -84,6 +86,7 @@ dev_dependencies:
   flutter_config: ^2.0.2
   uuid: ^3.0.4
   flutter_dotenv: ^5.1.0
+  provider: ^6.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
