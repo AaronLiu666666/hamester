@@ -40,6 +40,13 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
   if (tagInfos.isNotEmpty) {
     tagInfo = tagInfos[0];
+    String? tagPicConcat = tagInfo.tagPic;
+    // 如果标签没有图片，选择第一次建立关联的关联时刻图作为tag的图片和封面
+    if (null == tagPicConcat || tagPicConcat.isEmpty) {
+      tagPicConcat = dto.picPath;
+      // 更新tag
+      dataBase.tagInfoDao.updateData(tagInfo);
+    }
   } else {
     tagInfo = TagInfo();
     tagInfo.id = UuidGenerator.generateUuid();

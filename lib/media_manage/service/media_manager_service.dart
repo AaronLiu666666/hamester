@@ -6,6 +6,7 @@ import 'package:hamster/media_manage/model/po/media_file_data.dart';
 
 import '../../config/config_manage/config_manage.dart';
 import '../../config/db/flutter_data_base.dart';
+import '../../config/environment/environment_config.dart';
 import '../../config/id_generator/id_generator.dart';
 import '../../customWidget/mainPage.dart';
 import '../../file/file_finder_enhanced.dart';
@@ -15,6 +16,7 @@ import '../../tag_manage/model/dto/search_dto.dart';
 
 class MediaManageService {
   Future<void> initMediaFileData() async {
+    print("开始初始化媒体数据");
     // 创建数据表 判断是否存在数据表 由floor框架自动完成
     // 遍历文件目录寻找视频文件
     await requestPermissionDefault();
@@ -26,14 +28,27 @@ class MediaManageService {
     if (!await picStoreDir.exists()) {
       picStoreDir.createSync(recursive: true);
     }
-    String mediaSearchDirStr = ConfigManager.getString("media_search_dir");
-    Directory directory = Directory(mediaSearchDirStr);
-    List<File> mediaFileList = await findFilesAsync(directory);
-    if (mediaFileList.isNotEmpty) {
-      print("视频文件：");
-      mediaFileList.forEach((file) => print(file.path));
-    } else {
-      print("未找到视频文件。");
+    // String mediaSearchDirStr = ConfigManager.getString("media_search_dir");
+    List<String> searchPaths = EnvironmentConfig.searchPaths;
+    if(null == searchPaths || searchPaths.isEmpty) {
+      print("扫描路径列表为空");
+      return;
+    }
+    // 遍历searchPaths列表
+    List<File> mediaFileList = List.empty(growable: true);
+    for (String path in searchPaths) {
+      Directory pathDir = Directory(path);
+      if(!pathDir.existsSync()){
+        continue;
+      }
+      List<File> files = await findFilesAsync(pathDir);
+      if (files.isNotEmpty) {
+        mediaFileList.addAll(files);
+      }
+    }
+    if(null==mediaFileList||mediaFileList.isEmpty) {
+      print("媒体扫描结果为空");
+      return;
     }
     final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
     List<MediaFileData> allMediaInDb =
@@ -70,8 +85,6 @@ class MediaManageService {
           updateTime: DateTime.now().millisecondsSinceEpoch);
       await dataBase.mediaFileDataDao.insertMember(mediaFileData);
     }
-    List<MediaFileData> list =
-        await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
     print("媒体文件扫描结束");
   }
 

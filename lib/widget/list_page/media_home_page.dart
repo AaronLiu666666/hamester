@@ -104,9 +104,13 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-  String? _searchText; // 搜索框文本
+  // String? _searchText; // 搜索框文本
   Set<String> _selectedFields = {}; // 选中的排序字段
   Map<String, bool> _orderTypes = {}; // 排序类型与方向的映射
+
+  // 使用controller是为了 在点击x叉号清除搜索内容时，用controller的clear清空内容
+  TextEditingController _searchController = TextEditingController(); // 添加一个TextEditingController
+
 
   List<String> _fields = ['Field 1', 'Field 2', 'Field 3']; // 排序字段列表
 
@@ -119,9 +123,11 @@ class _SearchWidgetState extends State<SearchWidget> {
           // 搜索框 自适应
           Expanded(
             child: TextFormField(
+              controller: _searchController,
               onChanged: (value) {
                 setState(() {
-                  _searchText = value;
+                  // _searchText = value;
+                  _searchController.text = value;
                 });
               },
               decoration: InputDecoration(
@@ -145,13 +151,39 @@ class _SearchWidgetState extends State<SearchWidget> {
             ),
           ),
           SizedBox(width: 5),
+          Visibility(
+            // 搜索内容非空显示叉号
+            visible: _searchController.text.isNotEmpty,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  // _searchText = ""; // 清空搜索框内容
+                  // 点击清除按钮时，清空TextEditingController中的文本内容
+                  _searchController.clear();
+                });
+                SearchDTO searchDTO = SearchDTO(
+                  content: _searchController.text,
+                  orders: _selectedFields.isNotEmpty
+                      ? _selectedFields.map((field) {
+                    return SearchOrder(
+                      field: field,
+                      orderType: _orderTypes[field]! ? 'asc' : 'desc',
+                    );
+                  }).toList()
+                      : null,
+                );
+                widget.onSearch(searchDTO);
+              },
+              child: Icon(Icons.clear), // 清除按钮
+            ),
+          ),
           SizedBox(
             height: 50,
             child: TextButton(
               onPressed: () {
                 // 构建搜索条件对象
                 SearchDTO searchDTO = SearchDTO(
-                  content: _searchText,
+                  content: _searchController.text,
                   orders: _selectedFields.isNotEmpty
                       ? _selectedFields.map((field) {
                           return SearchOrder(
@@ -184,5 +216,10 @@ class _SearchWidgetState extends State<SearchWidget> {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    _searchController.dispose(); // 释放资源
+    super.dispose();
   }
 }

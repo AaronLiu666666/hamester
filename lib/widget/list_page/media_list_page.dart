@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hamster/media_manage/service/media_manager_service.dart';
 import 'package:provider/provider.dart';
 
@@ -39,17 +40,24 @@ class _MediaListPageState extends State<MediaListPage> {
   }
 
   Future<void> _fetchData() async {
-    // MediaManageService mediaManageService = MediaManageService();
-    // mediaManageService.initMediaFileData();
     _search();
+  }
+
+  Future<void> _refreshData() async {
+    MediaManageService mediaManageService = MediaManageService();
+    mediaManageService.initMediaFileData();
   }
 
   @override
   Widget build(BuildContext context) {
     int crossAxisCount = 2; // 设置网格列数
-    return GridView.count(
-      crossAxisCount: crossAxisCount,
-      children: dataList.map((data) => CardWidget(data: data)).toList(),
+    // todo 初始化和遍历文件逻辑目前不太好，比较耗时，现在暂时用下拉页面初始化数据的方式
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: GridView.count(
+        crossAxisCount: crossAxisCount,
+        children: dataList.map((data) => CardWidget(data: data)).toList(),
+      ),
     );
   }
 
