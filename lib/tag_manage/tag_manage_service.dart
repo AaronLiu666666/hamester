@@ -53,6 +53,7 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
     tagInfo.tagName = dto.tagName;
     tagInfo.createTime = nowMilliseconds;
     tagInfo.updateTime = nowMilliseconds;
+    tagInfo.tagPic = dto.picPath;
     await dataBase.tagInfoDao.insertOne(tagInfo);
   }
   MediaTagRelation mediaTagRelation = MediaTagRelation(

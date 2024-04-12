@@ -451,7 +451,8 @@ class _$AppConfigDao extends AppConfigDao {
   _$AppConfigDao(
     this.database,
     this.changeListener,
-  )   : _appConfigInsertionAdapter = InsertionAdapter(
+  )   : _queryAdapter = QueryAdapter(database),
+        _appConfigInsertionAdapter = InsertionAdapter(
             database,
             'app_config',
             (AppConfig item) => <String, Object?>{
@@ -477,9 +478,24 @@ class _$AppConfigDao extends AppConfigDao {
 
   final StreamController<String> changeListener;
 
+  final QueryAdapter _queryAdapter;
+
   final InsertionAdapter<AppConfig> _appConfigInsertionAdapter;
 
   final UpdateAdapter<AppConfig> _appConfigUpdateAdapter;
+
+  @override
+  Future<AppConfig?> selectAppConfigByType(String configType) async {
+    return _queryAdapter.query(
+        'select * from app_config where type = ?1 limit 1',
+        mapper: (Map<String, Object?> row) => AppConfig(
+            id: row['id'] as int?,
+            type: row['type'] as String?,
+            content: row['content'] as String?,
+            createTime: row['createTime'] as int?,
+            updateTime: row['updateTime'] as int?),
+        arguments: [configType]);
+  }
 
   @override
   Future<void> insertAppConfig(AppConfig appConfig) async {

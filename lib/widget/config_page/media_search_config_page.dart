@@ -1,5 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hamster/app_config_manage/model/enums/app_config_constant.dart';
+
+import '../../app_config_manage/model/po/app_config_po.dart';
+import '../../app_config_manage/service/app_config_service.dart';
 
 class MediaSearchConfigPage extends StatefulWidget {
   @override
@@ -55,6 +59,26 @@ class _MediaSearchConfigPageState extends State<MediaSearchConfigPage> {
     );
   }
 
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    AppConfig? appConfig = await getAppConfigByType(AppConfigConstant.MEDIA_SEARCH_CONFIG);
+    if(null!=appConfig){
+      String? pathConcat = appConfig.content;
+      if(null!=appConfig.content&&appConfig.content!.isNotEmpty){
+        List<String> pathList = pathConcat!.split(",");
+        setState(() {
+          _selectedFolders = pathList;
+        });
+      }
+    }
+  }
+
   // 选择文件夹
   void _pickFolder() async {
     // 这里调用文件管理器或者文件选择插件选择文件夹
@@ -82,6 +106,12 @@ class _MediaSearchConfigPageState extends State<MediaSearchConfigPage> {
   // 保存已选文件夹
   void _saveSelectedFolders() {
     // 这里执行保存操作，可以将selectedFolders保存到本地或执行其他逻辑
+    String pathConcat = _selectedFolders.join(",");
     print('已保存的文件夹路径：$_selectedFolders');
+    AppConfig appConfig = AppConfig(
+      type:AppConfigConstant.MEDIA_SEARCH_CONFIG,
+      content: pathConcat,
+    );
+    insertOrUpdateAppConfig(appConfig);
   }
 }

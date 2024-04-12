@@ -4,6 +4,7 @@ import 'package:hamster/config/db/flutter_database_manager.dart';
 import 'package:hamster/file/file_util.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 
+import '../../app_config_manage/service/app_config_service.dart';
 import '../../config/config_manage/config_manage.dart';
 import '../../config/db/flutter_data_base.dart';
 import '../../config/environment/environment_config.dart';
@@ -29,7 +30,8 @@ class MediaManageService {
       picStoreDir.createSync(recursive: true);
     }
     // String mediaSearchDirStr = ConfigManager.getString("media_search_dir");
-    List<String> searchPaths = EnvironmentConfig.searchPaths;
+    // List<String> searchPaths = EnvironmentConfig.searchPaths;
+    List<String> searchPaths = await getMediaSearchConfigList();
     if(null == searchPaths || searchPaths.isEmpty) {
       print("扫描路径列表为空");
       return;

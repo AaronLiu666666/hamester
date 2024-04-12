@@ -12,4 +12,7 @@ abstract class AppConfigDao {
   @update
   Future<void> updateAppConfig(AppConfig appConfig);
 
+  @Query("select * from app_config where type = :configType limit 1")
+  Future<AppConfig?> selectAppConfigByType(String configType);
+
 }

@@ -53,12 +53,12 @@ class _MediaHomePageState extends State<MediaHomePage> {
                 );
               },
             ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Do something
-              },
-            ),
+            // ListTile(
+            //   title: Text('Item 2'),
+            //   onTap: () {
+            //     // Do something
+            //   },
+            // ),
           ],
         ),
       ),
