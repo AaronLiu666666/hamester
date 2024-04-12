@@ -22,11 +22,13 @@ class CustomMaterialControls extends StatefulWidget {
   const CustomMaterialControls({
     this.showPlayButton = true,
     required this.videoId,
+    this.seekTo, // 可选参数 seekTo
     Key? key,
   }) : super(key: key);
 
   final bool showPlayButton;
   final int videoId; // 声明 videoId 字段
+  final int? seekTo; // 可选参数 seekTo
 
 
   @override
@@ -525,6 +527,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
           notifier.hideStuff = false;
         });
       });
+    }
+    // 如果 seekTo 不为空，并且视频已经初始化，则跳转到指定位置
+    if (widget.seekTo != null && controller.value.isInitialized) {
+      await controller.seekTo(Duration(milliseconds: widget.seekTo!));
     }
   }
 

@@ -232,6 +232,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
                   builder: (context) => VideoChewiePage(
                     videoId: _relationMediaMap[data.id!]!.id!,
                     videoPath: _relationMediaMap[data.id!]!.path!,
+                    seekTo: data.mediaMoment,
                   ),
                 ),
               );

@@ -13,7 +13,9 @@ class VideoChewiePage extends StatefulWidget {
 
   final String videoPath;
 
-  VideoChewiePage({required this.videoId,required this.videoPath});
+  final int? seekTo;
+
+  VideoChewiePage({required this.videoId,required this.videoPath,this.seekTo});
 
   @override
   _VideoChewiePageState createState() => _VideoChewiePageState();
@@ -37,7 +39,7 @@ class _VideoChewiePageState extends State<VideoChewiePage> {
       autoPlay: true,
       looping: false,
       showControls: true,
-      customControls: CustomMaterialControls(videoId: widget.videoId,),
+      customControls: CustomMaterialControls(videoId: widget.videoId,seekTo: widget.seekTo,),
     );
     //该监听器会在_videoPlayerController的状态发生变化时被调用
     _videoPlayerController.addListener(() {
