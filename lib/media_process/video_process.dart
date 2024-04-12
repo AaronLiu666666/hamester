@@ -2,6 +2,8 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 
+import '../file/file_finder_enhanced.dart';
+
 Future<void> getFirstFrame(String inputFilePath, String outputImagePath) async {
   try {
     // 使用 FFmpeg 命令获取第一帧图片
@@ -27,7 +29,8 @@ Future<void> getFirstFrame(String inputFilePath, String outputImagePath) async {
 
 Future<String> getFrameAtMoment(String inputFilePath, Duration duration) async {
   try {
-    String outputImagePath = "/storage/emulated/0/Download/"+DateTime.now().millisecondsSinceEpoch.toString()+".jpg";
+    String picStorePath = await getPicStorePath();
+    String outputImagePath = picStorePath+"frame_"+DateTime.now().millisecondsSinceEpoch.toString()+".jpg";
     // 将持续时间转换为视频起始时间的格式（HH:MM:SS.sss）
     String startTime = _formatDuration(duration);
 

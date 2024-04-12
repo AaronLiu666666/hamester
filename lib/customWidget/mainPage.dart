@@ -60,18 +60,3 @@ class CardWidget extends StatelessWidget {
         ));
   }
 }
-
-class MainPageWidget extends StatelessWidget {
-  List<CardContentData> datas;
-
-  MainPageWidget({required this.datas});
-
-  @override
-  Widget build(BuildContext context) {
-    int crossAxisCount = 2; // 设置网格列数
-    return GridView.count(
-      crossAxisCount: crossAxisCount,
-      children: datas.map((data) => CardWidget(data: data)).toList(),
-    );
-  }
-}

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/chewie_player.dart';
@@ -12,14 +11,13 @@ import 'package:chewie/src/models/option_item.dart';
 import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/material.dart';
-import 'package:hamster/utils/video_player_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../media_process/video_process.dart';
 import '../tag/media_tag_add_widget.dart';
-import '../video/video_player_center.dart';
 
+/// 直接copy chewie的MaterialControls类，拿来进行魔改 chewie的ChewieController默认用的就是这个MaterialControls
 class CustomMaterialControls extends StatefulWidget {
   const CustomMaterialControls({
     this.showPlayButton = true,

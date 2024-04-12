@@ -67,6 +67,8 @@ class _$FlutterDataBase extends FlutterDataBase {
 
   MediaTagRelationDao? _mediaTagRelationDaoInstance;
 
+  AppConfigDao? _appConfigDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -94,6 +96,8 @@ class _$FlutterDataBase extends FlutterDataBase {
             'CREATE TABLE IF NOT EXISTS `tag_info` (`id` TEXT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `app_config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` TEXT, `content` TEXT, `createTime` INTEGER, `updateTime` INTEGER)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -116,6 +120,11 @@ class _$FlutterDataBase extends FlutterDataBase {
   MediaTagRelationDao get mediaTagRelationDao {
     return _mediaTagRelationDaoInstance ??=
         _$MediaTagRelationDao(database, changeListener);
+  }
+
+  @override
+  AppConfigDao get appConfigDao {
+    return _appConfigDaoInstance ??= _$AppConfigDao(database, changeListener);
   }
 }
 
@@ -435,5 +444,51 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   Future<void> updateRelation(MediaTagRelation relation) async {
     await _mediaTagRelationUpdateAdapter.update(
         relation, OnConflictStrategy.abort);
+  }
+}
+
+class _$AppConfigDao extends AppConfigDao {
+  _$AppConfigDao(
+    this.database,
+    this.changeListener,
+  )   : _appConfigInsertionAdapter = InsertionAdapter(
+            database,
+            'app_config',
+            (AppConfig item) => <String, Object?>{
+                  'id': item.id,
+                  'type': item.type,
+                  'content': item.content,
+                  'createTime': item.createTime,
+                  'updateTime': item.updateTime
+                }),
+        _appConfigUpdateAdapter = UpdateAdapter(
+            database,
+            'app_config',
+            ['id'],
+            (AppConfig item) => <String, Object?>{
+                  'id': item.id,
+                  'type': item.type,
+                  'content': item.content,
+                  'createTime': item.createTime,
+                  'updateTime': item.updateTime
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final InsertionAdapter<AppConfig> _appConfigInsertionAdapter;
+
+  final UpdateAdapter<AppConfig> _appConfigUpdateAdapter;
+
+  @override
+  Future<void> insertAppConfig(AppConfig appConfig) async {
+    await _appConfigInsertionAdapter.insert(
+        appConfig, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAppConfig(AppConfig appConfig) async {
+    await _appConfigUpdateAdapter.update(appConfig, OnConflictStrategy.abort);
   }
 }

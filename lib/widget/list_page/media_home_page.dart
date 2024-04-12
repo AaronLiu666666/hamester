@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hamster/widget/config_page/media_search_config_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/search_provider.dart';
@@ -36,13 +37,56 @@ class _MediaHomePageState extends State<MediaHomePage> {
           elevation: 0,
         ),
       ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            ListTile(
+              title: Text('媒体文件扫描目录'),
+              onTap: () {
+                // Do something
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        MediaSearchConfigPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {
+                // Do something
+              },
+            ),
+          ],
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SearchWidget(
-              onSearch: _handleSearch,
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: SearchWidget(
+          //     onSearch: _handleSearch,
+          //   ),
+          // ),
+          Builder(
+            builder: (context) => Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    // 打开侧边栏
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+                Expanded(
+                  // 添加Expanded
+                  child: SearchWidget(onSearch: _handleSearch),
+                ),
+              ],
             ),
           ),
           Expanded(
