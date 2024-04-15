@@ -429,6 +429,24 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   }
 
   @override
+  Future<List<MediaTagRelation>> queryAllDataListWithTagName() async {
+    return _queryAdapter.queryList(
+        'select r.*,t.tag_name as tagName from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(
+            id: row['id'] as String?,
+            mediaId: row['media_id'] as int?,
+            tagId: row['tag_id'] as String?,
+            mediaMoment: row['media_moment'] as int?,
+            relationDesc: row['relation_desc'] as String?,
+            mediaMomentPic: row['media_moment_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?,
+            tagName: row['tagName'] as String?,
+        )
+    );
+  }
+
+  @override
   Future<void> insertOne(MediaTagRelation mediaTagRelation) async {
     await _mediaTagRelationInsertionAdapter.insert(
         mediaTagRelation, OnConflictStrategy.abort);

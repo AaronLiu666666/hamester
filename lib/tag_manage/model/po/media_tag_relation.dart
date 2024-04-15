@@ -26,6 +26,9 @@ class MediaTagRelation {
   @ColumnInfo(name: "update_time")
   int? updateTime;
 
+  @ignore
+  String? tagName;
+
   MediaTagRelation({
     this.id,
     this.mediaId,
@@ -35,6 +38,7 @@ class MediaTagRelation {
     this.mediaMomentPic,
     this.createTime,
     this.updateTime,
+    this.tagName,
   });
 
 }

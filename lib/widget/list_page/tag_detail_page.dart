@@ -9,13 +9,14 @@ import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
 import '../../tag_manage/model/po/tag_info.dart';
 import '../../tag_manage/tag_manage_service.dart';
+import '../custom_widget/custom_toggle_button_widget.dart';
 import '../video_chewie/video_chewie_page.dart';
 
 /// 详情编辑页面
 class TagDetailPage extends StatefulWidget {
   final String id;
 
-  const TagDetailPage({required this.id});
+  const TagDetailPage({super.key, required this.id});
 
   @override
   _TagDetailPageState createState() => _TagDetailPageState();
@@ -77,7 +78,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
       mediaMap[media.id!] = media;
     }
 
-// 将关联关系列表按照id映射到relationMap中
+    // 将关联关系列表按照id映射到relationMap中
     for (var relation in relations) {
       if (relation.mediaId != null) {
         MediaFileData? mediaFileData = mediaMap[relation.mediaId!];
@@ -117,22 +118,46 @@ class _TagDetailPageState extends State<TagDetailPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('标签详情'),
+        title: Text('标签详情：${_tagInfo.tagName ?? ""}'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // 添加 ToggleButtons
-          ToggleButtons(
-            children: [
-              Text('关联列表'),
-              Text('视频列表'),
-              Text('详情'),
-            ],
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: ToggleButtons(
+          //         children: [
+          //           Expanded(child: Text('关联列表')),
+          //           Expanded(child: Text('视频列表')),
+          //           Expanded(child: Text('详情')),
+          //         ],
+          //         isSelected: [
+          //           0 == _selectedIndex,
+          //           1 == _selectedIndex,
+          //           2 == _selectedIndex
+          //         ],
+          //         onPressed: (int index) {
+          //           setState(() {
+          //             _selectedIndex = index;
+          //           });
+          //         },
+          //         selectedColor: Colors.blue, // 设置选中状态下的颜色
+          //         color: Colors.grey, // 设置非选中状态下的颜色
+          //         borderColor: Colors.grey, // 设置边框颜色
+          //         selectedBorderColor: Colors.blue, // 设置选中状态下的边框颜色
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          CustomToggleButtons(
+            labels: ['关联列表', '视频列表', '详情'],
             isSelected: [
-              0 == _selectedIndex,
-              1 == _selectedIndex,
-              2 == _selectedIndex
+              _selectedIndex == 0,
+              _selectedIndex == 1,
+              _selectedIndex == 2,
             ],
             onPressed: (int index) {
               setState(() {
@@ -186,36 +211,6 @@ class _TagDetailPageState extends State<TagDetailPage> {
       SnackBar(content: Text('保存成功')),
     );
   }
-
-  // Widget _buildRelationList() {
-  //   return Expanded(
-  //     child: ListView.builder(
-  //       itemCount: _relationList.length,
-  //       itemBuilder: (context, index) {
-  //         final relation = _relationList[index];
-  //         return ListTile(
-  //           leading: _buildImageWidget(relation.mediaMomentPic), // 假设有网络图片路径
-  //           title: Text(relation.relationDesc ?? ''),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
-  //
-  // Widget _buildMediaList() {
-  //   return Expanded(
-  //     child: ListView.builder(
-  //       itemCount: _mediaList.length,
-  //       itemBuilder: (context, index) {
-  //         final media = _mediaList[index];
-  //         return ListTile(
-  //           leading: _buildImageWidget(media.cover), // 假设有网络图片路径
-  //           title: Text(media.fileName ?? ''),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
 
   Widget _buildRelationList() {
     // Wrap the GridView.count in an Expanded to ensure it occupies the available space
@@ -293,116 +288,6 @@ class _TagDetailPageState extends State<TagDetailPage> {
     ));
   }
 
-  // Widget _buildTagDetail() {
-  //   return Column(
-  //     children: [
-  //       TextField(
-  //         controller: _tagNameController,
-  //         decoration: InputDecoration(labelText: '标签名称'),
-  //       ),
-  //       SizedBox(height: 16.0),
-  //       TextField(
-  //         controller: _tagDescController,
-  //         decoration: InputDecoration(labelText: '标签描述'),
-  //       ),
-  //       SizedBox(height: 16.0),
-  //       ElevatedButton.icon(
-  //         onPressed: () {
-  //           _showImageSelectionDialog();
-  //         },
-  //         icon: Icon(Icons.add),
-  //         label: Text('添加图片'),
-  //       ),
-  //       SizedBox(height: 16.0),
-  //       ListView.builder(
-  //         itemCount: _picPath.length,
-  //         itemBuilder: (context, index) {
-  //           final pic = _picPath[index];
-  //           return Row(
-  //             children: [
-  //               Expanded(child: Image.file(File(pic))),
-  //               IconButton(
-  //                 icon: Icon(Icons.delete),
-  //                 onPressed: () {
-  //                   _removeImage(index);
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       ),
-  //       SizedBox(height: 16.0),
-  //       ElevatedButton(
-  //         onPressed: () {
-  //           saveChanges();
-  //         },
-  //         child: Text('保存'),
-  //       ),
-  //     ],
-  //   );
-  // }
-  // Widget _buildTagDetail() {
-  //   List<Widget> widgetList = [];
-  //
-  //   // 添加标签名称的 TextField
-  //   widgetList.add(
-  //     TextField(
-  //       controller: _tagNameController,
-  //       decoration: InputDecoration(labelText: '标签名称'),
-  //     ),
-  //   );
-  //
-  //   // 添加标签描述的 TextField
-  //   widgetList.add(
-  //     TextField(
-  //       controller: _tagDescController,
-  //       decoration: InputDecoration(labelText: '标签描述'),
-  //     ),
-  //   );
-  //
-  //   // 添加按钮
-  //   widgetList.add(
-  //     ElevatedButton.icon(
-  //       onPressed: () {
-  //         _showImageSelectionDialog();
-  //       },
-  //       icon: Icon(Icons.add),
-  //       label: Text('添加图片'),
-  //     ),
-  //   );
-  //
-  //   // 根据 _picPath 生成图片列表
-  //   for (int index = 0; index < _picPath.length; index++) {
-  //     final pic = _picPath[index];
-  //     widgetList.add(
-  //       Row(
-  //         children: [
-  //           Expanded(child: Image.file(File(pic))),
-  //           IconButton(
-  //             icon: Icon(Icons.delete),
-  //             onPressed: () {
-  //               _removeImage(index);
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
-  //   widgetList.add(
-  //     ElevatedButton(
-  //       onPressed: () {
-  //         saveChanges();
-  //       },
-  //       child: Text('保存'),
-  //     ),
-  //   );
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.vertical,
-  //     child: Column(
-  //       children: widgetList
-  //     ),
-  //   );
-  // }
   Widget _buildTagDetail() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

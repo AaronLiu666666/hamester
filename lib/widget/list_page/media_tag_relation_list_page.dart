@@ -23,7 +23,7 @@ class _MediaTagRelationListPage extends State<MediaTagRelationListPage> {
   List<MediaTagRelation> relationList = [];
 
   Future<void> _fetchData() async {
-    List<MediaTagRelation> relationInfoListFromDb = await getRelationInfo(SearchDTO());
+    List<MediaTagRelation> relationInfoListFromDb = await getRelationInfoWithTagName(SearchDTO());
     setState(() {
       relationList = relationInfoListFromDb;
     });
@@ -72,7 +72,8 @@ class _MediaTagRelationListPage extends State<MediaTagRelationListPage> {
                   flex: 1,
                   child: _buildImageWidget(data.mediaMomentPic),
                 ),
-                Text(data.relationDesc ?? ""),
+                Text(data.relationDesc != null && data.relationDesc!.isNotEmpty ? data.relationDesc! : (data.tagName ?? "")
+                ),
               ],
             ),
           ),

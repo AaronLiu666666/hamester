@@ -23,4 +23,8 @@ abstract class MediaTagRelationDao {
 
   @update
   Future<void> updateRelation(MediaTagRelation relation);
+
+  @Query("select r.*,t.tag_name as tagName from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id")
+  Future<List<MediaTagRelation>> queryAllDataListWithTagName();
+
 }
