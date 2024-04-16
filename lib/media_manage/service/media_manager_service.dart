@@ -3,11 +3,10 @@ import 'dart:io';
 import 'package:hamster/config/db/flutter_database_manager.dart';
 import 'package:hamster/file/file_util.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
+import 'package:hamster/tag_manage/model/po/tag_info.dart';
 
 import '../../app_config_manage/service/app_config_service.dart';
-import '../../config/config_manage/config_manage.dart';
 import '../../config/db/flutter_data_base.dart';
-import '../../config/environment/environment_config.dart';
 import '../../config/id_generator/id_generator.dart';
 import '../../customWidget/mainPage.dart';
 import '../../file/file_finder_enhanced.dart';
@@ -66,9 +65,9 @@ class MediaManageService {
     }).toList();
 
     for (var video in mediaFilteredList) {
-      String picFilename = UuidGenerator.generateUuid() + ".jpg";
-      String picPath = "$picStorePath/$picFilename";
-      getFirstFrame(video.path, picPath);
+      // String picFilename = UuidGenerator.generateUuid() + ".jpg";
+      // String picPath = "$picStorePath/$picFilename";
+      // getFirstFrame(video.path, picPath);
       MediaFileData mediaFileData = MediaFileData(
           id: null,
           path: video.path,
@@ -78,7 +77,8 @@ class MediaManageService {
           // md5 计算可以搞个类似于定时任务的，后台进行计算
           fileMd5: null,
           memo: null,
-          cover: picPath,
+          // cover: picPath,
+          cover: null,
           sourceUrl: null,
           lastPlayMoment: 0,
           lastPlayTime: 0,
@@ -175,4 +175,24 @@ Future<List<CardContentData>> searchMediaDataBySearchDTO(
     );
   }).toList();
   return cardContentDataList;
+}
+
+Future<List<MediaFileData>> searchMediaPage(SearchDTO searchDTO) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  int pageSize = searchDTO.pageSize??20;
+  int page = searchDTO.page??1;
+  int offset = (page - 1) * pageSize;
+  List<MediaFileData> list = await dataBase.mediaFileDataDao.searchMediaPage(searchDTO.content??"",pageSize,offset);
+  return list;
+}
+
+Future<int> searchMediaCount(SearchDTO searchDTO) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  int count = await dataBase.mediaFileDataDao.searchMediaCount(searchDTO.content??"")??0;
+  return count;
+}
+
+Future<void> updateMediaFileData(MediaFileData mediaFileData) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  await dataBase.mediaFileDataDao.updateData(mediaFileData);
 }

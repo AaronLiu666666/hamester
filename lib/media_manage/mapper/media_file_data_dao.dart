@@ -2,6 +2,8 @@
 import 'package:floor/floor.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 
+import '../../tag_manage/model/dto/search_dto.dart';
+
 @dao
 abstract class MediaFileDataDao {
 
@@ -36,4 +38,40 @@ abstract class MediaFileDataDao {
      OR mtr.relation_desc LIKE '%' || :content || '%'
 ''')
   Future<List<MediaFileData>> searchMedia(String content);
+
+  @Query('''
+  SELECT mfd.*
+  FROM media_file_data mfd
+  LEFT JOIN tag_info ti ON mfd.id = ti.id
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+  WHERE 
+    (:content IS NULL OR mfd.file_name LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mfd.file_alias LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mfd.memo LIKE '%' || :content || '%') OR
+    (:content IS NULL OR ti.tag_name LIKE '%' || :content || '%') OR
+    (:content IS NULL OR ti.tag_desc LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mtr.relation_desc LIKE '%' || :content || '%')
+    group by mfd.id
+  LIMIT :limit OFFSET :offset
+''')
+  Future<List<MediaFileData>> searchMediaPage(String content, int limit, int offset);
+
+  @Query('''
+  SELECT count(DISTINCT mfd.id)
+  FROM media_file_data mfd
+  LEFT JOIN tag_info ti ON mfd.id = ti.id
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+  WHERE 
+    (:content IS NULL OR mfd.file_name LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mfd.file_alias LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mfd.memo LIKE '%' || :content || '%') OR
+    (:content IS NULL OR ti.tag_name LIKE '%' || :content || '%') OR
+    (:content IS NULL OR ti.tag_desc LIKE '%' || :content || '%') OR
+    (:content IS NULL OR mtr.relation_desc LIKE '%' || :content || '%')
+''')
+  Future<int?> searchMediaCount(String content);
+
+  @update
+  Future<void> updateData(MediaFileData mediaFileData);
+
 }

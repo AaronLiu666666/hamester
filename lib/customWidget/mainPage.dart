@@ -29,7 +29,8 @@ class CardContentWidget extends StatelessWidget {
       children: <Widget>[
         Expanded(
           flex: 1,
-          child: Image.file(File(data.url), fit: BoxFit.cover),
+          child:
+          Image.file(File(data.url), fit: BoxFit.cover),
         ),
         Text(data.text ?? ""),
       ],

@@ -26,7 +26,8 @@ class MediaTagRelation {
   @ColumnInfo(name: "update_time")
   int? updateTime;
 
-  @ignore
+  // 不能加ignore，加了floor就不会从查出来的字段给该字段赋值了
+  // @ignore
   String? tagName;
 
   MediaTagRelation({

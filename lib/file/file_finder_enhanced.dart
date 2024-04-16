@@ -30,17 +30,6 @@ Future<List<File>> findFilesAsync(Directory directory) async {
   return findVideoFiles(directory);
 }
 
-void main() async {
-  Directory directory = Directory.current;
-  List<File> videoFiles = await findFilesAsync(directory);
-  if (videoFiles.isNotEmpty) {
-    print("视频文件：");
-    videoFiles.forEach((file) => print(file.path));
-  } else {
-    print("未找到视频文件。");
-  }
-}
-
 // 获取应用内部存储目录路径
 Future<String> getInternalStorageDirectory() async {
   Directory appDocDir = await getApplicationDocumentsDirectory();

@@ -6,7 +6,13 @@ class SearchDTO {
   // 排序条件
   List<SearchOrder>? orders;
 
-  SearchDTO({this.content, this.orders});
+  int? page;
+
+  int? pageSize;
+
+  int? offset;
+
+  SearchDTO({this.content, this.orders,this.page,this.pageSize,this.offset});
 }
 
 /// 排序字段

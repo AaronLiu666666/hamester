@@ -95,7 +95,7 @@ class _$FlutterDataBase extends FlutterDataBase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tag_info` (`id` TEXT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, `tagName` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `app_config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` TEXT, `content` TEXT, `createTime` INTEGER, `updateTime` INTEGER)');
 
@@ -151,6 +151,26 @@ class _$MediaFileDataDao extends MediaFileDataDao {
                   'file_create_time': item.fileCreateTime,
                   'create_time': item.createTime,
                   'update_time': item.updateTime
+                }),
+        _mediaFileDataUpdateAdapter = UpdateAdapter(
+            database,
+            'media_file_data',
+            ['id'],
+            (MediaFileData item) => <String, Object?>{
+                  'id': item.id,
+                  'path': item.path,
+                  'file_name': item.fileName,
+                  'file_alias': item.fileAlias,
+                  'file_md5': item.fileMd5,
+                  'source_url': item.sourceUrl,
+                  'memo': item.memo,
+                  'cover': item.cover,
+                  'last_play_moment': item.lastPlayMoment,
+                  'last_play_time': item.lastPlayTime,
+                  'play_num': item.playNum,
+                  'file_create_time': item.fileCreateTime,
+                  'create_time': item.createTime,
+                  'update_time': item.updateTime
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -160,6 +180,8 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<MediaFileData> _mediaFileDataInsertionAdapter;
+
+  final UpdateAdapter<MediaFileData> _mediaFileDataUpdateAdapter;
 
   @override
   Future<List<MediaFileData>> queryAllMediaFileDataList() async {
@@ -236,6 +258,26 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   }
 
   @override
+  Future<List<MediaFileData>> searchMediaPage(
+    String content,
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN tag_info ti ON mfd.id = ti.id   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id   WHERE      (?1 IS NULL OR mfd.file_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.file_alias LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.memo LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_desc LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\')     group by mfd.id   LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => MediaFileData(id: row['id'] as int?, path: row['path'] as String?, fileName: row['file_name'] as String?, fileAlias: row['file_alias'] as String?, fileMd5: row['file_md5'] as String?, memo: row['memo'] as String?, cover: row['cover'] as String?, sourceUrl: row['source_url'] as String?, lastPlayMoment: row['last_play_moment'] as int?, lastPlayTime: row['last_play_time'] as int?, playNum: row['play_num'] as int?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [content, limit, offset]);
+  }
+
+  @override
+  Future<int?> searchMediaCount(String content) async {
+    return _queryAdapter.query(
+        'SELECT count(DISTINCT mfd.id)   FROM media_file_data mfd   LEFT JOIN tag_info ti ON mfd.id = ti.id   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id   WHERE      (?1 IS NULL OR mfd.file_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.file_alias LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.memo LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_desc LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\')',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [content]);
+  }
+
+  @override
   Future<void> insertMember(MediaFileData data) async {
     await _mediaFileDataInsertionAdapter.insert(data, OnConflictStrategy.abort);
   }
@@ -244,6 +286,12 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   Future<void> insertMembers(List<MediaFileData> list) async {
     await _mediaFileDataInsertionAdapter.insertList(
         list, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateData(MediaFileData mediaFileData) async {
+    await _mediaFileDataUpdateAdapter.update(
+        mediaFileData, OnConflictStrategy.abort);
   }
 }
 
@@ -356,7 +404,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
                   'relation_desc': item.relationDesc,
                   'media_moment_pic': item.mediaMomentPic,
                   'create_time': item.createTime,
-                  'update_time': item.updateTime
+                  'update_time': item.updateTime,
+                  'tagName': item.tagName
                 }),
         _mediaTagRelationUpdateAdapter = UpdateAdapter(
             database,
@@ -370,7 +419,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
                   'relation_desc': item.relationDesc,
                   'media_moment_pic': item.mediaMomentPic,
                   'create_time': item.createTime,
-                  'update_time': item.updateTime
+                  'update_time': item.updateTime,
+                  'tagName': item.tagName
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -394,7 +444,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             relationDesc: row['relation_desc'] as String?,
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
-            updateTime: row['update_time'] as int?));
+            updateTime: row['update_time'] as int?,
+            tagName: row['tagName'] as String?));
   }
 
   @override
@@ -409,7 +460,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             relationDesc: row['relation_desc'] as String?,
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
-            updateTime: row['update_time'] as int?),
+            updateTime: row['update_time'] as int?,
+            tagName: row['tagName'] as String?),
         arguments: [tagId]);
   }
 
@@ -424,7 +476,8 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             relationDesc: row['relation_desc'] as String?,
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
-            updateTime: row['update_time'] as int?),
+            updateTime: row['update_time'] as int?,
+            tagName: row['tagName'] as String?),
         arguments: [id]);
   }
 
@@ -441,9 +494,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
-            tagName: row['tagName'] as String?,
-        )
-    );
+            tagName: row['tagName'] as String?));
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../providers/search_provider.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import 'media_list_page.dart';
+import 'media_page_list_page.dart';
 import 'media_tag_relation_list_page.dart';
 import 'tag_list_page.dart';
 
@@ -23,7 +24,8 @@ class _MediaHomePageState extends State<MediaHomePage> {
 
   List<Widget> _widgetOptions = <Widget>[
     TagListPage(),
-    MediaListPage(),
+    // MediaListPage(),
+    MediaPageListPage(),
     MediaTagRelationListPage(),
   ];
 
