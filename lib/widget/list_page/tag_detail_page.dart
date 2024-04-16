@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../file/thumbnail_util.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
@@ -70,6 +71,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
 
     // 根据ID查询绑定该tag的视频列表
     List<MediaFileData> mediaList = await queryDatasByIds(List.from(mediaIds));
+    await generateMediaListThumbnailImages(mediaList);
 
     Map<int, MediaFileData> mediaMap = {};
 

@@ -13,6 +13,7 @@ import '../../customWidget/mainPage.dart';
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../providers/search_provider.dart';
+import 'media_home_page.dart';
 
 /// 分页状态数据
 class PagingState<T> {
@@ -56,10 +57,17 @@ abstract class PagingController<M, S extends PagingState<M>>
   /// 刷新数据
   void refreshData() async {
     initPaging();
-    await _loadData();
     // 下拉刷新的时候调用的方法，下拉刷新时会重新扫描媒体文件列表
     MediaManageService mediaManageService= MediaManageService();
     await mediaManageService.initMediaFileData();
+    await _loadData();
+    /// 刷新完成
+    refreshController.refreshCompleted();
+  }
+
+  void refreshDataNotScan() async {
+    initPaging();
+    await _loadData();
     /// 刷新完成
     refreshController.refreshCompleted();
   }
@@ -286,7 +294,7 @@ class _MediaPageListPageState extends State<MediaPageListPage> {
   }
 
   void _search() {
-    Get.find<MediaPagingController>().refreshData();
+    Get.find<MediaPagingController>().refreshDataNotScan();
   }
 
   @override
@@ -324,25 +332,17 @@ class MediaPagingController
     extends PagingController<MediaFileData, PagingState<MediaFileData>> {
   @override
   Future<PagingData<MediaFileData>?> loadData(PagingParams pagingParams) async {
+    CustomSearchController searchController = Get.find<CustomSearchController>();
+
+    // 刷新数据
+    SearchDTO homepageSearchDTO = searchController.getSearchDTO();
     SearchDTO searchDTO =
         SearchDTO(page: pagingParams.current, pageSize: pagingParams.size);
+    searchDTO.content = homepageSearchDTO.content;
     int total = await searchMediaCount(searchDTO);
     final List<MediaFileData> list = await searchMediaPage(searchDTO);
-    // 列表不为空，在加载列表数据的时候，生成缩略图
-    if(list.isNotEmpty){
-      // 使用 Future.forEach 来异步处理列表中的每个媒体文件
-      await Future.forEach(list, (MediaFileData mediaFileData) async {
-        String? path = mediaFileData.path;
-        if(null!=path&&path.isNotEmpty){
-          // 生成缩略图
-          String? thumbnailImagePath = await generateThumbnailImage(mediaFileData.path ?? "");
-          // 在这里可以对每个缩略图进行处理，比如保存路径或其他操作
-          mediaFileData.cover = thumbnailImagePath;
-          // 更新数据库封面图片地址
-          updateMediaFileData(mediaFileData);
-        }
-      });
-    }
+    // 为没有生成缩略图的视频添加缩略图
+    generateMediaListThumbnailImages(list);
     int pages = (total / pagingParams.size).ceil();
     return PagingData<MediaFileData>()
       ..current = pagingParams.current
