@@ -8,11 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
-import 'package:provider/provider.dart';
-
-import '../../providers/search_provider.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
-import 'media_list_page.dart';
 import 'media_page_list_page.dart';
 import 'media_tag_relation_list_page.dart';
 import 'tag_list_page.dart';
@@ -32,6 +28,8 @@ class _MediaHomePageState extends State<MediaHomePage> {
     MediaPageListPage(),
     MediaTagRelationListPage(),
   ];
+
+  late CustomSearchController searchController; // 声明控制器变量
 
   @override
   Widget build(BuildContext context) {
@@ -131,16 +129,17 @@ class _MediaHomePageState extends State<MediaHomePage> {
   @override
   void initState() {
     super.initState();
+    searchController = Get.put(CustomSearchController(onSearch: _handleSearch)); // 初始化并放置控制器
+  }
+
+
+  @override
+  void dispose() {
+    searchController.dispose(); // 清理搜索控制器
+    super.dispose();
   }
 
   void _handleSearch(SearchDTO searchDTO) {
-    // 获取 Provider
-    // final mediaSearchProvider =
-    //     Provider.of<MediaSearchProvider>(context, listen: false);
-    // // 更新搜索状态
-    // mediaSearchProvider.setSearchDTO(searchDTO);
-    // 调用 _search 方法执行搜索
-    // 找到 MediaPagingController
     if(_selectedIndex == 1) {
       MediaPagingController controller = Get.find<MediaPagingController>();
       // 刷新数据
@@ -287,19 +286,18 @@ class SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomSearchController controller = Get.put(CustomSearchController(onSearch: onSearch)); // 初始化并放置控制器
-
+    // final CustomSearchController controller = Get.put(CustomSearchController(onSearch: onSearch)); // 初始化并放置控制器
+    final CustomSearchController controller = Get.find<CustomSearchController>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: GetBuilder<CustomSearchController>(
-        builder: (controller) => Row(
+      child: Obx(() {
+        return Row(
           children: [
-            // 搜索框 自适应
             Expanded(
               child: TextFormField(
                 controller: controller.textEditingController,
                 onChanged: (value) {
-                  controller.updateSearchText(value); // 更新搜索文本
+                  controller.updateSearchText(value);
                 },
                 decoration: InputDecoration(
                   hintText: '搜索内容...',
@@ -312,18 +310,17 @@ class SearchWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: BorderSide(color: Colors.blue),
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 10.0),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
                 ),
               ),
             ),
             SizedBox(width: 5),
             Visibility(
-              visible: controller.textEditingController.text.isNotEmpty,
+              visible: controller.searchText.value.isNotEmpty,
               child: GestureDetector(
                 onTap: () {
-                  controller.clearSearchText(); // 清除搜索文本
-                  controller.performSearch(); // 执行搜索
+                  controller.clearSearchText();
+                  controller.performSearch();
                 },
                 child: Icon(Icons.clear),
               ),
@@ -332,13 +329,12 @@ class SearchWidget extends StatelessWidget {
               height: 50,
               child: TextButton(
                 onPressed: () {
-                  controller.performSearch(); // 执行搜索
+                  controller.performSearch();
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
                   foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(15)),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(15)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -349,39 +345,53 @@ class SearchWidget extends StatelessWidget {
               ),
             )
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 }
 
 class CustomSearchController extends GetxController {
-  TextEditingController textEditingController = TextEditingController(); // 搜索文本控制器
+  RxString searchText = ''.obs; // 使用 RxString 来存储搜索文本
+  final TextEditingController textEditingController = TextEditingController(); // 添加TextEditingController
   final Function(SearchDTO) onSearch; // 添加回调函数
 
-  CustomSearchController({required this.onSearch}); // 在构造函数中接收onSearch函数
+  CustomSearchController({required this.onSearch}) {
+    textEditingController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    searchText.value = textEditingController.text;
+  }
 
   void updateSearchText(String value) {
     textEditingController.text = value;
+    searchText.value = value;
+    // updateVisibility();
+    // update(); // 手动触发更新
   }
 
   void clearSearchText() {
     textEditingController.clear();
+    searchText.value = '';
+    // textEditingController.text = ''; // 手动设置文本框内容为空字符串
+    // updateVisibility();
+    // update(); // 手动触发更新
+
   }
 
   void performSearch() {
     SearchDTO searchDTO = SearchDTO(
-      content: textEditingController.text,
+      content: searchText.value,
       orders: [], // 添加您的排序逻辑
     );
-    // 调用回调函数传递搜索条件
-    // 这里假设onSearch是从父组件传递的函数
     onSearch(searchDTO);
   }
 
+
   @override
   void dispose() {
-    textEditingController.dispose(); // 释放资源
+    textEditingController.dispose();
     super.dispose();
   }
 

@@ -81,8 +81,6 @@ abstract class PagingController<M, S extends PagingState<M>>
 
   /// 数据加载
   Future<List<M>?> _loadData() async {
-    // MediaManageService mediaManageService= MediaManageService();
-    // await mediaManageService.initMediaFileData();
     PagingParams pagingParams =
         PagingParams.create(pageIndex: pagingState.pageIndex);
     PagingData<M>? pagingData = await loadData(pagingParams);
@@ -333,7 +331,6 @@ class MediaPagingController
   @override
   Future<PagingData<MediaFileData>?> loadData(PagingParams pagingParams) async {
     CustomSearchController searchController = Get.find<CustomSearchController>();
-
     // 刷新数据
     SearchDTO homepageSearchDTO = searchController.getSearchDTO();
     SearchDTO searchDTO =
