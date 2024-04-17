@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 
-import 'package:hamster/permission/permission_util.dart';
 import 'package:path_provider/path_provider.dart';
 
 // 找视频文件
@@ -35,7 +34,16 @@ Future<String> getInternalStorageDirectory() async {
   Directory appDocDir = await getApplicationDocumentsDirectory();
   return appDocDir.path;
 }
+
+Future<String> getExternalStoragePath() async {
+  Directory? externalStorageDir = await getExternalStorageDirectory();
+  if(null==externalStorageDir){
+    return "";
+  }
+  return externalStorageDir.path;
+}
+
 Future<String> getPicStorePath() async {
-  String internalStorageDir = await getInternalStorageDirectory();
-  return '$internalStorageDir/pic_store/';
+  String storageDirPath = await getExternalStoragePath();
+  return '$storageDirPath/pic_store/';
 }

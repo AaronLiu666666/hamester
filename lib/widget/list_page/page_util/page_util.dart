@@ -50,8 +50,8 @@ abstract class PagingController<M, S extends PagingState<M>>
   /// 刷新数据
   void refreshData() async {
     initPaging();
-    await _loadData();
     await initBeforeLoadData();
+    await _loadData();
     /// 刷新完成
     refreshController.refreshCompleted();
   }

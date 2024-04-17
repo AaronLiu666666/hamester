@@ -27,6 +27,14 @@ class MediaManageService {
     if (!await picStoreDir.exists()) {
       picStoreDir.createSync(recursive: true);
     }
+    Directory firstDirectory = Directory(picStorePath+"first/");
+    if (!await firstDirectory.exists()) {
+      firstDirectory.createSync(recursive: true);
+    }
+    Directory momentDirectory = Directory(picStorePath+"moment/");
+    if (!await momentDirectory.exists()) {
+      momentDirectory.createSync(recursive: true);
+    }
     // String mediaSearchDirStr = ConfigManager.getString("media_search_dir");
     // List<String> searchPaths = EnvironmentConfig.searchPaths;
     List<String> searchPaths = await getMediaSearchConfigList();

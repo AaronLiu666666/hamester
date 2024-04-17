@@ -11,7 +11,7 @@ import 'file_finder_enhanced.dart';
 Future<String?> generateThumbnailImage(String videoPath) async {
   try {
     String path = await getPicStorePath();
-    String thumbnailPath = path + UuidGenerator.generateUuid() + ".png";
+    String thumbnailPath = path +"first/"+ UuidGenerator.generateUuid() + ".png";
     final fileName = await VideoThumbnail.thumbnailFile(
       video: videoPath,
       thumbnailPath: thumbnailPath,
@@ -37,7 +37,7 @@ Future<String?> generateThumbnailImage(String videoPath) async {
 Future<String?> generateThumbnailImageAtTimeMs(String videoPath,int timeMs) async {
   try {
     String path = await getPicStorePath();
-    String thumbnailPath = path + UuidGenerator.generateUuid() + ".png";
+    String thumbnailPath = path+"moment/" + UuidGenerator.generateUuid() + ".png";
     final fileName = await VideoThumbnail.thumbnailFile(
       video: videoPath,
       thumbnailPath: thumbnailPath,
@@ -63,7 +63,7 @@ Future<String?> generateThumbnailImageAtTimeMs(String videoPath,int timeMs) asyn
 Future<Uint8List?> generateThumbnailImageDataAtTimeMs(String videoPath,int timeMs) async {
   try {
     String path = await getPicStorePath();
-    String thumbnailPath = path + UuidGenerator.generateUuid() + ".png";
+    String thumbnailPath = path+"moment/" + UuidGenerator.generateUuid() + ".png";
     final Uint8List = await VideoThumbnail.thumbnailData(
       video: videoPath,
       timeMs: timeMs,

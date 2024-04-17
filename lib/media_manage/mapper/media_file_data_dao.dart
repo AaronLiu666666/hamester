@@ -28,8 +28,8 @@ abstract class MediaFileDataDao {
   @Query('''
   SELECT mfd.*
   FROM media_file_data mfd
-  LEFT JOIN tag_info ti ON mfd.id = ti.id
   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
   WHERE mfd.file_name LIKE '%' || :content || '%'
      OR mfd.file_alias LIKE '%' || :content || '%'
      OR mfd.memo LIKE '%' || :content || '%'
@@ -42,8 +42,8 @@ abstract class MediaFileDataDao {
   @Query('''
   SELECT mfd.*
   FROM media_file_data mfd
-  LEFT JOIN tag_info ti ON mfd.id = ti.id
   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
   WHERE 
     (:content IS NULL OR mfd.file_name LIKE '%' || :content || '%') OR
     (:content IS NULL OR mfd.file_alias LIKE '%' || :content || '%') OR
@@ -59,8 +59,8 @@ abstract class MediaFileDataDao {
   @Query('''
   SELECT count(DISTINCT mfd.id)
   FROM media_file_data mfd
-  LEFT JOIN tag_info ti ON mfd.id = ti.id
   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
   WHERE 
     (:content IS NULL OR mfd.file_name LIKE '%' || :content || '%') OR
     (:content IS NULL OR mfd.file_alias LIKE '%' || :content || '%') OR
