@@ -1,4 +1,7 @@
 
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'flutter_data_base.dart';
 
 /**
@@ -8,10 +11,8 @@ import 'flutter_data_base.dart';
  */
 class FlutterDataBaseManager {
   static database() async {
-    // g.dart 生成的 就叫 $FloorFlutterDataBase，真的是吐了，见过最麻烦的orm
-    final database = await $FloorFlutterDataBase.databaseBuilder('data.db').build();
-    // 其他数据库相关的操作...
-    return database;
-
+    final externalDir = await getExternalStorageDirectory();
+    final dbPath = join(externalDir!.path,'db', 'data.db');
+    return await $FloorFlutterDataBase.databaseBuilder(dbPath).build();
   }
 }
