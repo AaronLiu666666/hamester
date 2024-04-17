@@ -67,13 +67,13 @@ class _MediaHomePageState extends State<MediaHomePage> {
           Builder(
             builder: (context) => Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () {
-                    // 打开侧边栏
-                    Scaffold.of(context).openDrawer();
-                  },
-                ),
+                // IconButton(
+                //   icon: Icon(Icons.menu),
+                //   onPressed: () {
+                //     // 打开侧边栏
+                //     Scaffold.of(context).openDrawer();
+                //   },
+                // ),
                 Expanded(
                   // 添加Expanded
                   child: SearchWidget(onSearch: _handleSearch),
@@ -160,6 +160,12 @@ class SearchWidget extends StatelessWidget {
       child: Obx(() {
         return Row(
           children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
             Expanded(
               child: TextFormField(
                 controller: controller.textEditingController,
