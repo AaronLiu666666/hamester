@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -33,12 +34,56 @@ Future<String?> generateThumbnailImage(String videoPath) async {
   }
 }
 
+Future<String?> generateThumbnailImageAtTimeMs(String videoPath,int timeMs) async {
+  try {
+    String path = await getPicStorePath();
+    String thumbnailPath = path + UuidGenerator.generateUuid() + ".png";
+    final fileName = await VideoThumbnail.thumbnailFile(
+      video: videoPath,
+      thumbnailPath: thumbnailPath,
+      // imageFormat: imageFormat,
+      // quality: quality,
+      // maxWidth: maxWidth,
+      // maxHeight: maxHeight,
+      timeMs: timeMs,
+      // thumbnailPath: (await getTemporaryDirectory()).path,
+      imageFormat: ImageFormat.PNG,
+      // maxHeight: 64, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
+      quality: 100,
+    );
+
+    // File file = File(thumbnailPath);
+    return thumbnailPath;
+  } catch (e) {
+    print("生成缩略图失败: $e");
+    return null;
+  }
+}
+
+Future<Uint8List?> generateThumbnailImageDataAtTimeMs(String videoPath,int timeMs) async {
+  try {
+    String path = await getPicStorePath();
+    String thumbnailPath = path + UuidGenerator.generateUuid() + ".png";
+    final Uint8List = await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      timeMs: timeMs,
+      imageFormat: ImageFormat.PNG,
+      quality: 100,
+    );
+    return Uint8List;
+  } catch (e) {
+    print("生成缩略图失败: $e");
+    return null;
+  }
+}
+
+
 Future<void> generateMediaListThumbnailImages(List<MediaFileData> list) async {
   // 列表不为空，在加载列表数据的时候，生成缩略图
   if (list.isNotEmpty) {
     // 使用 Future.forEach 来异步处理列表中的每个媒体文件
     await Future.forEach(list, (MediaFileData mediaFileData) async {
-      String? path = mediaFileData.path;
+      String? path = mediaFileData.cover;
       if (null == path || path.isEmpty) {
         // 生成缩略图
         String? thumbnailImagePath =

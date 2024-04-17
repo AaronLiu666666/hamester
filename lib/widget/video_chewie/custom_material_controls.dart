@@ -14,7 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../media_process/video_process.dart';
+import '../../file/thumbnail_util.dart';
+import '../../media_manage/model/po/media_file_data.dart';
+import '../../media_manage/service/media_manager_service.dart';
 import '../tag/media_tag_add_widget.dart';
 
 /// 直接copy chewie的MaterialControls类，拿来进行魔改 chewie的ChewieController默认用的就是这个MaterialControls
@@ -714,8 +716,15 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     if (controller.dataSourceType == DataSourceType.file) {
       String dataSource = controller.dataSource;
       Duration currentDuration = _latestValue.position;
-      String imagePath = await getFrameAtMoment(dataSource, currentDuration);
-      return imagePath;
+      // String imagePath = await getFrameAtMoment(dataSource, currentDuration);
+      MediaFileData? mediaFileData = await queryMediaDataById(widget.videoId);
+      if(null!=mediaFileData&&null!=mediaFileData.path&&mediaFileData.path!.isNotEmpty){
+        String? imagePath = await generateThumbnailImageAtTimeMs(mediaFileData.path!,currentDuration.inMilliseconds);
+        if(null==imagePath||imagePath.isEmpty){
+          return "";
+        }
+        return imagePath;
+      }
     }
     // final image = await controller.position!.image;
     // if (image != null) {
