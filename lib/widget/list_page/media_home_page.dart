@@ -6,12 +6,11 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
+import 'package:hamster/widget/list_page/relation_page_list_page.dart';
+import 'package:hamster/widget/list_page/tag_page_list_page.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import 'media_page_list_page.dart';
-import 'media_tag_relation_list_page.dart';
-import 'tag_list_page.dart';
 
 /// 首页：展示 标签列表 媒体列表 关联列表 并切换，有搜索框
 class MediaHomePage extends StatefulWidget {
@@ -23,10 +22,9 @@ class _MediaHomePageState extends State<MediaHomePage> {
   int _selectedIndex = 1;
 
   List<Widget> _widgetOptions = <Widget>[
-    TagListPage(),
-    // MediaListPage(),
+    TagPageListPage(),
     MediaPageListPage(),
-    MediaTagRelationListPage(),
+    RelationPageListPage(),
   ];
 
   late CustomSearchController searchController; // 声明控制器变量
@@ -120,7 +118,10 @@ class _MediaHomePageState extends State<MediaHomePage> {
 
   void _handleSearch(SearchDTO searchDTO) {
     // 标签库
-    if (_selectedIndex == 0) {}
+    if (_selectedIndex == 0) {
+      TagPagingController tagPagingController = Get.find<TagPagingController>();
+      tagPagingController.refreshDataNotScan();
+    }
     // 媒体库
     if (_selectedIndex == 1) {
       MediaPagingController controller = Get.find<MediaPagingController>();
@@ -128,7 +129,10 @@ class _MediaHomePageState extends State<MediaHomePage> {
       controller.refreshDataNotScan();
     }
     // 关连库
-    if (_selectedIndex == 2) {}
+    if (_selectedIndex == 2) {
+      RelationPagingController relationPagingController = Get.find<RelationPagingController>();
+      relationPagingController.refreshDataNotScan();
+    }
   }
 }
 
@@ -212,13 +216,13 @@ class SearchWidget extends StatelessWidget {
                 )
               ],
             ),
-            InkWell(
-              onTap: () {
-                // 打开下拉菜单
-                _showDropdownMenu(context);
-              },
-              child: Icon(Icons.keyboard_arrow_down, size: 15), // 将图标大小调整为 24
-            ),
+            // InkWell(
+            //   onTap: () {
+            //     // 打开下拉菜单
+            //     _showDropdownMenu(context);
+            //   },
+            //   child: Icon(Icons.keyboard_arrow_down, size: 15), // 将图标大小调整为 24
+            // ),
           ],
         );
       }),

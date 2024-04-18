@@ -11,15 +11,13 @@ class TagManageService {}
 // 根据条件查询符合条件的媒体信息列表
 Future<List<TagInfo>> getTagData(SearchDTO searchDto) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
-  List<TagInfo> list =
-  await dataBase.tagInfoDao.queryAllDataList();
+  List<TagInfo> list = await dataBase.tagInfoDao.queryAllDataList();
   return list;
 }
 
 Future<TagInfo?> queryDataById(String id) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
-  TagInfo? tagInfo =
-      await dataBase.tagInfoDao.queryDataById(id);
+  TagInfo? tagInfo = await dataBase.tagInfoDao.queryDataById(id);
   return tagInfo;
 }
 
@@ -35,7 +33,8 @@ Future<void> updateData(TagInfo tagInfo) async {
 Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   // 查询是否有重名标签，标签名为标签唯一标识，重名即认为是同一个标签
-  List<TagInfo> tagInfos = await dataBase.tagInfoDao.queryTagsByTagName(dto.tagName);
+  List<TagInfo> tagInfos =
+      await dataBase.tagInfoDao.queryTagsByTagName(dto.tagName);
   TagInfo tagInfo;
   int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
   if (tagInfos.isNotEmpty) {
@@ -67,7 +66,6 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
       updateTime: nowMilliseconds);
   // 插入标签-媒体关联信息
   await dataBase.mediaTagRelationDao.insertOne(mediaTagRelation);
-
 }
 
 class CreateMediaTagRelationDTO {
@@ -86,4 +84,20 @@ class CreateMediaTagRelationDTO {
     this.picPath,
     this.mediaMoment,
   });
+}
+
+Future<int> searchTagCount(SearchDTO searchDTO) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  int count =
+      await dataBase.tagInfoDao.searchTagCount(searchDTO.content ?? "") ?? 0;
+  return count;
+}
+
+Future<List<TagInfo>> searchTagInfoPage(SearchDTO searchDTO) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  int pageSize = searchDTO.pageSize??20;
+  int page = searchDTO.page??1;
+  int offset = (page - 1) * pageSize;
+  List<TagInfo> list = await dataBase.tagInfoDao.searchTagInfoPage(searchDTO.content??"",pageSize,offset);
+  return list;
 }

@@ -1,12 +1,9 @@
-
-
 import 'package:floor/floor.dart';
 
 import '../model/po/tag_info.dart';
 
 @dao
 abstract class TagInfoDao {
-
   @insert
   Future<void> insertOne(TagInfo tagInfo);
 
@@ -24,4 +21,18 @@ abstract class TagInfoDao {
 
   @update
   Future<void> updateData(TagInfo tagInfo);
+
+  @Query('''
+  select count(*) from tag_info where 
+  (:content IS NULL OR tag_name LIKE '%' || :content || '%') or (:content IS NULL OR tag_desc LIKE '%' || :content || '%')
+  ''')
+  Future<int?> searchTagCount(String content);
+
+  @Query('''
+  select * from tag_info where 
+    (:content IS NULL OR tag_name LIKE '%' || :content || '%') or (:content IS NULL OR tag_desc LIKE '%' || :content || '%')
+    order by create_time,id
+    LIMIT :limit OFFSET :offset
+  ''')
+  Future<List<TagInfo>> searchTagInfoPage(String content, int limit, int offset);
 }

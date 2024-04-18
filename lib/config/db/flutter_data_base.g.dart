@@ -264,7 +264,7 @@ class _$MediaFileDataDao extends MediaFileDataDao {
     int offset,
   ) async {
     return _queryAdapter.queryList(
-        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id   WHERE      (?1 IS NULL OR mfd.file_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.file_alias LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.memo LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_desc LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\')     group by mfd.id   LIMIT ?2 OFFSET ?3',
+        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id   WHERE      (?1 IS NULL OR mfd.file_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.file_alias LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.memo LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_desc LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\')     group by mfd.id     order by mfd.create_time,mfd.id   LIMIT ?2 OFFSET ?3',
         mapper: (Map<String, Object?> row) => MediaFileData(id: row['id'] as int?, path: row['path'] as String?, fileName: row['file_name'] as String?, fileAlias: row['file_alias'] as String?, fileMd5: row['file_md5'] as String?, memo: row['memo'] as String?, cover: row['cover'] as String?, sourceUrl: row['source_url'] as String?, lastPlayMoment: row['last_play_moment'] as int?, lastPlayTime: row['last_play_time'] as int?, playNum: row['play_num'] as int?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
         arguments: [content, limit, offset]);
   }
@@ -370,6 +370,26 @@ class _$TagInfoDao extends TagInfoDao {
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?),
         arguments: [id]);
+  }
+
+  @override
+  Future<int?> searchTagCount(String content) async {
+    return _queryAdapter.query(
+        'select count(*) from tag_info where    (?1 IS NULL OR tag_name LIKE \'%\' || ?1 || \'%\') or (?1 IS NULL OR tag_desc LIKE \'%\' || ?1 || \'%\')',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [content]);
+  }
+
+  @override
+  Future<List<TagInfo>> searchTagInfoPage(
+    String content,
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'select * from tag_info where      (?1 IS NULL OR tag_name LIKE \'%\' || ?1 || \'%\') or (?1 IS NULL OR tag_desc LIKE \'%\' || ?1 || \'%\')     order by create_time,id     LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => TagInfo(id: row['id'] as String?, tagName: row['tag_name'] as String?, tagDesc: row['tag_desc'] as String?, tagPic: row['tag_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [content, limit, offset]);
   }
 
   @override
@@ -495,6 +515,26 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
             tagName: row['tagName'] as String?));
+  }
+
+  @override
+  Future<int?> searchRelationCount(String content) async {
+    return _queryAdapter.query(
+        'SELECT     count(r.id)    FROM     r_media_tag r     LEFT JOIN tag_info t ON r.tag_id = t.id    WHERE    (?1 IS NULL OR r.relation_desc LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_name LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_desc LIKE \'%\' || ?1 || \'%\')',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [content]);
+  }
+
+  @override
+  Future<List<MediaTagRelation>> searchRelationPage(
+    String content,
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT     r.*,t.tag_name as tagName   FROM     r_media_tag r     LEFT JOIN tag_info t ON r.tag_id = t.id    WHERE    (?1 IS NULL OR r.relation_desc LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_name LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_desc LIKE \'%\' || ?1 || \'%\')     order by r.create_time,r.id     LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?),
+        arguments: [content, limit, offset]);
   }
 
   @override

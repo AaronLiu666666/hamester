@@ -52,6 +52,7 @@ abstract class MediaFileDataDao {
     (:content IS NULL OR ti.tag_desc LIKE '%' || :content || '%') OR
     (:content IS NULL OR mtr.relation_desc LIKE '%' || :content || '%')
     group by mfd.id
+    order by mfd.create_time,mfd.id
   LIMIT :limit OFFSET :offset
 ''')
   Future<List<MediaFileData>> searchMediaPage(String content, int limit, int offset);
