@@ -214,6 +214,7 @@ class _TagDetailPageState extends State<TagDetailPage> {
     );
   }
 
+  // 生成关联列表组件
   Widget _buildRelationList() {
     // Wrap the GridView.count in an Expanded to ensure it occupies the available space
     return Expanded(
@@ -239,11 +240,27 @@ class _TagDetailPageState extends State<TagDetailPage> {
               margin: EdgeInsets.all(10),
               child: Column(
                 children: <Widget>[
+                  // Expanded(
+                  //   flex: 1,
+                  //   child: _buildImageWidget(data.mediaMomentPic),
+                  // ),
+                  // Text(data.relationDesc ?? ""),
                   Expanded(
                     flex: 1,
-                    child: _buildImageWidget(data.mediaMomentPic),
+                    child:
+                    _buildImageWidget(data.mediaMomentPic),
                   ),
-                  Text(data.relationDesc ?? ""),
+                  // 2024-04-18 使用Tooltip包裹text，手指在上面是悬浮提示message的内容，为了解决文件名过长占空间问题
+                  Tooltip(
+                    message: data.relationDesc ?? "", // 提示框中显示完整的文本内容
+                    child: Text(
+                      data.relationDesc ?? "",
+                      // 最多展示1行，超过省略展示，防止文字过多展示时占用了图片的空间，导致图片显示过小或者展示不出来问题
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center, // 文字居中显示
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -281,7 +298,17 @@ class _TagDetailPageState extends State<TagDetailPage> {
                   flex: 1,
                   child: _buildImageWidget(data.cover),
                 ),
-                Text(data.fileName ?? ""),
+                Tooltip(
+                  message: data.fileName ?? "", // 提示框中显示完整的文本内容
+                  child: Text(
+                    data.fileName ?? "",
+                    // 最多展示1行，超过省略展示，防止文字过多展示时占用了图片的空间，导致图片显示过小或者展示不出来问题
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center, // 文字居中显示
+                  ),
+                ),
+                // Text(data.fileName ?? ""),
               ],
             ),
           ),
@@ -349,15 +376,13 @@ class _TagDetailPageState extends State<TagDetailPage> {
       List<String> imagePaths = imagePath.split(',');
       // 如果路径不为空，则加载文件中的图片
       return SizedBox(
-        width: 80.0,
-        height: 80.0,
-        child: Image.file(File(imagePaths[0]), fit: BoxFit.cover),
+        child: Image.file(File(imagePaths[0]),
+            // 如果希望图片在超出范围时能够自动缩小适应组件的宽度和高度，可以使用BoxFit.contain。这样图片将会缩放以适应组件的范围，并保持图片的宽高比。
+            fit: BoxFit.contain),
       );
     } else {
       // 否则加载默认的空图片
       return SizedBox(
-        width: 80.0,
-        height: 80.0,
         child: Image.asset('assets/image/no-pictures.png', fit: BoxFit.cover),
       );
     }

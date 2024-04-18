@@ -114,7 +114,7 @@ class PagingParams {
   Map<String, dynamic>? extra = {};
   Map<String, dynamic> model = {};
   String? order = 'descending';
-  int size = 8;
+  int size = 15;
   String? sort = "id";
 
   factory PagingParams.create({required int pageIndex}) {
@@ -149,7 +149,10 @@ Widget buildListView<T>(
     physics: physics,
     padding: EdgeInsets.zero,
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
+      crossAxisCount: 3,
+      mainAxisSpacing: 0, // 主轴（垂直）间距
+      crossAxisSpacing: 0,
+      // 交叉轴（水平）间距
     ),
     itemCount: data.length,
     itemBuilder: (ctx, index) {

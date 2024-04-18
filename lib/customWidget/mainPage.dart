@@ -32,7 +32,17 @@ class CardContentWidget extends StatelessWidget {
           child:
           Image.file(File(data.url), fit: BoxFit.cover),
         ),
-        Text(data.text ?? ""),
+        // 2024-04-18 使用Tooltip包裹text，手指在上面是悬浮提示message的内容，为了解决文件名过长占空间问题
+        Tooltip(
+          message: data.text ?? "", // 提示框中显示完整的文本内容
+          child: Text(
+            data.text ?? "",
+            // 最多展示1行，超过省略展示，防止文字过多展示时占用了图片的空间，导致图片显示过小或者展示不出来问题
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center, // 文字居中显示
+          ),
+        ),
       ],
     );
   }

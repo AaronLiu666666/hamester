@@ -51,8 +51,7 @@ class _MediaHomePageState extends State<MediaHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        MediaSearchConfigPage(),
+                    builder: (context) => MediaSearchConfigPage(),
                   ),
                 );
               },
@@ -62,18 +61,10 @@ class _MediaHomePageState extends State<MediaHomePage> {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-
         children: [
           Builder(
             builder: (context) => Row(
               children: [
-                // IconButton(
-                //   icon: Icon(Icons.menu),
-                //   onPressed: () {
-                //     // 打开侧边栏
-                //     Scaffold.of(context).openDrawer();
-                //   },
-                // ),
                 Expanded(
                   // 添加Expanded
                   child: SearchWidget(onSearch: _handleSearch),
@@ -117,9 +108,9 @@ class _MediaHomePageState extends State<MediaHomePage> {
   @override
   void initState() {
     super.initState();
-    searchController = Get.put(CustomSearchController(onSearch: _handleSearch)); // 初始化并放置控制器
+    searchController =
+        Get.put(CustomSearchController(onSearch: _handleSearch)); // 初始化并放置控制器
   }
-
 
   @override
   void dispose() {
@@ -129,21 +120,16 @@ class _MediaHomePageState extends State<MediaHomePage> {
 
   void _handleSearch(SearchDTO searchDTO) {
     // 标签库
-    if(_selectedIndex==0){
-
-    }
+    if (_selectedIndex == 0) {}
     // 媒体库
-    if(_selectedIndex == 1) {
+    if (_selectedIndex == 1) {
       MediaPagingController controller = Get.find<MediaPagingController>();
       // 刷新数据
       controller.refreshDataNotScan();
     }
     // 关连库
-    if(_selectedIndex==2){
-
-    }
+    if (_selectedIndex == 2) {}
   }
-
 }
 
 class SearchWidget extends StatelessWidget {
@@ -154,79 +140,133 @@ class SearchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final CustomSearchController controller = Get.put(CustomSearchController(onSearch: onSearch)); // 初始化并放置控制器
-    final CustomSearchController controller = Get.find<CustomSearchController>();
+    final CustomSearchController controller =
+        Get.find<CustomSearchController>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Obx(() {
-        return Row(
+        return Column(
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: controller.textEditingController,
-                onChanged: (value) {
-                  controller.updateSearchText(value);
-                },
-                decoration: InputDecoration(
-                  hintText: '搜索内容...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.blue),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
                 ),
-              ),
-            ),
-            SizedBox(width: 5),
-            Visibility(
-              visible: controller.searchText.value.isNotEmpty,
-              child: GestureDetector(
-                onTap: () {
-                  controller.clearSearchText();
-                  controller.performSearch();
-                },
-                child: Icon(Icons.clear),
-              ),
-            ),
-            SizedBox(
-              height: 50,
-              child: TextButton(
-                onPressed: () {
-                  controller.performSearch();
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(15)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.textEditingController,
+                    onChanged: (value) {
+                      controller.updateSearchText(value);
+                    },
+                    decoration: InputDecoration(
+                      hintText: '搜索内容...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
                     ),
                   ),
                 ),
-                child: Text('搜索'),
-              ),
-            )
+                SizedBox(width: 5),
+                Visibility(
+                  visible: controller.searchText.value.isNotEmpty,
+                  child: GestureDetector(
+                    onTap: () {
+                      controller.clearSearchText();
+                      controller.performSearch();
+                    },
+                    child: Icon(Icons.clear),
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                  child: TextButton(
+                    onPressed: () {
+                      controller.performSearch();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.blue),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          const EdgeInsets.all(15)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    child: Text('搜索'),
+                  ),
+                )
+              ],
+            ),
+            InkWell(
+              onTap: () {
+                // 打开下拉菜单
+                _showDropdownMenu(context);
+              },
+              child: Icon(Icons.keyboard_arrow_down, size: 15), // 将图标大小调整为 24
+            ),
           ],
         );
       }),
+    );
+  }
+
+  void _showDropdownMenu(BuildContext context) {
+    final CustomSearchController controller =
+        Get.find<CustomSearchController>();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('附加搜索'),
+          content: TextFormField(
+            // controller: controller.additionalTextController,
+            decoration: InputDecoration(
+              hintText: '附加搜索...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {
+                // 执行搜索
+                // 你可以在这里调用搜索的方法，传递附加搜索的内容
+                onSearch(controller.getSearchDTO());
+                Navigator.of(context).pop();
+              },
+              child: Text('确定'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class CustomSearchController extends GetxController {
   RxString searchText = ''.obs; // 使用 RxString 来存储搜索文本
-  final TextEditingController textEditingController = TextEditingController(); // 添加TextEditingController
+  final TextEditingController textEditingController =
+      TextEditingController(); // 添加TextEditingController
   final Function(SearchDTO) onSearch; // 添加回调函数
 
   CustomSearchController({required this.onSearch}) {
@@ -255,14 +295,13 @@ class CustomSearchController extends GetxController {
     onSearch(searchDTO);
   }
 
-
   @override
   void dispose() {
     textEditingController.dispose();
     super.dispose();
   }
 
-  SearchDTO getSearchDTO(){
+  SearchDTO getSearchDTO() {
     SearchDTO searchDTO = SearchDTO(content: textEditingController.text);
     return searchDTO;
   }
