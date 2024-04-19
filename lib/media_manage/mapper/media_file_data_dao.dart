@@ -58,6 +58,31 @@ abstract class MediaFileDataDao {
   Future<List<MediaFileData>> searchMediaPage(String content, int limit, int offset);
 
   @Query('''
+  SELECT mfd.*
+  FROM media_file_data mfd
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
+	where ti.id is null
+    group by mfd.id
+    order by mfd.create_time,mfd.id
+  LIMIT :limit OFFSET :offset
+''')
+  Future<List<MediaFileData>> searchMediaPageWithoutTag(int limit, int offset);
+
+  @Query('''
+  SELECT mfd.*
+  FROM media_file_data mfd
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
+	where 
+	  ti.tag_name like :tag || '%'
+    group by mfd.id
+    order by mfd.create_time,mfd.id
+  LIMIT :limit OFFSET :offset
+''')
+  Future<List<MediaFileData>> searchMediaPageWithTag(String tag,int limit, int offset);
+
+  @Query('''
   SELECT count(DISTINCT mfd.id)
   FROM media_file_data mfd
   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id

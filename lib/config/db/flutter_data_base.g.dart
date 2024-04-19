@@ -270,6 +270,29 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   }
 
   @override
+  Future<List<MediaFileData>> searchMediaPageWithoutTag(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id \twhere ti.id is null     group by mfd.id     order by mfd.create_time,mfd.id   LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => MediaFileData(id: row['id'] as int?, path: row['path'] as String?, fileName: row['file_name'] as String?, fileAlias: row['file_alias'] as String?, fileMd5: row['file_md5'] as String?, memo: row['memo'] as String?, cover: row['cover'] as String?, sourceUrl: row['source_url'] as String?, lastPlayMoment: row['last_play_moment'] as int?, lastPlayTime: row['last_play_time'] as int?, playNum: row['play_num'] as int?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [limit, offset]);
+  }
+
+  @override
+  Future<List<MediaFileData>> searchMediaPageWithTag(
+    String tag,
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT mfd.*   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id \twhere  \t  ti.tag_name like ?1 || \'%\'     group by mfd.id     order by mfd.create_time,mfd.id   LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => MediaFileData(id: row['id'] as int?, path: row['path'] as String?, fileName: row['file_name'] as String?, fileAlias: row['file_alias'] as String?, fileMd5: row['file_md5'] as String?, memo: row['memo'] as String?, cover: row['cover'] as String?, sourceUrl: row['source_url'] as String?, lastPlayMoment: row['last_play_moment'] as int?, lastPlayTime: row['last_play_time'] as int?, playNum: row['play_num'] as int?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [tag, limit, offset]);
+  }
+
+  @override
   Future<int?> searchMediaCount(String content) async {
     return _queryAdapter.query(
         'SELECT count(DISTINCT mfd.id)   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id   WHERE      (?1 IS NULL OR mfd.file_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.file_alias LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mfd.memo LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_name LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR ti.tag_desc LIKE \'%\' || ?1 || \'%\') OR     (?1 IS NULL OR mtr.relation_desc LIKE \'%\' || ?1 || \'%\')',

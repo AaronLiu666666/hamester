@@ -185,11 +185,26 @@ Future<List<CardContentData>> searchMediaDataBySearchDTO(
 }
 
 Future<List<MediaFileData>> searchMediaPage(SearchDTO searchDTO) async {
+  String searchContent = searchDTO.content??"";
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   int pageSize = searchDTO.pageSize??20;
   int page = searchDTO.page??1;
   int offset = (page - 1) * pageSize;
-  List<MediaFileData> list = await dataBase.mediaFileDataDao.searchMediaPage(searchDTO.content??"",pageSize,offset);
+
+  // 如果以#开头说明进行标签查询
+  if(searchContent.startsWith("#")){
+    // 如果等于#查询没有打过标签的媒体
+    if(searchContent=="#"){
+      List<MediaFileData> list = await dataBase.mediaFileDataDao.searchMediaPageWithoutTag(pageSize,offset);
+      return list;
+    } else {
+      searchContent = searchContent.substring(1);
+      List<MediaFileData> list = await dataBase.mediaFileDataDao.searchMediaPageWithTag(searchContent,pageSize,offset);
+      return list;
+    }
+  }
+
+  List<MediaFileData> list = await dataBase.mediaFileDataDao.searchMediaPage(searchContent,pageSize,offset);
   return list;
 }
 

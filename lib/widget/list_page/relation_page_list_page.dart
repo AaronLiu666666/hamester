@@ -48,9 +48,10 @@ class _RelationPageListPage extends State<RelationPageListPage> {
                   MaterialPageRoute(
                     builder: (context) => RelationDetailPage(id:data.id!),
                   ),
-                ).then((_) {
-                  controller.refreshDataNotScan();
-                });
+                );
+                // .then((_) {
+                //   controller.refreshDataNotScan();
+                // });
               },
               onLongPress: () {
               },

@@ -43,9 +43,10 @@ class _TagPageListPageState extends State<TagPageListPage> {
                 MaterialPageRoute(
                   builder: (context) => TagDetailPage(id:data.id!),
                 ),
-              ).then((_) {
-                controller.refreshDataNotScan();
-              });
+              );
+              // .then((_) {
+              //   controller.refreshDataNotScan();
+              // });
             },
             onLongPress: () {
             },
