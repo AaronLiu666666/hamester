@@ -301,6 +301,21 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   }
 
   @override
+  Future<int?> searchMediaPageWithoutTagCount() async {
+    return _queryAdapter.query(
+        'SELECT count(DISTINCT mfd.id)   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id   WHERE      ti.id is null',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<int?> searchMediaPageWithTagCount(String tag) async {
+    return _queryAdapter.query(
+        'SELECT count(DISTINCT mfd.id)   FROM media_file_data mfd   LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id \tLEFT JOIN tag_info ti ON mtr.tag_id = ti.id   WHERE      ti.tag_name like ?1 || \'%\'',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [tag]);
+  }
+
+  @override
   Future<void> insertMember(MediaFileData data) async {
     await _mediaFileDataInsertionAdapter.insert(data, OnConflictStrategy.abort);
   }
@@ -413,6 +428,14 @@ class _$TagInfoDao extends TagInfoDao {
         'select * from tag_info where      (?1 IS NULL OR tag_name LIKE \'%\' || ?1 || \'%\') or (?1 IS NULL OR tag_desc LIKE \'%\' || ?1 || \'%\')     order by create_time,id     LIMIT ?2 OFFSET ?3',
         mapper: (Map<String, Object?> row) => TagInfo(id: row['id'] as String?, tagName: row['tag_name'] as String?, tagDesc: row['tag_desc'] as String?, tagPic: row['tag_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
         arguments: [content, limit, offset]);
+  }
+
+  @override
+  Future<List<TagInfo>> searchTagInfoListByTagName(String tagName) async {
+    return _queryAdapter.queryList(
+        'select * from tag_info where      (tag_name LIKE \'%\' || ?1 || \'%\')     order by create_time,id',
+        mapper: (Map<String, Object?> row) => TagInfo(id: row['id'] as String?, tagName: row['tag_name'] as String?, tagDesc: row['tag_desc'] as String?, tagPic: row['tag_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [tagName]);
   }
 
   @override

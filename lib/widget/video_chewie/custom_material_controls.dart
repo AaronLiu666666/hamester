@@ -10,6 +10,7 @@ import 'package:chewie/src/material/widgets/playback_speed_dialog.dart';
 import 'package:chewie/src/models/option_item.dart';
 import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -31,7 +32,6 @@ class CustomMaterialControls extends StatefulWidget {
   final bool showPlayButton;
   final int videoId; // 声明 videoId 字段
   final int? seekTo; // 可选参数 seekTo
-
 
   @override
   State<StatefulWidget> createState() {
@@ -73,9 +73,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   Widget build(BuildContext context) {
     if (_latestValue.hasError) {
       return chewieController.errorBuilder?.call(
-        context,
-        chewieController.videoPlayerController.value.errorDescription!,
-      ) ??
+            context,
+            chewieController.videoPlayerController.value.errorDescription!,
+          ) ??
           const Center(
             child: Icon(
               Icons.error,
@@ -95,6 +95,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       },
       child: GestureDetector(
         onTap: () => _cancelAndRestartTimer(),
+        /*
+        AbsorbPointer 是 Flutter 中的一个小部件，用于在其子树中吸收用户输入事件，从而阻止用户与其子树中的小部件进行交互。当 AbsorbPointer 的 absorbing 属性为 true 时，它会阻止其子树中的小部件接收指针事件。
+        这个小部件通常用于在特定情况下禁用用户与某些小部件的交互，比如在显示某些信息时，禁止用户点击按钮或输入框等。
+         */
         child: AbsorbPointer(
           absorbing: notifier.hideStuff,
           //  Stack 小部件，它允许将子部件堆叠在一起。在这里，它被用于布局视频播放器控件的各个组成部分。
@@ -106,7 +110,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
                   child: CircularProgressIndicator(),
                 )
               else
-              //_buildHitArea()，即视频播放区域的命中区域
+                //_buildHitArea()，即视频播放区域的命中区域
                 _buildHitArea(),
               //这个部分构建了视频播放器的操作栏，用于显示一些操作按钮，比如字幕切换按钮等
               _buildActionBar(),
@@ -122,8 +126,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
                         notifier.hideStuff ? barHeight * 0.8 : 0.0,
                       ),
                       child:
-                      _buildSubtitles(context, chewieController.subtitle!),
+                          _buildSubtitles(context, chewieController.subtitle!),
                     ),
+                  // 构建视频切换列表
+                  _buildVideoList(context),
                   //构建了底部的控制栏，包括播放进度条、音量控制等。
                   _buildBottomBar(context),
                 ],
@@ -198,9 +204,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     ];
 
     if (chewieController.additionalOptions != null &&
-        chewieController
-            .additionalOptions!(context)
-            .isNotEmpty) {
+        chewieController.additionalOptions!(context).isNotEmpty) {
       options.addAll(chewieController.additionalOptions!(context));
     }
 
@@ -218,12 +222,11 @@ class _MaterialControlsState extends State<CustomMaterialControls>
               context: context,
               isScrollControlled: true,
               useRootNavigator: chewieController.useRootNavigator,
-              builder: (context) =>
-                  OptionsDialog(
-                    options: options,
-                    cancelButtonText:
+              builder: (context) => OptionsDialog(
+                options: options,
+                cancelButtonText:
                     chewieController.optionsTranslation?.cancelButtonText,
-                  ),
+              ),
             );
           }
 
@@ -274,12 +277,104 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     );
   }
 
-  AnimatedOpacity _buildBottomBar(BuildContext context,) {
-    final iconColor = Theme
-        .of(context)
-        .textTheme
-        .labelLarge!
-        .color;
+  AnimatedOpacity _buildVideoList(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: notifier.hideStuff ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        height: 100,
+        padding: EdgeInsets.all(2),
+        width: double.maxFinite,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: videoTitles.length, // 指定列表项的数量
+          itemBuilder: (BuildContext context, int index) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              child: Card(
+                color: Colors.white.withOpacity(0.3),
+                child: SizedBox(
+                  height: 70,
+                  width: 80,
+                  child: Image.asset(
+                    'assets/image/no-pictures.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      // child: Container(
+      //   height: 70, // 调整高度适配您的界面
+      //   padding: EdgeInsets.all(5),
+      //   child: Center(
+      //     child: ListView.builder(
+      //       scrollDirection: Axis.horizontal,
+      //       itemCount: videoTitles.length,
+      //       itemBuilder: (context, index) {
+      //         return Card(
+      //           // child: Padding(
+      //           //   padding: EdgeInsets.symmetric(horizontal: 8.0),
+      //             color: Colors.white.withOpacity(0.3), // 设置卡片背景色并设置透明度
+      //           // color: Colors.transparent, // 将卡片背景色设置为透明
+      //           // shape: RoundedRectangleBorder( // 使用RoundedRectangleBorder来设置边框样式
+      //           //   side: BorderSide(
+      //           //     color: Colors.white, // 设置边框颜色为白色
+      //           //     width: 1.0, // 设置边框宽度
+      //           //   ),
+      //           //   borderRadius: BorderRadius.circular(10.0), // 设置边框圆角
+      //           // ),
+      //             child: Column(
+      //               mainAxisSize: MainAxisSize.min, // 这里设置为最小化
+      //               children: <Widget>[
+      //                 SizedBox(
+      //                   height: 50, // 调整图片高度适配您的界面
+      //                   child: Image.asset(
+      //                     'assets/image/no-pictures.png',
+      //                     fit: BoxFit.cover,
+      //                   ),
+      //                 ),
+      //                 // 2024-04-18 使用Tooltip包裹text，手指在上面是悬浮提示message的内容，为了解决文件名过长占空间问题
+      //                 // Container(
+      //                 //   height: 10,
+      //                 //   child: Tooltip(
+      //                 //     message: videoTitles[index] ?? "", // 提示框中显示完整的文本内容
+      //                 //     child: Text(
+      //                 //       videoTitles[index] ?? "",
+      //                 //       // 最多展示1行，超过省略展示，防止文字过多展示时占用了图片的空间，导致图片显示过小或者展示不出来问题
+      //                 //       maxLines: 1,
+      //                 //       overflow: TextOverflow.ellipsis,
+      //                 //       textAlign: TextAlign.center, // 文字居中显示
+      //                 //     ),
+      //                 //   ),
+      //                 // )
+      //               ],
+      //             ),
+      //           // ),
+      //         );
+      //       },
+      //     ),
+      //   ),
+      // ),
+    );
+  }
+
+  // 固定的视频列表
+  final List<String> videoTitles = [
+    "视频1",
+    "视频2",
+    "视频3",
+    "视频4",
+    "视频5",
+  ];
+
+  AnimatedOpacity _buildBottomBar(
+    BuildContext context,
+  ) {
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
     return AnimatedOpacity(
       opacity: notifier.hideStuff ? 0.0 : 1.0,
@@ -318,7 +413,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
               if (!chewieController.isLive)
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.only(right: 20),
+                    padding: const EdgeInsets.fromLTRB(0, 20, 20, 0), // 上右下左
                     child: Row(
                       children: [
                         _buildProgressBar(),
@@ -333,7 +428,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     );
   }
 
-  GestureDetector _buildMuteButton(VideoPlayerController controller,) {
+  GestureDetector _buildMuteButton(
+    VideoPlayerController controller,
+  ) {
     return GestureDetector(
       onTap: () {
         _cancelAndRestartTimer();
@@ -431,11 +528,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       context: context,
       isScrollControlled: true,
       useRootNavigator: chewieController.useRootNavigator,
-      builder: (context) =>
-          PlaybackSpeedDialog(
-            speeds: chewieController.playbackSpeeds,
-            selected: _latestValue.playbackSpeed,
-          ),
+      builder: (context) => PlaybackSpeedDialog(
+        speeds: chewieController.playbackSpeeds,
+        selected: _latestValue.playbackSpeed,
+      ),
     );
 
     if (chosenSpeed != null) {
@@ -543,10 +639,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       chewieController.toggleFullScreen();
       _showAfterExpandCollapseTimer =
           Timer(const Duration(milliseconds: 300), () {
-            setState(() {
-              _cancelAndRestartTimer();
-            });
-          });
+        setState(() {
+          _cancelAndRestartTimer();
+        });
+      });
     });
   }
 
@@ -641,24 +737,11 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         },
         colors: chewieController.materialProgressColors ??
             ChewieProgressColors(
-              playedColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .secondary,
-              handleColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .secondary,
+              playedColor: Theme.of(context).colorScheme.secondary,
+              handleColor: Theme.of(context).colorScheme.secondary,
               bufferedColor:
-              Theme
-                  .of(context)
-                  .colorScheme
-                  .background
-                  .withOpacity(0.5),
-              backgroundColor: Theme
-                  .of(context)
-                  .disabledColor
-                  .withOpacity(.5),
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
+              backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),
     );
@@ -670,24 +753,21 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       onTap: () async {
         // 获取视频帧的图片路径
         String imagePath = await _captureVideoFrame();
-        
+
         // 导航到 VideoTagAddPage 页面，并将图片路径传递过去
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (BuildContext context) {
-                return Container(
-                  padding: const EdgeInsets.all(5),
-                  color: Colors.black.withOpacity(0.5),
-                  child: VideoTagAddPage(
-                    videoId: widget.videoId,
-                    imagePath: imagePath, // 传入图片路径
-                    mediaMoment: _latestValue.position
-                        .inMilliseconds, // 传入视频当前播放位置
-                  ),
-                );
-              }
-          ),
+          MaterialPageRoute(builder: (BuildContext context) {
+            return Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.black.withOpacity(0.5),
+              child: VideoTagAddPage(
+                videoId: widget.videoId,
+                imagePath: imagePath, // 传入图片路径
+                mediaMoment: _latestValue.position.inMilliseconds, // 传入视频当前播放位置
+              ),
+            );
+          }),
         ).then((_) {
           // 返回视频播放页面后继续播放视频
           _playPause();
@@ -718,9 +798,12 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       Duration currentDuration = _latestValue.position;
       // String imagePath = await getFrameAtMoment(dataSource, currentDuration);
       MediaFileData? mediaFileData = await queryMediaDataById(widget.videoId);
-      if(null!=mediaFileData&&null!=mediaFileData.path&&mediaFileData.path!.isNotEmpty){
-        String? imagePath = await generateThumbnailImageAtTimeMs(mediaFileData.path!,currentDuration.inMilliseconds);
-        if(null==imagePath||imagePath.isEmpty){
+      if (null != mediaFileData &&
+          null != mediaFileData.path &&
+          mediaFileData.path!.isNotEmpty) {
+        String? imagePath = await generateThumbnailImageAtTimeMs(
+            mediaFileData.path!, currentDuration.inMilliseconds);
+        if (null == imagePath || imagePath.isEmpty) {
           return "";
         }
         return imagePath;

@@ -101,3 +101,12 @@ Future<List<TagInfo>> searchTagInfoPage(SearchDTO searchDTO) async {
   List<TagInfo> list = await dataBase.tagInfoDao.searchTagInfoPage(searchDTO.content??"",pageSize,offset);
   return list;
 }
+
+Future<List<TagInfo>> searchTagInfoListByTagName(String tagName) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  if(null==tagName||tagName.isEmpty){
+    return List.empty();
+  }
+  List<TagInfo> list = await dataBase.tagInfoDao.searchTagInfoListByTagName(tagName);
+  return list;
+}

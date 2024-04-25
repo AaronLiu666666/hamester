@@ -209,7 +209,20 @@ Future<List<MediaFileData>> searchMediaPage(SearchDTO searchDTO) async {
 }
 
 Future<int> searchMediaCount(SearchDTO searchDTO) async {
+  String searchContent = searchDTO.content??"";
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  // 如果以#开头说明进行标签查询
+  if(searchContent.startsWith("#")){
+    // 如果等于#查询没有打过标签的媒体
+    if(searchContent=="#"){
+      int? count = await dataBase.mediaFileDataDao.searchMediaPageWithoutTagCount();
+      return count??0;
+    } else {
+      searchContent = searchContent.substring(1);
+      int? count = await dataBase.mediaFileDataDao.searchMediaPageWithTagCount(searchContent);
+      return count??0;
+    }
+  }
   int count = await dataBase.mediaFileDataDao.searchMediaCount(searchDTO.content??"")??0;
   return count;
 }

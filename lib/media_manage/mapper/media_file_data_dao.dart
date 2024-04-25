@@ -97,6 +97,26 @@ abstract class MediaFileDataDao {
 ''')
   Future<int?> searchMediaCount(String content);
 
+  @Query('''
+  SELECT count(DISTINCT mfd.id)
+  FROM media_file_data mfd
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
+  WHERE 
+    ti.id is null
+''')
+  Future<int?> searchMediaPageWithoutTagCount();
+
+  @Query('''
+  SELECT count(DISTINCT mfd.id)
+  FROM media_file_data mfd
+  LEFT JOIN r_media_tag mtr ON mfd.id = mtr.media_id
+	LEFT JOIN tag_info ti ON mtr.tag_id = ti.id
+  WHERE 
+    ti.tag_name like :tag || '%'
+''')
+  Future<int?> searchMediaPageWithTagCount(String tag);
+
   @update
   Future<void> updateData(MediaFileData mediaFileData);
 

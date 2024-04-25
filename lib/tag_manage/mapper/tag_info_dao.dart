@@ -35,4 +35,11 @@ abstract class TagInfoDao {
     LIMIT :limit OFFSET :offset
   ''')
   Future<List<TagInfo>> searchTagInfoPage(String content, int limit, int offset);
+
+  @Query('''
+  select * from tag_info where 
+    (tag_name LIKE '%' || :tagName || '%')
+    order by create_time,id
+  ''')
+  Future<List<TagInfo>> searchTagInfoListByTagName(String tagName);
 }
