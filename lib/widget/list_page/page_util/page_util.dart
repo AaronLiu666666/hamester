@@ -225,3 +225,127 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
     id: controller.pagingState.refreshId,
   );
 }
+
+// Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>({
+//   required Widget Function(T item, int index) itemBuilder,
+//   bool enablePullUp = true,
+//   bool enablePullDown = true,
+//   String? tag,
+//   Widget Function(T item, int index)? separatorBuilder,
+//   Function(T item, int index)? onItemClick,
+//   ScrollPhysics? physics,
+//   bool shrinkWrap = false,
+//   Axis scrollDirection = Axis.vertical,
+//   ListEnum listEnum = ListEnum.grid,
+// }) {
+//   C controller = Get.find(tag: tag);
+//   return Obx(
+//         () => buildRefreshWidget(
+//       builder: () => buildCustomListView<T>(
+//         data: controller.pagingState.data,
+//         separatorBuilder: separatorBuilder,
+//         itemBuilder: itemBuilder,
+//         onItemClick: onItemClick,
+//         physics: physics,
+//         shrinkWrap: shrinkWrap,
+//         scrollDirection: scrollDirection,
+//         listEnum: listEnum,
+//       ),
+//       refreshController: controller.refreshController,
+//       onRefresh: controller.refreshData,
+//       onLoad: controller.loadMoreData,
+//       enablePullDown: enablePullDown,
+//       enablePullUp: enablePullUp && controller.pagingState.hasMore,
+//     ),
+//   );
+// }
+Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
+    {required Widget Function(T item, int index) itemBuilder,
+      bool enablePullUp = true,
+      bool enablePullDown = true,
+      String? tag,
+      Widget Function(T item, int index)? separatorBuilder,
+      Function(T item, int index)? onItemClick,
+      ScrollPhysics? physics,
+      bool shrinkWrap = false,
+      Axis scrollDirection = Axis.vertical,
+      ListEnum listEnum = ListEnum.grid,
+      }) {
+  C controller = Get.find(tag: tag);
+  return GetBuilder<C>(
+    builder: (controller) {
+      return buildRefreshWidget(
+        builder: () => buildCustomListView<T>(
+            data: controller.pagingState.data,
+            separatorBuilder: separatorBuilder,
+            itemBuilder: itemBuilder,
+            onItemClick: onItemClick,
+            physics: physics,
+            shrinkWrap: shrinkWrap,
+            scrollDirection: scrollDirection,
+            listEnum: listEnum),
+        refreshController: controller.refreshController,
+        onRefresh: controller.refreshData,
+        onLoad: controller.loadMoreData,
+        enablePullDown: enablePullDown,
+        enablePullUp: enablePullUp && controller.pagingState.hasMore,
+      );
+    },
+    tag: tag,
+    id: controller.pagingState.refreshId,
+  );
+}
+
+Widget buildCustomListView<T>(
+    {required Widget Function(T item, int index) itemBuilder,
+      required List<T> data,
+      Widget Function(T item, int index)? separatorBuilder,
+      Function(T item, int index)? onItemClick,
+      ScrollPhysics? physics,
+      bool shrinkWrap = false,
+      Axis scrollDirection = Axis.vertical,
+      ListEnum listEnum = ListEnum.grid}) {
+  if(listEnum==ListEnum.list){
+    // return Container(
+    //   height: 100,
+    //   padding: EdgeInsets.all(2),
+    //   width: double.maxFinite,
+    //   child:
+      return ListView.builder(
+        scrollDirection: scrollDirection,
+        shrinkWrap: shrinkWrap,
+        itemCount: data.length, // 指定列表项的数量
+          itemBuilder: (ctx, index) {
+            return GestureDetector(
+              onTap: () => onItemClick?.call(data[index], index),
+              child: itemBuilder(data[index], index),
+            );
+          },
+      );
+    // );
+  }
+
+  return GridView.builder(
+    shrinkWrap: shrinkWrap,
+    physics: physics,
+    padding: EdgeInsets.zero,
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+      mainAxisSpacing: 0, // 主轴（垂直）间距
+      crossAxisSpacing: 0,
+      // 交叉轴（水平）间距
+    ),
+    itemCount: data.length,
+    itemBuilder: (ctx, index) {
+      return GestureDetector(
+        onTap: () => onItemClick?.call(data[index], index),
+        child: itemBuilder(data[index], index),
+      );
+    },
+  );
+}
+
+enum ListEnum {
+  grid,
+  list
+}

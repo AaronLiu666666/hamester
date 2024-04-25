@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/chewie_player.dart';
@@ -12,6 +13,7 @@ import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -284,79 +286,33 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       child: Container(
         height: 100,
         padding: EdgeInsets.all(2),
-        width: double.maxFinite,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          itemCount: videoTitles.length, // 指定列表项的数量
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              child: Card(
-                color: Colors.white.withOpacity(0.3),
-                child: SizedBox(
-                  height: 70,
-                  width: 80,
-                  child: Image.asset(
-                    'assets/image/no-pictures.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+        width:double.maxFinite,
+        child: VideoHorizontalScrollWidget(),
       ),
-      // child: Container(
-      //   height: 70, // 调整高度适配您的界面
-      //   padding: EdgeInsets.all(5),
-      //   child: Center(
-      //     child: ListView.builder(
-      //       scrollDirection: Axis.horizontal,
-      //       itemCount: videoTitles.length,
-      //       itemBuilder: (context, index) {
-      //         return Card(
-      //           // child: Padding(
-      //           //   padding: EdgeInsets.symmetric(horizontal: 8.0),
-      //             color: Colors.white.withOpacity(0.3), // 设置卡片背景色并设置透明度
-      //           // color: Colors.transparent, // 将卡片背景色设置为透明
-      //           // shape: RoundedRectangleBorder( // 使用RoundedRectangleBorder来设置边框样式
-      //           //   side: BorderSide(
-      //           //     color: Colors.white, // 设置边框颜色为白色
-      //           //     width: 1.0, // 设置边框宽度
-      //           //   ),
-      //           //   borderRadius: BorderRadius.circular(10.0), // 设置边框圆角
-      //           // ),
-      //             child: Column(
-      //               mainAxisSize: MainAxisSize.min, // 这里设置为最小化
-      //               children: <Widget>[
-      //                 SizedBox(
-      //                   height: 50, // 调整图片高度适配您的界面
-      //                   child: Image.asset(
-      //                     'assets/image/no-pictures.png',
-      //                     fit: BoxFit.cover,
-      //                   ),
-      //                 ),
-      //                 // 2024-04-18 使用Tooltip包裹text，手指在上面是悬浮提示message的内容，为了解决文件名过长占空间问题
-      //                 // Container(
-      //                 //   height: 10,
-      //                 //   child: Tooltip(
-      //                 //     message: videoTitles[index] ?? "", // 提示框中显示完整的文本内容
-      //                 //     child: Text(
-      //                 //       videoTitles[index] ?? "",
-      //                 //       // 最多展示1行，超过省略展示，防止文字过多展示时占用了图片的空间，导致图片显示过小或者展示不出来问题
-      //                 //       maxLines: 1,
-      //                 //       overflow: TextOverflow.ellipsis,
-      //                 //       textAlign: TextAlign.center, // 文字居中显示
-      //                 //     ),
-      //                 //   ),
-      //                 // )
-      //               ],
+      // Container(
+      //   height: 100,
+      //   padding: EdgeInsets.all(2),
+      //   width: double.maxFinite,
+      //   child: ListView.builder(
+      //     scrollDirection: Axis.horizontal,
+      //     shrinkWrap: true,
+      //     itemCount: videoTitles.length, // 指定列表项的数量
+      //     itemBuilder: (BuildContext context, int index) {
+      //       return Padding(
+      //         padding: EdgeInsets.symmetric(horizontal: 2),
+      //         child: Card(
+      //           color: Colors.white.withOpacity(0.3),
+      //           child: SizedBox(
+      //             height: 70,
+      //             width: 80,
+      //             child: Image.asset(
+      //               'assets/image/no-pictures.png',
+      //               fit: BoxFit.cover,
       //             ),
-      //           // ),
-      //         );
-      //       },
-      //     ),
+      //           ),
+      //         ),
+      //       );
+      //     },
       //   ),
       // ),
     );
@@ -364,6 +320,16 @@ class _MaterialControlsState extends State<CustomMaterialControls>
 
   // 固定的视频列表
   final List<String> videoTitles = [
+    "视频1",
+    "视频2",
+    "视频3",
+    "视频4",
+    "视频5",
+    "视频1",
+    "视频2",
+    "视频3",
+    "视频4",
+    "视频5",
     "视频1",
     "视频2",
     "视频3",
@@ -607,6 +573,14 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       notifier.hideStuff = false;
       _displayTapped = true;
     });
+  }
+
+  void switchVideo(int videoId,String videoPath) {
+    controller.dispose();
+    controller = VideoPlayerController.file(File(videoPath))
+        ..initialize().then((_) {
+          setState(() {});
+        });
   }
 
   Future<void> _initialize() async {
