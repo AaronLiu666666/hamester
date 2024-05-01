@@ -12,16 +12,28 @@ import 'custom_material_controls.dart';
 class VideoChewiePageController extends GetxController {
   late VideoPlayerController _videoPlayerController;
   late ChewieController _chewieController;
-  late VideoHorizontalScrollPagingController _videoHorizontalScrollPagingController;
+  late VideoHorizontalScrollPagingController
+      _videoHorizontalScrollPagingController;
 
   late int _videoId;
   late String _videoPath;
   late int? _seekTo;
+  late VideoPageFromType _videoPageFromType;
 
-  void setVideoInfo({required int videoId, required String videoPath, int? seekTo}) {
+  void setVideoInfo(
+      {required int videoId,
+      required String videoPath,
+      int? seekTo,
+      VideoPageFromType videoPageFromType = VideoPageFromType.media_page}) {
     _videoId = videoId;
     _videoPath = videoPath;
     _seekTo = seekTo;
+    _videoPageFromType = videoPageFromType;
+  }
+
+
+  VideoPageFromType getVideoPageFromType() {
+    return _videoPageFromType;
   }
 
   Future<Widget> buildVideoWidget() async {
@@ -48,11 +60,13 @@ class VideoChewiePageController extends GetxController {
       autoPlay: true,
       looping: false,
       showControls: true,
-      customControls: CustomMaterialControls(videoId: _videoId, seekTo: _seekTo),
+      customControls:
+          CustomMaterialControls(videoId: _videoId, seekTo: _seekTo),
       aspectRatio: _videoPlayerController.value.aspectRatio,
     );
 
-    _videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
+    _videoHorizontalScrollPagingController =
+        Get.put(VideoHorizontalScrollPagingController());
   }
 
   @override
@@ -64,7 +78,15 @@ class VideoChewiePageController extends GetxController {
     super.onClose();
   }
 
-  void switchVideo({required int videoId, required String videoPath, int? seekTo}) async {
+
+  @override
+  void dispose() {
+    // Get.delete<VideoChewiePageController>();
+    super.dispose();
+  }
+
+  void switchVideo(
+      {required int videoId, required String videoPath, int? seekTo}) async {
     _videoId = videoId;
     _videoPath = videoPath;
     _seekTo = seekTo;
@@ -72,36 +94,63 @@ class VideoChewiePageController extends GetxController {
     await _videoPlayerController.dispose();
     _chewieController.dispose();
     // 更新界面状态,直接就会重新初始化了
+    print("Initializing VideoPlayerController for $_videoPath");
+    _videoPlayerController = VideoPlayerController.file(File(_videoPath));
+
+    await _videoPlayerController.initialize();
+    print("VideoPlayerController initialized successfully.");
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      autoPlay: true,
+      looping: false,
+      showControls: true,
+      customControls:
+      CustomMaterialControls(videoId: _videoId, seekTo: _seekTo),
+      aspectRatio: _videoPlayerController.value.aspectRatio,
+    );
+
     update();
   }
 }
 
-class VideoChewiePage extends StatelessWidget {
+class VideoChewiePage extends GetView<VideoChewiePageController> {
   final int videoId;
   final String videoPath;
   final int? seekTo;
+  final VideoPageFromType videoPageFromType;
 
-  VideoChewiePage({required this.videoId, required this.videoPath, this.seekTo});
+  VideoChewiePage({
+    required this.videoId,
+    required this.videoPath,
+    this.seekTo,
+    this.videoPageFromType = VideoPageFromType.media_page,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(VideoChewiePageController());
-    controller.setVideoInfo(videoId: videoId, videoPath: videoPath, seekTo: seekTo);
-
-    return GetBuilder<VideoChewiePageController>(
-      builder: (controller) {
-        return FutureBuilder<Widget>(
-          future: controller.buildVideoWidget(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else {
-              return snapshot.data ?? Container();
-            }
-          },
-        );
+    controller.setVideoInfo(
+      videoId: videoId,
+      videoPath: videoPath,
+      seekTo: seekTo,
+      videoPageFromType: videoPageFromType,
+    );
+    return FutureBuilder<Widget>(
+      future: controller.buildVideoWidget(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          return snapshot.data ?? Container();
+        }
       },
     );
   }
 }
 
+
+enum VideoPageFromType {
+  media_page,
+  tag_detail_relation_list,
+  tag_detail_video_list
+}

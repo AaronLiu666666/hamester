@@ -312,7 +312,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       opacity: notifier.hideStuff ? 0.0 : 1.0,
       duration: const Duration(milliseconds: 300),
       child: Container(
-        height: barHeight + (chewieController.isFullScreen ? 10.0 : 0),
+        height: barHeight + (chewieController.isFullScreen ? 10.0 : 10.0),
         padding: EdgeInsets.only(
           left: 20,
           bottom: !chewieController.isFullScreen ? 10.0 : 0,
@@ -340,12 +340,14 @@ class _MaterialControlsState extends State<CustomMaterialControls>
                 ),
               ),
               SizedBox(
-                height: chewieController.isFullScreen ? 15.0 : 0,
+                height: chewieController.isFullScreen ? 15.0 : 15.0,
               ),
               if (!chewieController.isLive)
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(0, 20, 20, 0), // 上右下左
+                    // 上下左右都设置会导致进度条在竖屏情况下拖动点击失败，被覆盖？ 应该调整整个Column外面的Container的高度
+                    // padding: const EdgeInsets.fromLTRB(0, 20, 20, 0), // 上右下左
+                    padding: const EdgeInsets.only(right:20), // 上右下左
                     child: Row(
                       children: [
                         _buildProgressBar(),

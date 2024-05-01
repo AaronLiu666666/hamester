@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 import 'package:hamster/tag_manage/model/po/media_tag_relation.dart';
 import 'package:hamster/tag_manage/model/po/tag_info.dart';
@@ -99,15 +101,25 @@ class _RelationDetailPageState extends State<RelationDetailPage> {
                 SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => VideoChewiePage(
-                          videoId: _media.id!,
-                          videoPath: _media.path!,
-                          seekTo: _relation.mediaMoment,
-                        ),
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => VideoChewiePage(
+                    //       videoId: _media.id!,
+                    //       videoPath: _media.path!,
+                    //       seekTo: _relation.mediaMoment,
+                    //     ),
+                    //   ),
+                    // );
+                    Get.to(
+                          () => VideoChewiePage(
+                        videoId: _media.id!,
+                        videoPath: _media.path!,
+                        videoPageFromType: VideoPageFromType.media_page,
                       ),
+                      binding: BindingsBuilder(() {
+                        Get.put(VideoChewiePageController());
+                      }),
                     );
                   },
                   child: Card(

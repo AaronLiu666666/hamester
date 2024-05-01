@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../widget/video_chewie/video_chewie_page.dart';
 
 class CardContentData {
@@ -57,12 +59,22 @@ class CardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  VideoChewiePage(videoId: data.id, videoPath: data.path),
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) =>
+          //         VideoChewiePage(videoId: data.id, videoPath: data.path),
+          //   ),
+          // );
+          Get.to(
+                () => VideoChewiePage(
+              videoId: data.id!,
+              videoPath: data.path!,
+              videoPageFromType: VideoPageFromType.media_page,
             ),
+            binding: BindingsBuilder(() {
+              Get.put(VideoChewiePageController());
+            }),
           );
         },
         child: Card(

@@ -31,12 +31,13 @@ class MyApp extends StatelessWidget {
 class MaterialAppScaffoldWidget extends StatelessWidget {
   // 定义路由变量
   final routes = {
-    '/videoPlayChewie':(context,{arguments})=>VideoChewiePage(videoId: arguments["videoId"] as int,videoPath: arguments['videoPath'] as String)
+    // '/videoPlayChewie':(context,{arguments})=>VideoChewiePage(videoId: arguments["videoId"] as int,videoPath: arguments['videoPath'] as String)
   };
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // 使用GetMaterialApp替换flutter原始MaterialApp 这样可以使用 Getx 的 Get.to 导航路由，同时也能兼容原生路由方式
+    return GetMaterialApp(
         home: MediaHomePage(),
         theme: ThemeData(
           primarySwatch: Colors.yellow,
