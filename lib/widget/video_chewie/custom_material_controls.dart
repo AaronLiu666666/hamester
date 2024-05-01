@@ -13,6 +13,8 @@ import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -24,7 +26,7 @@ import '../tag/media_tag_add_widget.dart';
 
 /// 直接copy chewie的MaterialControls类，拿来进行魔改 chewie的ChewieController默认用的就是这个MaterialControls
 class CustomMaterialControls extends StatefulWidget {
-  const CustomMaterialControls({
+  CustomMaterialControls({
     this.showPlayButton = true,
     required this.videoId,
     this.seekTo, // 可选参数 seekTo
@@ -32,7 +34,7 @@ class CustomMaterialControls extends StatefulWidget {
   }) : super(key: key);
 
   final bool showPlayButton;
-  final int videoId; // 声明 videoId 字段
+  late int videoId; // 声明 videoId 字段
   final int? seekTo; // 可选参数 seekTo
 
   @override
@@ -65,10 +67,14 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   // We know that _chewieController is set in didChangeDependencies
   ChewieController get chewieController => _chewieController!;
 
+  // late VideoHorizontalScrollPagingController _videoHorizontalScrollPagingController; // 声明 VideoHorizontalScrollPagingController
+
   @override
   void initState() {
     super.initState();
     notifier = Provider.of<PlayerNotifier>(context, listen: false);
+    // 在 initState 方法中初始化 VideoHorizontalScrollPagingController
+    // _videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
   }
 
   @override
@@ -149,6 +155,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   @override
   void dispose() {
     _dispose();
+    // 不能在这里销毁横向VideoHorizontalScrollPagingController因为全屏的时候也会调用这个dispose
+    // _videoHorizontalScrollPagingController.dispose();
+    // // 如果这里不调用delete 再次进入播放页面会报错 使用一个已经dispose的controller
+    // Get.delete<VideoHorizontalScrollPagingController>();
     super.dispose();
   }
 
@@ -161,6 +171,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
 
   @override
   void didChangeDependencies() {
+    // 进入播放页面 点击播放页面全屏 都会调用
     final oldController = _chewieController;
     _chewieController = ChewieController.of(context);
     controller = chewieController.videoPlayerController;
@@ -286,56 +297,15 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       child: Container(
         height: 100,
         padding: EdgeInsets.all(2),
-        width:double.maxFinite,
-        child: VideoHorizontalScrollWidget(),
+        width: double.maxFinite,
+        child: VideoHorizontalScrollWidget(
+          onVideoSelected: (videoId, videoPath) {
+            switchVideo(videoId, videoPath);
+          },
+        ),
       ),
-      // Container(
-      //   height: 100,
-      //   padding: EdgeInsets.all(2),
-      //   width: double.maxFinite,
-      //   child: ListView.builder(
-      //     scrollDirection: Axis.horizontal,
-      //     shrinkWrap: true,
-      //     itemCount: videoTitles.length, // 指定列表项的数量
-      //     itemBuilder: (BuildContext context, int index) {
-      //       return Padding(
-      //         padding: EdgeInsets.symmetric(horizontal: 2),
-      //         child: Card(
-      //           color: Colors.white.withOpacity(0.3),
-      //           child: SizedBox(
-      //             height: 70,
-      //             width: 80,
-      //             child: Image.asset(
-      //               'assets/image/no-pictures.png',
-      //               fit: BoxFit.cover,
-      //             ),
-      //           ),
-      //         ),
-      //       );
-      //     },
-      //   ),
-      // ),
     );
   }
-
-  // 固定的视频列表
-  final List<String> videoTitles = [
-    "视频1",
-    "视频2",
-    "视频3",
-    "视频4",
-    "视频5",
-    "视频1",
-    "视频2",
-    "视频3",
-    "视频4",
-    "视频5",
-    "视频1",
-    "视频2",
-    "视频3",
-    "视频4",
-    "视频5",
-  ];
 
   AnimatedOpacity _buildBottomBar(
     BuildContext context,
@@ -575,13 +545,75 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     });
   }
 
-  void switchVideo(int videoId,String videoPath) {
+  // void switchVideo(int videoId, String videoPath) {
+  // widget.videoId = videoId;
+  // _dispose();
+  // // 停止当前视频的播放
+  // controller.dispose();
+  // controller = VideoPlayerController.file(File(videoPath))
+  //   ..initialize().then((_) {
+  //     setState(() {});
+  //   });
+  // this.chewieController.videoPlayerController = controller;
+  // _initialize();
+  // widget.videoId = videoId;
+  // _dispose();
+  // // 停止当前视频的播放
+  // controller.dispose();
+  // controller = VideoPlayerController.file(File(videoPath))
+  //   ..initialize().then((_) {
+  //     setState(() {
+  //       // 创建一个新的 ChewieController 实例来更新 videoPlayerController
+  //       _chewieController = ChewieController(
+  //         videoPlayerController: controller,
+  //         // 其他 ChewieController 的属性...
+  //       );
+  //     });
+  //   });
+  // _initialize();
+  // void switchVideo(int videoId, String videoPath) {
+  //   widget.videoId = videoId;
+  //   _dispose();
+  //   // 停止当前视频的播放
+  //   controller.dispose();
+  //   controller = VideoPlayerController.file(File(videoPath))
+  //     ..initialize().then((_) {
+  //       setState(() {
+  //         _chewieController = _chewieController?.copyWith(
+  //           videoPlayerController: controller,
+  //         );
+  //       });
+  //     });
+  //   _initialize();
+  // }
+  void switchVideo(int videoId, String videoPath) {
+    widget.videoId = videoId;
+    _dispose();
+
+    // 停止当前视频的播放
     controller.dispose();
-    controller = VideoPlayerController.file(File(videoPath))
-        ..initialize().then((_) {
-          setState(() {});
-        });
+
+    // 创建新的 VideoPlayerController
+    controller = VideoPlayerController.file(File(videoPath));
+
+    // 初始化新的 VideoPlayerController
+    controller.initialize().then((_) {
+      setState(() {
+        // 使用新的 VideoPlayerController 更新 ChewieController
+        _chewieController = ChewieController(
+          videoPlayerController: controller,
+          // 其他 ChewieController 的属性...
+        );
+        // 启动播放器
+        controller.play();
+
+        // 初始化 ChewieController
+        _initialize();
+      });
+    });
   }
+
+  // }
 
   Future<void> _initialize() async {
     _subtitleOn = chewieController.subtitle?.isNotEmpty ?? false;

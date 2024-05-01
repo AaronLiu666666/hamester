@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:video_player/video_player.dart';
 
 import 'custom_material_controls.dart';
@@ -25,6 +28,8 @@ class _VideoChewiePageState extends State<VideoChewiePage> {
   late VideoPlayerController _videoPlayerController;
 
   late ChewieController _chewieController;
+
+  late VideoHorizontalScrollPagingController _videoHorizontalScrollPagingController;
 
   @override
   void initState() {
@@ -56,6 +61,7 @@ class _VideoChewiePageState extends State<VideoChewiePage> {
         });
       }
     });
+    _videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
   }
 
   // void initializeControllers() async {
@@ -85,6 +91,9 @@ class _VideoChewiePageState extends State<VideoChewiePage> {
   void dispose() {
     _videoPlayerController.dispose();
     _chewieController.dispose();
+    _videoHorizontalScrollPagingController.dispose();
+    // 如果这里不调用delete 再次进入播放页面会报错 使用一个已经dispose的controller
+    Get.delete<VideoHorizontalScrollPagingController>();
     super.dispose();
   }
 
@@ -102,15 +111,6 @@ class _VideoChewiePageState extends State<VideoChewiePage> {
   }
 }
 
-class ChewieCustomControl extends StatefulWidget {
-  @override
-  _ChewieCustomControlState createState() => _ChewieCustomControlState();
-}
+class VideoChewiePageController extends GetxController {
 
-class _ChewieCustomControlState extends State<ChewieCustomControl> {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
 }

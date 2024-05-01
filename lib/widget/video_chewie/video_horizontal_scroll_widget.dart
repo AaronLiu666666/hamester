@@ -1,25 +1,34 @@
 import 'dart:io';
 
+import 'package:chewie/chewie.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
 
+import '../../config/id_generator/id_generator.dart';
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../list_page/media_home_page.dart';
 import '../list_page/media_page_list_page.dart';
+import 'custom_material_controls.dart';
 
 class VideoHorizontalScrollWidget extends StatelessWidget {
+  // final VideoHorizontalScrollPagingController videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
+
+  final void Function(int videoId, String videoPath)? onVideoSelected; // 声明回调函数
+
+  VideoHorizontalScrollWidget({Key? key, this.onVideoSelected}) : super(key: key){
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<VideoHorizontalScrollPagingController>(
-      init: VideoHorizontalScrollPagingController(),
       builder: (controller) {
-        return buildCustomRefreshListWidget<MediaFileData,
-            VideoHorizontalScrollPagingController>(
+        return buildCustomRefreshListWidget<MediaFileData, VideoHorizontalScrollPagingController>(
+          // tag: controller.tag,
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           listEnum: ListEnum.list,
@@ -27,8 +36,10 @@ class VideoHorizontalScrollWidget extends StatelessWidget {
           enablePullUp: true,
           physics: AlwaysScrollableScrollPhysics(),
           onItemClick: (data, index) {
-            // 处理点击事件,点击播放新的视频
-
+            // 检查是否定义了onVideoSelected回调函数，如果是，则调用它并传递视频ID和路径
+            if (onVideoSelected != null) {
+              onVideoSelected!(data.id??0, data.path??"");
+            }
           },
           itemBuilder: (data, index) => Padding(
             padding: EdgeInsets.symmetric(horizontal: 2),
@@ -84,6 +95,9 @@ class VideoHorizontalScrollWidget extends StatelessWidget {
 
 class VideoHorizontalScrollPagingController
     extends PagingController<MediaFileData, PagingState<MediaFileData>> {
+
+  // String tag = UuidGenerator.generateUuid();
+
   @override
   Future<PagingData<MediaFileData>?> loadData(PagingParams pagingParams) async {
     CustomSearchController searchController =

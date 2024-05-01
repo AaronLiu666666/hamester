@@ -1,5 +1,5 @@
-
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -52,6 +52,7 @@ abstract class PagingController<M, S extends PagingState<M>>
     initPaging();
     await initBeforeLoadData();
     await _loadData();
+
     /// 刷新完成
     refreshController.refreshCompleted();
   }
@@ -59,6 +60,7 @@ abstract class PagingController<M, S extends PagingState<M>>
   void refreshDataNotScan() async {
     initPaging();
     await _loadData();
+
     /// 刷新完成
     refreshController.refreshCompleted();
   }
@@ -73,7 +75,7 @@ abstract class PagingController<M, S extends PagingState<M>>
   /// 数据加载
   Future<List<M>?> _loadData() async {
     PagingParams pagingParams =
-    PagingParams.create(pageIndex: pagingState.pageIndex);
+        PagingParams.create(pageIndex: pagingState.pageIndex);
     PagingData<M>? pagingData = await loadData(pagingParams);
     List<M>? list = pagingData?.data;
 
@@ -138,12 +140,12 @@ class PagingData<T> {
 
 Widget buildListView<T>(
     {required Widget Function(T item, int index) itemBuilder,
-      required List<T> data,
-      Widget Function(T item, int index)? separatorBuilder,
-      Function(T item, int index)? onItemClick,
-      ScrollPhysics? physics,
-      bool shrinkWrap = false,
-      Axis scrollDirection = Axis.vertical}) {
+    required List<T> data,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical}) {
   return GridView.builder(
     shrinkWrap: shrinkWrap,
     physics: physics,
@@ -164,29 +166,44 @@ Widget buildListView<T>(
   );
 }
 
-Widget buildRefreshWidget(
-    {required Widget Function() builder,
-      VoidCallback? onRefresh,
-      VoidCallback? onLoad,
-      required RefreshController refreshController,
-      bool enablePullUp = true,
-      bool enablePullDown = true}) {
+Widget buildRefreshWidget({
+  required Widget Function() builder,
+  VoidCallback? onRefresh,
+  VoidCallback? onLoad,
+  required RefreshController refreshController,
+  bool enablePullUp = true,
+  bool enablePullDown = true,
+  Axis scrollDirection = Axis.vertical,
+}) {
   return SmartRefresher(
     enablePullUp: enablePullUp,
     enablePullDown: enablePullDown,
     controller: refreshController,
     onRefresh: onRefresh,
     onLoading: onLoad,
-    header: const ClassicHeader(
-      idleText: "下拉刷新",
-      releaseText: "松开刷新",
-      completeText: "刷新完成",
-      refreshingText: "加载中......",
+    header: ClassicHeader(
+      // idleText: "下拉刷新",
+      // releaseText: "松开刷新",
+      // completeText: "刷新完成",
+      // refreshingText: "加载中......",
+      idleText: "",
+      releaseText: "",
+      completeText: "",
+      refreshingText: "",
+      idleIcon: scrollDirection == Axis.horizontal
+          ? const Icon(Icons.arrow_right, color: Colors.grey)
+          : const Icon(Icons.arrow_downward, color: Colors.grey),
     ),
-    footer: const ClassicFooter(
-      idleText: "上拉加载更多",
-      canLoadingText: "松开加载更多",
-      loadingText: "加载中......",
+    footer:  ClassicFooter(
+      // idleText: "上拉加载更多",
+      // canLoadingText: "松开加载更多",
+      // loadingText: "加载中......",
+      idleText: "",
+      canLoadingText: "",
+      loadingText: "",
+      idleIcon: scrollDirection == Axis.horizontal
+          ? const Icon(Icons.arrow_left, color: Colors.grey)
+          : const Icon(Icons.arrow_upward, color: Colors.grey),
     ),
     child: builder(),
   );
@@ -194,14 +211,14 @@ Widget buildRefreshWidget(
 
 Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
     {required Widget Function(T item, int index) itemBuilder,
-      bool enablePullUp = true,
-      bool enablePullDown = true,
-      String? tag,
-      Widget Function(T item, int index)? separatorBuilder,
-      Function(T item, int index)? onItemClick,
-      ScrollPhysics? physics,
-      bool shrinkWrap = false,
-      Axis scrollDirection = Axis.vertical}) {
+    bool enablePullUp = true,
+    bool enablePullDown = true,
+    String? tag,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical}) {
   C controller = Get.find(tag: tag);
   return GetBuilder<C>(
     builder: (controller) {
@@ -259,18 +276,19 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
 //     ),
 //   );
 // }
-Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
-    {required Widget Function(T item, int index) itemBuilder,
-      bool enablePullUp = true,
-      bool enablePullDown = true,
-      String? tag,
-      Widget Function(T item, int index)? separatorBuilder,
-      Function(T item, int index)? onItemClick,
-      ScrollPhysics? physics,
-      bool shrinkWrap = false,
-      Axis scrollDirection = Axis.vertical,
-      ListEnum listEnum = ListEnum.grid,
-      }) {
+Widget buildCustomRefreshListWidget<T,
+    C extends PagingController<T, PagingState<T>>>({
+  required Widget Function(T item, int index) itemBuilder,
+  bool enablePullUp = true,
+  bool enablePullDown = true,
+  String? tag,
+  Widget Function(T item, int index)? separatorBuilder,
+  Function(T item, int index)? onItemClick,
+  ScrollPhysics? physics,
+  bool shrinkWrap = false,
+  Axis scrollDirection = Axis.vertical,
+  ListEnum listEnum = ListEnum.grid,
+}) {
   C controller = Get.find(tag: tag);
   return GetBuilder<C>(
     builder: (controller) {
@@ -284,6 +302,7 @@ Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState
             shrinkWrap: shrinkWrap,
             scrollDirection: scrollDirection,
             listEnum: listEnum),
+        scrollDirection: scrollDirection,
         refreshController: controller.refreshController,
         onRefresh: controller.refreshData,
         onLoad: controller.loadMoreData,
@@ -298,30 +317,30 @@ Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState
 
 Widget buildCustomListView<T>(
     {required Widget Function(T item, int index) itemBuilder,
-      required List<T> data,
-      Widget Function(T item, int index)? separatorBuilder,
-      Function(T item, int index)? onItemClick,
-      ScrollPhysics? physics,
-      bool shrinkWrap = false,
-      Axis scrollDirection = Axis.vertical,
-      ListEnum listEnum = ListEnum.grid}) {
-  if(listEnum==ListEnum.list){
+    required List<T> data,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical,
+    ListEnum listEnum = ListEnum.grid}) {
+  if (listEnum == ListEnum.list) {
     // return Container(
     //   height: 100,
     //   padding: EdgeInsets.all(2),
     //   width: double.maxFinite,
     //   child:
-      return ListView.builder(
-        scrollDirection: scrollDirection,
-        shrinkWrap: shrinkWrap,
-        itemCount: data.length, // 指定列表项的数量
-          itemBuilder: (ctx, index) {
-            return GestureDetector(
-              onTap: () => onItemClick?.call(data[index], index),
-              child: itemBuilder(data[index], index),
-            );
-          },
-      );
+    return ListView.builder(
+      scrollDirection: scrollDirection,
+      shrinkWrap: shrinkWrap,
+      itemCount: data.length, // 指定列表项的数量
+      itemBuilder: (ctx, index) {
+        return GestureDetector(
+          onTap: () => onItemClick?.call(data[index], index),
+          child: itemBuilder(data[index], index),
+        );
+      },
+    );
     // );
   }
 
@@ -345,7 +364,4 @@ Widget buildCustomListView<T>(
   );
 }
 
-enum ListEnum {
-  grid,
-  list
-}
+enum ListEnum { grid, list }
