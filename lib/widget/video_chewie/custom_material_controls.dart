@@ -298,11 +298,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         height: 100,
         padding: EdgeInsets.all(2),
         width: double.maxFinite,
-        child: VideoHorizontalScrollWidget(
-          onVideoSelected: (videoId, videoPath) {
-            switchVideo(videoId, videoPath);
-          },
-        ),
+        child: VideoHorizontalScrollWidget(),
       ),
     );
   }

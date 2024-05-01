@@ -1,34 +1,25 @@
 import 'dart:io';
 
-import 'package:chewie/chewie.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
+import 'package:hamster/widget/video_chewie/video_chewie_page.dart';
 
-import '../../config/id_generator/id_generator.dart';
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../list_page/media_home_page.dart';
-import '../list_page/media_page_list_page.dart';
-import 'custom_material_controls.dart';
 
 class VideoHorizontalScrollWidget extends StatelessWidget {
-  // final VideoHorizontalScrollPagingController videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
-
-  final void Function(int videoId, String videoPath)? onVideoSelected; // 声明回调函数
-
-  VideoHorizontalScrollWidget({Key? key, this.onVideoSelected}) : super(key: key){
-  }
+  VideoHorizontalScrollWidget({Key? key}) : super(key: key) {}
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<VideoHorizontalScrollPagingController>(
       builder: (controller) {
-        return buildCustomRefreshListWidget<MediaFileData, VideoHorizontalScrollPagingController>(
-          // tag: controller.tag,
+        return buildCustomRefreshListWidget<MediaFileData,
+            VideoHorizontalScrollPagingController>(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           listEnum: ListEnum.list,
@@ -36,10 +27,8 @@ class VideoHorizontalScrollWidget extends StatelessWidget {
           enablePullUp: true,
           physics: AlwaysScrollableScrollPhysics(),
           onItemClick: (data, index) {
-            // 检查是否定义了onVideoSelected回调函数，如果是，则调用它并传递视频ID和路径
-            if (onVideoSelected != null) {
-              onVideoSelected!(data.id??0, data.path??"");
-            }
+            Get.find<VideoChewiePageController>()
+                .switchVideo(videoId: data.id ?? 0, videoPath: data.path ?? "");
           },
           itemBuilder: (data, index) => Padding(
             padding: EdgeInsets.symmetric(horizontal: 2),
@@ -59,43 +48,10 @@ class VideoHorizontalScrollWidget extends StatelessWidget {
       },
     );
   }
-  // final VideoHorizontalScrollPagingController controller = Get.find<VideoHorizontalScrollPagingController>();
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Obx(
-  //         () => buildCustomRefreshListWidget<MediaFileData, VideoHorizontalScrollPagingController>(
-  //       shrinkWrap: true,
-  //       scrollDirection: Axis.horizontal,
-  //       listEnum: ListEnum.list,
-  //       enablePullDown: true,
-  //       enablePullUp: true,
-  //       physics: AlwaysScrollableScrollPhysics(),
-  //       onItemClick: (data, index) {
-  //         // 处理点击事件
-  //       },
-  //       itemBuilder: (data, index) => Padding(
-  //         padding: EdgeInsets.symmetric(horizontal: 2),
-  //         child: Card(
-  //           color: Colors.white.withOpacity(0.3),
-  //           child: SizedBox(
-  //             height: 70,
-  //             width: 80,
-  //             child: Image.file(
-  //               File(data.cover ?? ""),
-  //               fit: BoxFit.cover,
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }
 
 class VideoHorizontalScrollPagingController
     extends PagingController<MediaFileData, PagingState<MediaFileData>> {
-
   // String tag = UuidGenerator.generateUuid();
 
   @override
