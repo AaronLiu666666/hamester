@@ -13,12 +13,10 @@ import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
@@ -168,6 +166,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     _hideTimer?.cancel();
     _initTimer?.cancel();
     _showAfterExpandCollapseTimer?.cancel();
+    WakelockPlus.disable();
   }
 
   @override
@@ -605,6 +604,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         );
         // 启动播放器
         controller.play();
+        WakelockPlus.enable();
 
         // 初始化 ChewieController
         _initialize();
@@ -635,6 +635,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     if (widget.seekTo != null && controller.value.isInitialized) {
       await controller.seekTo(Duration(milliseconds: widget.seekTo!));
     }
+    WakelockPlus.enable();
   }
 
   void _onExpandCollapse() {
@@ -660,15 +661,17 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         _hideTimer?.cancel();
         controller.pause();
         // 暂停情况，禁用屏幕常量
-        Wakelock.disable();
+        // Wakelock.disable();
+        WakelockPlus.disable();
       } else {
+        WakelockPlus.enable();
         _cancelAndRestartTimer();
 
         if (!controller.value.isInitialized) {
           controller.initialize().then((_) {
             controller.play();
             // 启用屏幕常量
-            Wakelock.enable();
+            WakelockPlus.enable();
           });
         } else {
           if (isFinished) {
@@ -676,7 +679,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
           }
           controller.play();
           // 启用屏幕常量
-          Wakelock.enable();
+          WakelockPlus.enable();
         }
       }
     });

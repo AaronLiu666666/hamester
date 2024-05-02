@@ -30,6 +30,7 @@ class MediaTagRelation {
   // @ignore
   String? tagName;
 
+  @ignore
   String? mediaPath;
 
   MediaTagRelation({

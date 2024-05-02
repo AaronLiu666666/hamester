@@ -95,7 +95,7 @@ class _$FlutterDataBase extends FlutterDataBase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tag_info` (`id` TEXT, `tag_name` TEXT, `tag_desc` TEXT, `tag_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, `tagName` TEXT, `mediaPath` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, `tagName` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `app_config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` TEXT, `content` TEXT, `createTime` INTEGER, `updateTime` INTEGER)');
 
@@ -471,8 +471,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
                   'media_moment_pic': item.mediaMomentPic,
                   'create_time': item.createTime,
                   'update_time': item.updateTime,
-                  'tagName': item.tagName,
-                  'mediaPath': item.mediaPath
+                  'tagName': item.tagName
                 }),
         _mediaTagRelationUpdateAdapter = UpdateAdapter(
             database,
@@ -487,8 +486,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
                   'media_moment_pic': item.mediaMomentPic,
                   'create_time': item.createTime,
                   'update_time': item.updateTime,
-                  'tagName': item.tagName,
-                  'mediaPath': item.mediaPath
+                  'tagName': item.tagName
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -513,8 +511,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
-            tagName: row['tagName'] as String?,
-            mediaPath: row['mediaPath'] as String?));
+            tagName: row['tagName'] as String?));
   }
 
   @override
@@ -530,8 +527,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
-            tagName: row['tagName'] as String?,
-            mediaPath: row['mediaPath'] as String?),
+            tagName: row['tagName'] as String?),
         arguments: [tagId]);
   }
 
@@ -540,7 +536,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
       String tagId) async {
     return _queryAdapter.queryList(
         'select r.*, m.path as mediaPath       from        r_media_tag r left join media_file_data m on r.media_id = m.id         where tag_id = ?1',
-        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?, mediaPath: row['mediaPath'] as String?),
+        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?,mediaPath: row['mediaPath'] as String?),
         arguments: [tagId]);
   }
 
@@ -556,8 +552,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
-            tagName: row['tagName'] as String?,
-            mediaPath: row['mediaPath'] as String?),
+            tagName: row['tagName'] as String?),
         arguments: [id]);
   }
 
@@ -574,8 +569,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             mediaMomentPic: row['media_moment_pic'] as String?,
             createTime: row['create_time'] as int?,
             updateTime: row['update_time'] as int?,
-            tagName: row['tagName'] as String?,
-            mediaPath: row['mediaPath'] as String?));
+            tagName: row['tagName'] as String?));
   }
 
   @override

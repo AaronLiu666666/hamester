@@ -15,7 +15,7 @@ import '../custom_widget/custom_toggle_button_widget.dart';
 import '../video_chewie/video_chewie_page.dart';
 
 class GetxTagDetailController extends GetxController {
-  TagInfo tagInfo= TagInfo();
+  TagInfo tagInfo = TagInfo();
   late List<MediaFileData> mediaList;
   late List<MediaTagRelation> relationList;
   late List<String> picPath = [];
@@ -24,19 +24,20 @@ class GetxTagDetailController extends GetxController {
   final id = ''.obs;
   final isLoading = true.obs;
   final selectedIndex = 0.obs; // 用于存储选中的列表索引
+  final tagName = "".obs;
 
   final TextEditingController tagNameController = TextEditingController();
   final TextEditingController tagDescController = TextEditingController();
 
-  List<MediaFileData> getMediaList(){
+  List<MediaFileData> getMediaList() {
     return mediaList;
   }
 
-  List<MediaTagRelation> getRelationList(){
+  List<MediaTagRelation> getRelationList() {
     return relationList;
   }
 
-  Map<String, MediaFileData> getRelationMediaMap(){
+  Map<String, MediaFileData> getRelationMediaMap() {
     return relationMediaMap;
   }
 
@@ -47,7 +48,6 @@ class GetxTagDetailController extends GetxController {
     loadData();
   }
 
-
   @override
   void onClose() {
     tagNameController.dispose();
@@ -56,7 +56,8 @@ class GetxTagDetailController extends GetxController {
 
   Future<void> loadData() async {
     try {
-      tagInfo = await queryDataById(id.value)??TagInfo();
+      tagInfo = await queryDataById(id.value) ?? TagInfo();
+      tagName.value = tagInfo.tagName??"";
       relationList = await queryRelationsByTagId(id.value);
       final mediaIds = relationList
           .where((relation) => relation.mediaId != null)
@@ -112,7 +113,9 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('标签详情: ${controller.tagInfo.tagName ?? ""}'),
+        title: Obx(
+          () => Text('标签详情: ${controller.tagName ?? ""}'),
+        ),
       ),
       body: Obx(
         () => controller.isLoading.value
@@ -161,9 +164,9 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                   seekTo: data.mediaMoment,
                   videoPageFromType: VideoPageFromType.tag_detail_relation_list,
                 ),
-                  binding: BindingsBuilder(() {
-                    Get.put(VideoChewiePageController());
-                  }),
+                binding: BindingsBuilder(() {
+                  Get.put(VideoChewiePageController());
+                }),
               );
             },
             onLongPress: () {},
@@ -207,9 +210,9 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                   videoPath: data.path!,
                   videoPageFromType: VideoPageFromType.tag_detail_video_list,
                 ),
-                  binding: BindingsBuilder(() {
-                Get.put(VideoChewiePageController());
-              }),
+                binding: BindingsBuilder(() {
+                  Get.put(VideoChewiePageController());
+                }),
               );
             },
             onLongPress: () {},
