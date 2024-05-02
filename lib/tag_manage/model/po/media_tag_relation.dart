@@ -30,6 +30,8 @@ class MediaTagRelation {
   // @ignore
   String? tagName;
 
+  String? mediaPath;
+
   MediaTagRelation({
     this.id,
     this.mediaId,
@@ -40,6 +42,7 @@ class MediaTagRelation {
     this.createTime,
     this.updateTime,
     this.tagName,
+    this.mediaPath
   });
 
 }

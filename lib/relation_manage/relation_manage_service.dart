@@ -27,6 +27,14 @@ Future<List<MediaTagRelation>> queryRelationsByTagId(String id) async {
   return list;
 }
 
+Future<List<MediaTagRelation>> queryRelationsByTagIdWithMediaPath(String id) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaTagRelation> list =
+  await dataBase.mediaTagRelationDao.queryRelationsByTagIdWithMediaPath(id);
+  return list;
+}
+
+
 Future<MediaTagRelation?> queryRelationById(String id) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   MediaTagRelation? data =

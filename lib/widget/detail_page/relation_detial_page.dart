@@ -115,6 +115,7 @@ class _RelationDetailPageState extends State<RelationDetailPage> {
                           () => VideoChewiePage(
                         videoId: _media.id!,
                         videoPath: _media.path!,
+                        seekTo: _relation.mediaMoment,
                         videoPageFromType: VideoPageFromType.media_page,
                       ),
                       binding: BindingsBuilder(() {

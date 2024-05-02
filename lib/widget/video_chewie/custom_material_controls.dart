@@ -18,6 +18,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
@@ -658,18 +659,24 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         notifier.hideStuff = false;
         _hideTimer?.cancel();
         controller.pause();
+        // 暂停情况，禁用屏幕常量
+        Wakelock.disable();
       } else {
         _cancelAndRestartTimer();
 
         if (!controller.value.isInitialized) {
           controller.initialize().then((_) {
             controller.play();
+            // 启用屏幕常量
+            Wakelock.enable();
           });
         } else {
           if (isFinished) {
             controller.seekTo(Duration.zero);
           }
           controller.play();
+          // 启用屏幕常量
+          Wakelock.enable();
         }
       }
     });

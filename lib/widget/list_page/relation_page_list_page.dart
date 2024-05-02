@@ -11,6 +11,7 @@ import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
 import '../detail_page/relation_detial_page.dart';
+import '../video_chewie/video_chewie_page.dart';
 import 'media_home_page.dart';
 
 
@@ -43,17 +44,25 @@ class _RelationPageListPage extends State<RelationPageListPage> {
         return buildRefreshListWidget<MediaTagRelation,RelationPagingController>(
             itemBuilder: (data,index)=>GestureDetector(
               onTap: () {
+                Get.to(
+                      () => VideoChewiePage(
+                    videoId: data.mediaId!,
+                    videoPath: data.mediaPath!,
+                    seekTo: data.mediaMoment,
+                    videoPageFromType: VideoPageFromType.relation_page,
+                  ),
+                  binding: BindingsBuilder(() {
+                    Get.put(VideoChewiePageController());
+                  }),
+                );
+              },
+              onLongPress: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RelationDetailPage(id:data.id!),
                   ),
                 );
-                // .then((_) {
-                //   controller.refreshDataNotScan();
-                // });
-              },
-              onLongPress: () {
               },
               child: Card(
                 margin: EdgeInsets.all(10),

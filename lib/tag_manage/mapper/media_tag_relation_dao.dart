@@ -18,6 +18,14 @@ abstract class MediaTagRelationDao {
   @Query("select * from r_media_tag where tag_id = :tagId")
   Future<List<MediaTagRelation>> queryRelationsByTagId(String tagId);
 
+  @Query('''
+      select r.*, m.path as mediaPath
+      from 
+      r_media_tag r left join media_file_data m on r.media_id = m.id
+        where tag_id = :tagId
+  ''')
+  Future<List<MediaTagRelation>> queryRelationsByTagIdWithMediaPath(String tagId);
+
   @Query("select * from r_media_tag where id = :id")
   Future<MediaTagRelation?> queryRelationById(String id);
 
@@ -42,10 +50,11 @@ abstract class MediaTagRelationDao {
 
   @Query('''
   SELECT
-    r.*,t.tag_name as tagName
+    r.*,t.tag_name as tagName,m.path as mediaPath
   FROM
     r_media_tag r
     LEFT JOIN tag_info t ON r.tag_id = t.id 
+    LEFT JOIN media_file_data m on r.media_id = m.id
   WHERE
    (:content IS NULL OR r.relation_desc LIKE '%' || :content || '%') OR
    (:content IS NULL OR t.tag_name LIKE '%' || :content || '%') OR

@@ -4,14 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:hamster/tag_manage/model/po/media_tag_relation.dart';
 import 'package:hamster/tag_manage/tag_manage_service.dart';
 import 'package:hamster/widget/list_page/getx_tag_detail_page.dart';
 import 'package:hamster/widget/list_page/media_home_page.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
 import 'package:hamster/widget/list_page/tag_detail_page.dart';
 
+import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/tag_info.dart';
+import '../video_chewie/video_chewie_page.dart';
 
 /// 标签列表页面
 class TagPageListPage extends StatefulWidget {
@@ -37,23 +40,30 @@ class _TagPageListPageState extends State<TagPageListPage> {
       builder: (controller) {
         return buildRefreshListWidget<TagInfo, TagPagingController>(
             itemBuilder: (data, index) => GestureDetector(
-                  onTap: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     // builder: (context) => TagDetailPage(id:data.id!),
-                    //     builder: (context) => GetxTagDetailPage(),
-                    //   ),
-                    // );
-                    // .then((_) {
-                    //   controller.refreshDataNotScan();
-                    // });
+                  onTap: () async {
+                    List<MediaTagRelation> relationList = await queryRelationsByTagIdWithMediaPath(data.id!);
+                    if (null!=relationList && relationList.isNotEmpty){
+                      MediaTagRelation firstRelation = relationList[0];
+                      Get.to(
+                            () => VideoChewiePage(
+                          videoId: firstRelation.mediaId!,
+                          videoPath: firstRelation.mediaPath!,
+                          seekTo: firstRelation.mediaMoment,
+                          videoPageFromType: VideoPageFromType.tag_page,
+                              tagId: data.id,
+                        ),
+                        binding: BindingsBuilder(() {
+                          Get.put(VideoChewiePageController());
+                        }),
+                      );
+                    }
+                  },
+                  onLongPress: () {
                     Get.to(() => GetxTagDetailPage(), arguments: data.id!,
                         binding: BindingsBuilder(() {
                       Get.put(GetxTagDetailController());
                     }));
                   },
-                  onLongPress: () {},
                   child: Card(
                     margin: EdgeInsets.all(10),
                     child: Column(

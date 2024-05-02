@@ -19,16 +19,23 @@ class VideoChewiePageController extends GetxController {
   final RxString _videoPath = ''.obs;
   final RxInt _seekTo = 0.obs;
   late VideoPageFromType _videoPageFromType;
+  late String? _tagId;
+
+  String getTagId(){
+    return _tagId??"";
+  }
 
   void setVideoInfo(
       {required int videoId,
       required String videoPath,
       int? seekTo,
-      VideoPageFromType videoPageFromType = VideoPageFromType.media_page}) {
+      VideoPageFromType videoPageFromType = VideoPageFromType.media_page,
+      String? tagId}) {
     _videoId.value = videoId;
     _videoPath.value = videoPath;
     _seekTo.value = seekTo ?? 0;
     _videoPageFromType = videoPageFromType;
+    _tagId = tagId;
   }
 
   VideoPageFromType getVideoPageFromType() {
@@ -101,12 +108,14 @@ class VideoChewiePage extends StatelessWidget {
   final String videoPath;
   final int? seekTo;
   final VideoPageFromType videoPageFromType;
+  final String? tagId;
 
   VideoChewiePage({
     required this.videoId,
     required this.videoPath,
     this.seekTo,
     this.videoPageFromType = VideoPageFromType.media_page,
+    this.tagId
   });
 
   @override
@@ -118,6 +127,7 @@ class VideoChewiePage extends StatelessWidget {
       videoPath: videoPath,
       seekTo: seekTo,
       videoPageFromType: videoPageFromType,
+      tagId: tagId,
     );
     return GetBuilder<VideoChewiePageController>(builder: (controller) {
       return FutureBuilder<Widget>(
@@ -137,5 +147,9 @@ class VideoChewiePage extends StatelessWidget {
 enum VideoPageFromType {
   media_page,
   tag_detail_relation_list,
-  tag_detail_video_list
+  tag_detail_video_list,
+  // 关联库页面
+  relation_page,
+  // 标签库页面
+  tag_page,
 }
