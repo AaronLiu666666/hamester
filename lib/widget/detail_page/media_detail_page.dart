@@ -36,14 +36,27 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                   children: [
                     // 封面展示
                     // 图片展示
-                    if (controller.mediaFileData.cover != null)
-                      Container(
+                    if (controller.mediaFileData.cover != null) GestureDetector(
+                      onTap: () {
+                        Get.to(
+                              () => VideoChewiePage(
+                            videoId: controller.mediaFileData.id!,
+                            videoPath: controller.mediaFileData.path!,
+                            videoPageFromType: VideoPageFromType.media_detail_page,
+                          ),
+                          binding: BindingsBuilder(() {
+                            Get.put(VideoChewiePageController());
+                          }),
+                        );
+                      },
+                      child: Container(
                         height: 200, // 设置高度为200
                         child: Image.file(
                           File(controller.mediaFileData.cover!),
                           fit: BoxFit.fill,
                         ),
                       ),
+                    ),
                     Text(
                       '文件名: ${controller.mediaFileData.fileName ?? ""}',
                       style: TextStyle(fontSize: 18),
@@ -151,9 +164,9 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                                     child: _buildImageWidget(data.mediaMomentPic),
                                   ),
                                   Tooltip(
-                                    message: data.relationDesc ?? "",
+                                    message: data.relationDesc != null && data.relationDesc!.isNotEmpty ? data.relationDesc! : (data.tagName ?? ""),
                                     child: Text(
-                                      data.relationDesc ?? "",
+                                      data.relationDesc != null && data.relationDesc!.isNotEmpty ? data.relationDesc! : (data.tagName ?? ""),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.center,
