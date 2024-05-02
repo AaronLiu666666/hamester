@@ -11,6 +11,7 @@ import '../../media_manage/service/media_manager_service.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
+import '../detail_page/media_detail_page.dart';
 import '../list_page/getx_tag_detail_page.dart';
 import '../list_page/media_home_page.dart';
 
@@ -81,6 +82,10 @@ class VideoHorizontalScrollPagingController
       return loadDataFromTagDetailRelationList(pagingParams);
     }
 
+    if (videoPageFromType == VideoPageFromType.media_detail_page) {
+      return loadDataFromMediaDetailPage(pagingParams);
+    }
+
     if (videoPageFromType == VideoPageFromType.tag_detail_video_list) {
       return loadDataFromTagDetailVideoList(pagingParams);
     }
@@ -146,6 +151,29 @@ class VideoHorizontalScrollPagingController
       ..data = videoDTOList
       ..size = pagingParams.size // 设置每页数据量
       ..total = total;
+  }
+
+  Future<PagingData<VideoDTO>?> loadDataFromMediaDetailPage(
+      PagingParams pagingParams) async {
+    MediaDetailPageController mediaDetailPageController =
+    Get.find<MediaDetailPageController>();
+    List<MediaTagRelation> relationList =
+    mediaDetailPageController.getRelationList();
+    List<VideoDTO> videoDTOList = List.empty(growable: true);
+    for (var relation in relationList) {
+      VideoDTO videoDTO = VideoDTO(
+          id: relation.mediaId??0,
+          path: relation.mediaPath??"",
+          cover: relation.mediaMomentPic,
+          seekTo: relation.mediaMoment);
+      videoDTOList.add(videoDTO);
+    }
+    return PagingData<VideoDTO>()
+      ..current = 1
+      ..pages = 1
+      ..data = videoDTOList
+      ..size = videoDTOList.length // 设置每页数据量
+      ..total = videoDTOList.length;
   }
 
   Future<PagingData<VideoDTO>?> loadDataFromTagDetailRelationList(

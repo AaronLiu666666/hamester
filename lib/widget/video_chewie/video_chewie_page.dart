@@ -152,4 +152,6 @@ enum VideoPageFromType {
   relation_page,
   // 标签库页面
   tag_page,
+  // 视频详情页面
+  media_detail_page,
 }

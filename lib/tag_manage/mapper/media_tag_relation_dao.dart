@@ -19,6 +19,15 @@ abstract class MediaTagRelationDao {
   Future<List<MediaTagRelation>> queryRelationsByTagId(String tagId);
 
   @Query('''
+    select r.*,t.tag_name tagName, m.path as mediaPath
+      from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id left join media_file_data m on r.media_id = m.id
+    where 
+      r.media_id = :mediaId 
+      order by media_moment
+  ''')
+  Future<List<MediaTagRelation>> queryRelationsByMediaId(int mediaId);
+
+  @Query('''
       select r.*, m.path as mediaPath
       from 
       r_media_tag r left join media_file_data m on r.media_id = m.id

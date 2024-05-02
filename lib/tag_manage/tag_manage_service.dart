@@ -21,6 +21,12 @@ Future<TagInfo?> queryDataById(String id) async {
   return tagInfo;
 }
 
+Future<List<TagInfo>> queryTagsByMediaId(int mediaId) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<TagInfo> tagInfos = await dataBase.tagInfoDao.queryTagsByMediaId(mediaId);
+  return tagInfos;
+}
+
 Future<void> updateData(TagInfo tagInfo) async {
   if (tagInfo == null) {
     return;

@@ -411,6 +411,14 @@ class _$TagInfoDao extends TagInfoDao {
   }
 
   @override
+  Future<List<TagInfo>> queryTagsByMediaId(int mediaId) async {
+    return _queryAdapter.queryList(
+        'SELECT      t.*     FROM       r_media_tag r       LEFT JOIN tag_info t ON r.tag_id = t.id      WHERE       r.media_id = ?1        group by r.tag_id       order by r.create_time',
+        mapper: (Map<String, Object?> row) => TagInfo(id: row['id'] as String?, tagName: row['tag_name'] as String?, tagDesc: row['tag_desc'] as String?, tagPic: row['tag_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?),
+        arguments: [mediaId]);
+  }
+
+  @override
   Future<int?> searchTagCount(String content) async {
     return _queryAdapter.query(
         'select count(*) from tag_info where    (?1 IS NULL OR tag_name LIKE \'%\' || ?1 || \'%\') or (?1 IS NULL OR tag_desc LIKE \'%\' || ?1 || \'%\')',
@@ -529,6 +537,14 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
             updateTime: row['update_time'] as int?,
             tagName: row['tagName'] as String?),
         arguments: [tagId]);
+  }
+
+  @override
+  Future<List<MediaTagRelation>> queryRelationsByMediaId(int mediaId) async {
+    return _queryAdapter.queryList(
+        'select r.*,t.tag_name tagName, m.path as mediaPath from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id  left join media_file_data m on r.media_id = m.id   where        r.media_id = ?1        order by media_moment',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?,mediaPath: row['mediaPath'] as String?),
+        arguments: [mediaId]);
   }
 
   @override

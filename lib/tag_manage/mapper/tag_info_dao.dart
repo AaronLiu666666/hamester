@@ -19,6 +19,19 @@ abstract class TagInfoDao {
   @Query("select * from tag_info where id = :id")
   Future<TagInfo?> queryDataById(String id);
 
+  @Query('''
+    SELECT
+     t.*
+    FROM
+      r_media_tag r
+      LEFT JOIN tag_info t ON r.tag_id = t.id 
+    WHERE
+      r.media_id = :mediaId 
+      group by r.tag_id
+      order by r.create_time
+  ''')
+  Future<List<TagInfo>> queryTagsByMediaId(int mediaId);
+
   @update
   Future<void> updateData(TagInfo tagInfo);
 

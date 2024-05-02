@@ -50,7 +50,6 @@ class _MediaHomePageState extends State<MediaHomePage> {
             ListTile(
               title: Text('媒体文件扫描目录'),
               onTap: () {
-                // Do something
                 Navigator.push(
                   context,
                   MaterialPageRoute(

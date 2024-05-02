@@ -548,7 +548,19 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   // _dispose();
   // // 停止当前视频的播放
   // controller.dispose();
-  // controller = VideoPlayerController.file(File(videoPath))
+  // controller = final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
+  //
+  //   Future<int> getVideoLength(String videoPath) async {
+  //     try {
+  //       final mediaInformation = await _flutterFFmpeg.getMediaInformation(videoPath);
+  //       final duration = mediaInformation.getMediaProperties()['duration'];
+  //       final durationInSeconds = (duration != null) ? duration / 1000 : 0;
+  //       return durationInSeconds.round();
+  //     } catch (e) {
+  //       print('Error getting video length: $e');
+  //       return 0;
+  //     }
+  //   }
   //   ..initialize().then((_) {
   //     setState(() {});
   //   });

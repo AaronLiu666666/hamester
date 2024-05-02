@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:hamster/widget/detail_page/media_detail_page.dart';
 import '../widget/video_chewie/video_chewie_page.dart';
 
 class CardContentData {
@@ -11,12 +12,11 @@ class CardContentData {
   final String url;
   final String? text;
 
-  CardContentData(
-      {required this.id,
-      required this.path,
-      required this.fileName,
-      required this.url,
-      required this.text});
+  CardContentData({required this.id,
+    required this.path,
+    required this.fileName,
+    required this.url,
+    required this.text});
 }
 
 class CardContentWidget extends StatelessWidget {
@@ -59,23 +59,23 @@ class CardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) =>
-          //         VideoChewiePage(videoId: data.id, videoPath: data.path),
-          //   ),
-          // );
           Get.to(
-                () => VideoChewiePage(
-              videoId: data.id!,
-              videoPath: data.path!,
-              videoPageFromType: VideoPageFromType.media_page,
-            ),
+                () =>
+                VideoChewiePage(
+                  videoId: data.id!,
+                  videoPath: data.path!,
+                  videoPageFromType: VideoPageFromType.media_page,
+                ),
             binding: BindingsBuilder(() {
               Get.put(VideoChewiePageController());
             }),
           );
+        },
+        onLongPress: () {
+          Get.to(() => MediaDetailPage(),
+              binding: BindingsBuilder(() {
+                Get.put(MediaDetailPageController(mediaId:data.id));
+              }));
         },
         child: Card(
           margin: EdgeInsets.all(10),
