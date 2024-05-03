@@ -154,4 +154,6 @@ enum VideoPageFromType {
   tag_page,
   // 视频详情页面
   media_detail_page,
+  // 关联详情页面
+  relation_detial_page,
 }

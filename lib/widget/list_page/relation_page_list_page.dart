@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:hamster/widget/detail_page/getx_relation_detial_page.dart';
+import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
 
 import '../../relation_manage/relation_manage_service.dart';

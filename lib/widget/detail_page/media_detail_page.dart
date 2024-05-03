@@ -7,13 +7,13 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 import 'package:hamster/tag_manage/model/po/media_tag_relation.dart';
 import 'package:hamster/tag_manage/model/po/tag_info.dart';
-import 'package:hamster/widget/list_page/tag_detail_page.dart';
+import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../media_manage/service/media_manager_service.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/tag_manage_service.dart';
-import '../list_page/getx_tag_detail_page.dart';
+import 'tag_detail_page.dart';
 import '../video_chewie/video_chewie_page.dart';
 
 /// 媒体详情页面 长按媒体列表某条数据进入
@@ -133,7 +133,6 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                       style: TextStyle(fontSize: 18),
                     ),
                     SizedBox(height: 10),
-                    // 关联列表
                     SizedBox(
                       height: 800,
                       child: GridView.count(
@@ -154,7 +153,12 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                                 }),
                               );
                             },
-                            onLongPress: () {},
+                            onLongPress: () {
+                              Get.to(() => GetxRelationDetailPage(),
+                                  binding: BindingsBuilder(() {
+                                    Get.put(GetxRelationDetailPageController(id:controller.relationList[index].id??""));
+                                  }));
+                            },
                             child: Card(
                               margin: EdgeInsets.all(10),
                               child: Column(

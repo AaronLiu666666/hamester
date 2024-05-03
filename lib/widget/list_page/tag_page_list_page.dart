@@ -6,10 +6,9 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/tag_manage/model/po/media_tag_relation.dart';
 import 'package:hamster/tag_manage/tag_manage_service.dart';
-import 'package:hamster/widget/list_page/getx_tag_detail_page.dart';
+import 'package:hamster/widget/detail_page/tag_detail_page.dart';
 import 'package:hamster/widget/list_page/media_home_page.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
-import 'package:hamster/widget/list_page/tag_detail_page.dart';
 
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';

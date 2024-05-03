@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../config/id_generator/id_generator.dart';
 import '../media_manage/model/po/media_file_data.dart';
 import '../media_manage/service/media_manager_service.dart';
+import '../utils/ffmpeg_util.dart';
 import 'file_finder_enhanced.dart';
+import 'file_util.dart';
 
 Future<String?> generateThumbnailImage(String videoPath) async {
   try {
@@ -41,18 +44,49 @@ Future<String?> generateThumbnailImageAtTimeMs(String videoPath,int timeMs) asyn
     final fileName = await VideoThumbnail.thumbnailFile(
       video: videoPath,
       thumbnailPath: thumbnailPath,
-      // imageFormat: imageFormat,
-      // quality: quality,
-      // maxWidth: maxWidth,
-      // maxHeight: maxHeight,
       timeMs: timeMs,
-      // thumbnailPath: (await getTemporaryDirectory()).path,
       imageFormat: ImageFormat.PNG,
-      // maxHeight: 64, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
       quality: 100,
     );
-
     // File file = File(thumbnailPath);
+    return thumbnailPath;
+  } catch (e) {
+    print("生成缩略图失败: $e");
+    return null;
+  }
+}
+
+Future<String?> generateThumbnailImageAtTimeMsByVideoCompress(String videoPath,int timeMs) async {
+  try {
+    String path = await getPicStorePath();
+    String thumbnailPath = path+"moment/" + UuidGenerator.generateUuid() + ".png";
+    // final fileName = await VideoThumbnail.thumbnailFile(
+    //   video: videoPath,
+    //   thumbnailPath: thumbnailPath,
+    //   timeMs: timeMs,
+    //   imageFormat: ImageFormat.PNG,
+    //   quality: 100,
+    // );
+    final thumbnailImageBytes = await VideoCompress.getByteThumbnail(
+        videoPath,
+        quality: 100, // default(100)
+        position: timeMs // default(-1)
+    );
+    // File file = File(thumbnailPath);
+    saveUint8ListAsImage(thumbnailImageBytes!,thumbnailPath);
+    return thumbnailPath;
+  } catch (e) {
+    print("生成缩略图失败: $e");
+    return null;
+  }
+}
+
+
+Future<String?> generateThumbnailImageAtTimeMsByFfmpeg(String videoPath,int timeMs) async {
+  try {
+    String path = await getPicStorePath();
+    String thumbnailPath = path+"moment/" + UuidGenerator.generateUuid() + ".png";
+    await generateThumbnailByFfmpeg(videoPath,thumbnailPath,timeMs);
     return thumbnailPath;
   } catch (e) {
     print("生成缩略图失败: $e");

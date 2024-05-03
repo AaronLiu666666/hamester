@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 
@@ -30,5 +31,35 @@ Future<void> deleteFile(String filePath) async {
   } catch (e) {
     // 处理文件删除过程中的异常情况
     print("文件删除失败");
+  }
+}
+
+Future<void> saveFileToLocal(File file, String localPath) async {
+  try {
+    // 读取文件内容
+    List<int> contents = await file.readAsBytes();
+
+    // 将文件内容写入本地文件
+    File localFile = File(localPath);
+    await localFile.create(recursive: true);
+    await localFile.writeAsBytes(contents);
+
+    print('文件保存成功: $localPath');
+  } catch (e) {
+    print('保存文件失败: $e');
+  }
+}
+
+Future<void> saveUint8ListAsImage(Uint8List data, String filePath) async {
+  try {
+    // 创建文件
+    File file = File(filePath);
+
+    // 将 Uint8List 写入文件
+    await file.writeAsBytes(data);
+
+    print('图像文件保存成功: $filePath');
+  } catch (e) {
+    print('保存图像文件失败: $e');
   }
 }

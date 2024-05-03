@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/chewie_player.dart';
@@ -13,11 +14,14 @@ import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../config/id_generator/id_generator.dart';
+import '../../file/file_finder_enhanced.dart';
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
 import '../../media_manage/service/media_manager_service.dart';
@@ -779,7 +783,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       onTap: () async {
         // 获取视频帧的图片路径
         String imagePath = await _captureVideoFrame();
-
+        // String imagePath = await _captureVideoFrameByVideoPlayerController();
         // 导航到 VideoTagAddPage 页面，并将图片路径传递过去
         Navigator.push(
           context,
@@ -827,7 +831,8 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       if (null != mediaFileData &&
           null != mediaFileData.path &&
           mediaFileData.path!.isNotEmpty) {
-        String? imagePath = await generateThumbnailImageAtTimeMs(
+        // String? imagePath = await generateThumbnailImageAtTimeMs(
+        String? imagePath = await generateThumbnailImageAtTimeMsByFfmpeg(
             mediaFileData.path!, currentDuration.inMilliseconds);
         if (null == imagePath || imagePath.isEmpty) {
           return "";

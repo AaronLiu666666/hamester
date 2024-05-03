@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
+import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../file/thumbnail_util.dart';
@@ -13,6 +14,7 @@ import '../../tag_manage/model/po/tag_info.dart';
 import '../../tag_manage/tag_manage_service.dart';
 import '../custom_widget/custom_toggle_button_widget.dart';
 import '../video_chewie/video_chewie_page.dart';
+import 'media_detail_page.dart';
 
 class GetxTagDetailController extends GetxController {
   TagInfo tagInfo = TagInfo();
@@ -176,7 +178,12 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                 }),
               );
             },
-            onLongPress: () {},
+            onLongPress: () {
+              Get.to(() => GetxRelationDetailPage(),
+                  binding: BindingsBuilder(() {
+                    Get.put(GetxRelationDetailPageController(id:controller.relationList[index].id??""));
+                  }));
+            },
             child: Card(
               margin: EdgeInsets.all(10),
               child: Column(
@@ -222,7 +229,12 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                 }),
               );
             },
-            onLongPress: () {},
+            onLongPress: () {
+              Get.to(() => MediaDetailPage(),
+                  binding: BindingsBuilder(() {
+                    Get.put(MediaDetailPageController(mediaId:controller.mediaList[index].id??0));
+                  }));
+            },
             child: Card(
               margin: EdgeInsets.all(10),
               child: Column(

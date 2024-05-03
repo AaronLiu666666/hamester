@@ -12,6 +12,8 @@ import 'package:hamster/tag_manage/model/po/tag_info.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/tag_manage_service.dart';
+import 'media_detail_page.dart';
+import 'tag_detail_page.dart';
 import '../video_chewie/video_chewie_page.dart';
 
 /// 关联详情页面
@@ -44,7 +46,7 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                                 videoId: controller.media.id!,
                                 videoPath: controller.media.path!,
                                 seekTo: controller.relation.mediaMoment,
-                                videoPageFromType: VideoPageFromType.media_page,
+                                videoPageFromType: VideoPageFromType.relation_detial_page,
                               ),
                               binding: BindingsBuilder(() {
                                 Get.put(VideoChewiePageController());
@@ -59,13 +61,26 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                           maxLines: null,
                         ),
                         SizedBox(height: 16),
+                        Text(
+                          '标签:',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => GetxTagDetailPage(), arguments: controller.tagInfo.id,
+                                binding: BindingsBuilder(() {
+                                  Get.put(GetxTagDetailController());
+                                }));
+                          },
+                          child: Chip(label: Text(controller.tagInfo.tagName ?? '')),
+                        ),
                         GestureDetector(
                           onTap: () {
                             Get.to(
                               () => VideoChewiePage(
                                 videoId: controller.media.id!,
                                 videoPath: controller.media.path!,
-                                videoPageFromType: VideoPageFromType.media_page,
+                                videoPageFromType: VideoPageFromType.relation_detial_page,
                               ),
                               binding: BindingsBuilder(() {
                                 Get.put(VideoChewiePageController());
@@ -91,6 +106,12 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                               ),
                             ),
                           ),
+                          onLongPress: (){
+                            Get.to(() => MediaDetailPage(),
+                                binding: BindingsBuilder(() {
+                                  Get.put(MediaDetailPageController(mediaId:controller.media.id??0));
+                                }));
+                          },
                         ),
                       ],
                     ),

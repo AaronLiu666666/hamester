@@ -12,7 +12,7 @@ import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
 import '../detail_page/media_detail_page.dart';
-import '../list_page/getx_tag_detail_page.dart';
+import '../detail_page/tag_detail_page.dart';
 import '../list_page/media_home_page.dart';
 
 class VideoDTO {
