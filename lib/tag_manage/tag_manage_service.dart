@@ -116,3 +116,16 @@ Future<List<TagInfo>> searchTagInfoListByTagName(String tagName) async {
   List<TagInfo> list = await dataBase.tagInfoDao.searchTagInfoListByTagName(tagName);
   return list;
 }
+
+Future<void> deleteTagAndRelation(String tagId) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  TagInfo? tagInfo = await dataBase.tagInfoDao.queryDataById(tagId);
+  if(null == tagInfo){
+    print("标签信息不存在");
+    return;
+  }
+  // 删除标签
+  await dataBase.tagInfoDao.deleteTagById(tagId);
+  // 删除关联关系
+  await dataBase.mediaTagRelationDao.deleteRelationByTagId(tagId);
+}

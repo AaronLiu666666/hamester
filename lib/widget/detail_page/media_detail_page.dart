@@ -178,9 +178,40 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                           );
                         }),
                       ),
-                    )
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("确认删除"),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text("取消"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // 关闭对话框
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text("确定"),
+                                  onPressed: () {
+                                    // 在这里添加删除操作的逻辑
+                                    controller.deleteMedia();
+                                    Navigator.of(context).pop(); // 关闭对话框
+                                    Navigator.of(context).pop(); // 从详情页面返回
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Text("删除"),
+                    ),
                   ],
                 ),
+
               ),
       ),
     );
@@ -228,6 +259,10 @@ class MediaDetailPageController extends GetxController {
   void onInit() {
     super.onInit();
     loadData();
+  }
+
+  void deleteMedia() async {
+    await deleteMediaAndRelation(mediaId);
   }
 
   Future<void> loadData() async {

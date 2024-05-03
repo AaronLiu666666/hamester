@@ -70,3 +70,8 @@ Future<int> searchRelationCount(SearchDTO searchDTO) async {
     List<MediaTagRelation> list = await dataBase.mediaTagRelationDao.searchRelationPage(searchDTO.content??"",pageSize,offset);
     return list;
   }
+
+  Future<void> deleteRelationById(String id) async {
+    final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+    await dataBase.mediaTagRelationDao.deleteRelationById(id);
+  }

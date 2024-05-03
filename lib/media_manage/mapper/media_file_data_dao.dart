@@ -120,4 +120,7 @@ abstract class MediaFileDataDao {
   @update
   Future<void> updateData(MediaFileData mediaFileData);
 
+  @Query("DELETE FROM media_file_data WHERE id = :id")
+  Future<void> deleteMediaFileData(int id);
+
 }

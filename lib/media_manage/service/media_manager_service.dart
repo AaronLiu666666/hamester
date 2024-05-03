@@ -231,3 +231,18 @@ Future<void> updateMediaFileData(MediaFileData mediaFileData) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   await dataBase.mediaFileDataDao.updateData(mediaFileData);
 }
+
+Future<void> deleteMediaAndRelation(int mediaId) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  MediaFileData? mediaFileData = await dataBase.mediaFileDataDao.queryMediaDataById(mediaId);
+  if(null==mediaFileData) {
+    print("媒体记录不存在");
+    return;
+  }
+  // 删除media
+  await dataBase.mediaFileDataDao.deleteMediaFileData(mediaId);
+  // 删除media的关联信息
+  await dataBase.mediaTagRelationDao.deleteRelationByMediaId(mediaId);
+  // 删除文件
+  deleteFile(mediaFileData.path??"");
+}

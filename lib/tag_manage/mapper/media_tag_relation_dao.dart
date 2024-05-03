@@ -73,4 +73,19 @@ abstract class MediaTagRelationDao {
   ''')
   Future<List<MediaTagRelation>> searchRelationPage(String content, int limit, int offset);
 
+  @Query('''
+    delete from r_media_tag where media_id = :mediaId
+  ''')
+  Future<void> deleteRelationByMediaId(int mediaId);
+
+  @Query('''
+    delete from r_media_tag where tag_id = :tagId
+  ''')
+  Future<void> deleteRelationByTagId(String tagId);
+
+  @Query('''
+    delete from r_media_tag where id = :relationId
+    ''')
+  Future<void> deleteRelationById(String relationId);
+
 }

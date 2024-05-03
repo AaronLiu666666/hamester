@@ -316,6 +316,13 @@ class _$MediaFileDataDao extends MediaFileDataDao {
   }
 
   @override
+  Future<void> deleteMediaFileData(int id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM media_file_data WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
   Future<void> insertMember(MediaFileData data) async {
     await _mediaFileDataInsertionAdapter.insert(data, OnConflictStrategy.abort);
   }
@@ -447,6 +454,12 @@ class _$TagInfoDao extends TagInfoDao {
   }
 
   @override
+  Future<void> deleteTagById(String tagId) async {
+    await _queryAdapter.queryNoReturn('delete from tag_info where id = ?1',
+        arguments: [tagId]);
+  }
+
+  @override
   Future<void> insertOne(TagInfo tagInfo) async {
     await _tagInfoInsertionAdapter.insert(tagInfo, OnConflictStrategy.abort);
   }
@@ -542,7 +555,7 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   @override
   Future<List<MediaTagRelation>> queryRelationsByMediaId(int mediaId) async {
     return _queryAdapter.queryList(
-        'select r.*,t.tag_name tagName, m.path as mediaPath from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id  left join media_file_data m on r.media_id = m.id   where        r.media_id = ?1        order by media_moment',
+        'select r.*,t.tag_name tagName, m.path as mediaPath       from r_media_tag r LEFT JOIN tag_info t on r.tag_id = t.id left join media_file_data m on r.media_id = m.id     where        r.media_id = ?1        order by media_moment',
         mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?,mediaPath: row['mediaPath'] as String?),
         arguments: [mediaId]);
   }
@@ -604,8 +617,28 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT     r.*,t.tag_name as tagName,m.path as mediaPath   FROM     r_media_tag r     LEFT JOIN tag_info t ON r.tag_id = t.id      LEFT JOIN media_file_data m on r.media_id = m.id   WHERE    (?1 IS NULL OR r.relation_desc LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_name LIKE \'%\' || ?1 || \'%\') OR    (?1 IS NULL OR t.tag_desc LIKE \'%\' || ?1 || \'%\')     order by r.create_time,r.id     LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?, mediaPath: row['mediaPath'] as String?),
+        mapper: (Map<String, Object?> row) => MediaTagRelation(id: row['id'] as String?, mediaId: row['media_id'] as int?, tagId: row['tag_id'] as String?, mediaMoment: row['media_moment'] as int?, relationDesc: row['relation_desc'] as String?, mediaMomentPic: row['media_moment_pic'] as String?, createTime: row['create_time'] as int?, updateTime: row['update_time'] as int?, tagName: row['tagName'] as String?,mediaPath: row['mediaPath'] as String?),
         arguments: [content, limit, offset]);
+  }
+
+  @override
+  Future<void> deleteRelationByMediaId(int mediaId) async {
+    await _queryAdapter.queryNoReturn(
+        'delete from r_media_tag where media_id = ?1',
+        arguments: [mediaId]);
+  }
+
+  @override
+  Future<void> deleteRelationByTagId(String tagId) async {
+    await _queryAdapter.queryNoReturn(
+        'delete from r_media_tag where tag_id = ?1',
+        arguments: [tagId]);
+  }
+
+  @override
+  Future<void> deleteRelationById(String relationId) async {
+    await _queryAdapter.queryNoReturn('delete from r_media_tag where id = ?1',
+        arguments: [relationId]);
   }
 
   @override

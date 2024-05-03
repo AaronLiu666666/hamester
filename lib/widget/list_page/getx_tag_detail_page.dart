@@ -18,13 +18,13 @@ class GetxTagDetailController extends GetxController {
   TagInfo tagInfo = TagInfo();
   late List<MediaFileData> mediaList;
   late List<MediaTagRelation> relationList;
-  late List<String> picPath = [];
+  late RxList<String> picPath = <String>[].obs;
   late Map<String, MediaFileData> relationMediaMap = {};
 
   final id = ''.obs;
   final isLoading = true.obs;
   final selectedIndex = 0.obs; // 用于存储选中的列表索引
-  final tagName = "".obs;
+  final title = "".obs;
 
   final TextEditingController tagNameController = TextEditingController();
   final TextEditingController tagDescController = TextEditingController();
@@ -57,7 +57,7 @@ class GetxTagDetailController extends GetxController {
   Future<void> loadData() async {
     try {
       tagInfo = await queryDataById(id.value) ?? TagInfo();
-      tagName.value = tagInfo.tagName??"";
+      title.value = tagInfo.tagName??"";
       relationList = await queryRelationsByTagId(id.value);
       final mediaIds = relationList
           .where((relation) => relation.mediaId != null)
@@ -79,7 +79,7 @@ class GetxTagDetailController extends GetxController {
       tagNameController.text = tagInfo.tagName ?? '';
       tagDescController.text = tagInfo.tagDesc ?? '';
       if (tagInfo.tagPic != null && tagInfo.tagPic!.isNotEmpty) {
-        picPath = tagInfo.tagPic!.split(',');
+        picPath.value = tagInfo.tagPic!.split(',');
       }
     } finally {
       isLoading.value = false;
@@ -104,7 +104,14 @@ class GetxTagDetailController extends GetxController {
     tagInfo.tagPic = picPath.join(",");
     tagInfo.updateTime = DateTime.now().millisecondsSinceEpoch;
     await updateData(tagInfo);
-    Get.snackbar('成功', '保存成功');
+    // Get.snackbar('成功', '保存成功');
+  }
+
+  void deleteTag() async {
+    if(id.value.isEmpty){
+      return;
+    }
+    await deleteTagAndRelation(id.value);
   }
 }
 
@@ -114,7 +121,7 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(
-          () => Text('标签详情: ${controller.tagName ?? ""}'),
+          () => Text('标签详情: ${controller.title ?? ""}'),
         ),
       ),
       body: Obx(
@@ -141,7 +148,7 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                     else if (controller.selectedIndex.value == 1)
                       _buildMediaList()
                     else
-                      _buildTagDetail(),
+                      _buildTagDetail(context),
                   ],
                 ),
               ),
@@ -242,51 +249,91 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
     );
   }
 
-  Widget _buildTagDetail() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: controller.tagNameController,
-          decoration: InputDecoration(labelText: '标签名称'),
-        ),
-        SizedBox(height: 16.0),
-        TextField(
-          controller: controller.tagDescController,
-          decoration: InputDecoration(labelText: '标签描述'),
-        ),
-        SizedBox(height: 16.0),
-        ElevatedButton.icon(
-          onPressed: controller.addImage,
-          icon: Icon(Icons.add),
-          label: Text('添加图片'),
-        ),
-        SizedBox(height: 16.0),
-        Container(
-          height: 200.0,
-          child: ListView.builder(
-            shrinkWrap: false,
-            itemCount: controller.picPath.length,
-            itemBuilder: (context, index) {
-              final pic = controller.picPath[index];
-              return Row(
-                children: [
-                  Expanded(child: Image.file(File(pic))),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () => controller.removeImage(index),
-                  ),
-                ],
-              );
+  Widget _buildTagDetail(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child:  Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: controller.tagNameController,
+            decoration: InputDecoration(labelText: '标签名称'),
+            onChanged: (value){
+              controller.title.value=value;
             },
           ),
-        ),
-        SizedBox(height: 16.0),
-        ElevatedButton(
-          onPressed: controller.saveChanges,
-          child: Text('保存'),
-        ),
-      ],
+          SizedBox(height: 16.0),
+          TextField(
+            controller: controller.tagDescController,
+            decoration: InputDecoration(labelText: '标签描述'),
+          ),
+          SizedBox(height: 16.0),
+          ElevatedButton.icon(
+            onPressed: controller.addImage,
+            icon: Icon(Icons.add),
+            label: Text('添加图片'),
+          ),
+          SizedBox(height: 16.0),
+          Container(
+            height: 200.0,
+            child: ListView.builder(
+              shrinkWrap: false,
+              itemCount: controller.picPath.length,
+              itemBuilder: (context, index) {
+                final pic = controller.picPath[index];
+                return Row(
+                  children: [
+                    Expanded(child: Image.file(File(pic))),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => controller.removeImage(index),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Center(
+            child: ElevatedButton(
+              onPressed: controller.saveChanges,
+              child: Text('保存'),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("确认删除"),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text("取消"),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 关闭对话框
+                          },
+                        ),
+                        TextButton(
+                          child: Text("确定"),
+                          onPressed: () {
+                            // 在这里添加删除操作的逻辑
+                            controller.deleteTag();
+                            Navigator.of(context).pop(); // 关闭对话框
+                            Navigator.of(context).pop(); // 从详情页面返回
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Text("删除"),
+            ),
+          )
+        ],
+      ),
     );
   }
 

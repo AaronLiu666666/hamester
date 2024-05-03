@@ -55,4 +55,9 @@ abstract class TagInfoDao {
     order by create_time,id
   ''')
   Future<List<TagInfo>> searchTagInfoListByTagName(String tagName);
+
+  @Query('''
+     delete from tag_info where id = :tagId
+    ''')
+  Future<void> deleteTagById(String tagId);
 }
