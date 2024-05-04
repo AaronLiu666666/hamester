@@ -52,7 +52,13 @@ class _TagPageListPageState extends State<TagPageListPage> {
                               tagId: data.id,
                         ),
                         binding: BindingsBuilder(() {
-                          Get.put(VideoChewiePageController());
+                          Get.put(VideoChewiePageController(
+                            videoId: firstRelation.mediaId!,
+                            videoPath: firstRelation.mediaPath!,
+                            seekTo: firstRelation.mediaMoment,
+                            videoPageFromType: VideoPageFromType.tag_page,
+                            tagId: data.id,
+                          ));
                         }),
                       );
                     }

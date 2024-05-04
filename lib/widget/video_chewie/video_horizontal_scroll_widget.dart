@@ -25,48 +25,95 @@ class VideoDTO {
 }
 
 class VideoHorizontalScrollWidget extends StatelessWidget {
-  VideoHorizontalScrollWidget({Key? key}) : super(key: key) {}
+
+
+
+  // VideoHorizontalScrollWidget({Key? key}) : super(key: key);
+  //
+  // @override
+  // Widget build(BuildContext context) {
+  //   print("build VideoHorizontalScrollWidget");
+  //   return GetBuilder<VideoHorizontalScrollPagingController>(
+  //     builder: (controller) {
+  //       return buildCustomRefreshListWidget<VideoDTO,
+  //           VideoHorizontalScrollPagingController>(
+  //         shrinkWrap: true,
+  //         scrollDirection: Axis.horizontal,
+  //         listEnum: ListEnum.list,
+  //         enablePullDown: true,
+  //         enablePullUp: true,
+  //         physics: AlwaysScrollableScrollPhysics(),
+  //         onItemClick: (data, index) {
+  //           Get.find<VideoChewiePageController>().switchVideo(
+  //               videoId: data.id ?? 0,
+  //               videoPath: data.path ?? "",
+  //               seekTo: data.seekTo);
+  //         },
+  //         itemBuilder: (data, index) => Padding(
+  //           padding: EdgeInsets.symmetric(horizontal: 2),
+  //           child: Card(
+  //             color: Colors.white.withOpacity(0.3),
+  //             child: SizedBox(
+  //               height: 70,
+  //               width: 80,
+  //               child: Image.file(
+  //                 File(data.cover ?? ""),
+  //                 fit: BoxFit.cover,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  // VideoHorizontalScrollWidget({Key? key}) : super(key: key);
+  const VideoHorizontalScrollWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<VideoHorizontalScrollPagingController>(
-      builder: (controller) {
-        return buildCustomRefreshListWidget<VideoDTO,
-            VideoHorizontalScrollPagingController>(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          listEnum: ListEnum.list,
-          enablePullDown: true,
-          enablePullUp: true,
-          physics: AlwaysScrollableScrollPhysics(),
-          onItemClick: (data, index) {
-            Get.find<VideoChewiePageController>().switchVideo(
-                videoId: data.id ?? 0,
-                videoPath: data.path ?? "",
-                seekTo: data.seekTo);
-          },
-          itemBuilder: (data, index) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Card(
-              color: Colors.white.withOpacity(0.3),
-              child: SizedBox(
-                height: 70,
-                width: 80,
-                child: Image.file(
-                  File(data.cover ?? ""),
-                  fit: BoxFit.cover,
-                ),
+    print("build VideoHorizontalScrollWidget");
+    return Obx(() {
+      final controller = Get.find<VideoHorizontalScrollPagingController>();
+      return controller.shouldUpdate.value
+          ? buildCustomRefreshListWidget<VideoDTO,
+          VideoHorizontalScrollPagingController>(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        listEnum: ListEnum.list,
+        enablePullDown: true,
+        enablePullUp: true,
+        physics: AlwaysScrollableScrollPhysics(),
+        onItemClick: (data, index) {
+          Get.find<VideoChewiePageController>().switchVideo(
+            videoId: data.id ?? 0,
+            videoPath: data.path ?? "",
+            seekTo: data.seekTo,
+          );
+        },
+        itemBuilder: (data, index) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2),
+          child: Card(
+            color: Colors.white.withOpacity(0.3),
+            child: SizedBox(
+              height: 70,
+              width: 80,
+              child: Image.file(
+                File(data.cover ?? ""),
+                fit: BoxFit.cover,
               ),
             ),
           ),
-        );
-      },
-    );
+        ),
+      ) : SizedBox.shrink(); // 如果不需要更新，则返回一个空的 SizedBox
+    });
   }
 }
 
 class VideoHorizontalScrollPagingController
     extends PagingController<VideoDTO, PagingState<VideoDTO>> {
+  RxBool shouldUpdate = true.obs;
+
   @override
   Future<PagingData<VideoDTO>?> loadData(PagingParams pagingParams) async {
     VideoChewiePageController videoChewiePageController =
@@ -94,7 +141,7 @@ class VideoHorizontalScrollPagingController
       return loadDataFromRelationPage(pagingParams);
     }
 
-    if(videoPageFromType == VideoPageFromType.tag_page){
+    if (videoPageFromType == VideoPageFromType.tag_page) {
       return loadDataFromTagPage(pagingParams);
     }
   }
@@ -102,9 +149,10 @@ class VideoHorizontalScrollPagingController
   Future<PagingData<VideoDTO>?> loadDataFromTagPage(
       PagingParams pagingParams) async {
     VideoChewiePageController videoChewiePageController =
-    Get.find<VideoChewiePageController>();
+        Get.find<VideoChewiePageController>();
     String tagId = videoChewiePageController.getTagId();
-    List<MediaTagRelation> relationList = await queryRelationsByTagIdWithMediaPath(tagId);
+    List<MediaTagRelation> relationList =
+        await queryRelationsByTagIdWithMediaPath(tagId);
     List<VideoDTO> videoDTOList = List.empty(growable: true);
     for (var relation in relationList) {
       VideoDTO videoDTO = VideoDTO(
@@ -140,7 +188,7 @@ class VideoHorizontalScrollPagingController
     for (var mediaTagRelation in list) {
       VideoDTO videoDTO = VideoDTO(
           id: mediaTagRelation.mediaId!,
-          path: mediaTagRelation.mediaPath??"",
+          path: mediaTagRelation.mediaPath ?? "",
           seekTo: mediaTagRelation.mediaMoment,
           cover: mediaTagRelation.mediaMomentPic);
       videoDTOList.add(videoDTO);
@@ -156,14 +204,14 @@ class VideoHorizontalScrollPagingController
   Future<PagingData<VideoDTO>?> loadDataFromMediaDetailPage(
       PagingParams pagingParams) async {
     MediaDetailPageController mediaDetailPageController =
-    Get.find<MediaDetailPageController>();
+        Get.find<MediaDetailPageController>();
     List<MediaTagRelation> relationList =
-    mediaDetailPageController.getRelationList();
+        mediaDetailPageController.getRelationList();
     List<VideoDTO> videoDTOList = List.empty(growable: true);
     for (var relation in relationList) {
       VideoDTO videoDTO = VideoDTO(
-          id: relation.mediaId??0,
-          path: relation.mediaPath??"",
+          id: relation.mediaId ?? 0,
+          path: relation.mediaPath ?? "",
           cover: relation.mediaMomentPic,
           seekTo: relation.mediaMoment);
       videoDTOList.add(videoDTO);

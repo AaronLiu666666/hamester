@@ -174,7 +174,12 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                   videoPageFromType: VideoPageFromType.tag_detail_relation_list,
                 ),
                 binding: BindingsBuilder(() {
-                  Get.put(VideoChewiePageController());
+                  Get.put(VideoChewiePageController(
+                    videoId: controller.relationMediaMap[data.id!]!.id!,
+                    videoPath: controller.relationMediaMap[data.id!]!.path!,
+                    seekTo: data.mediaMoment,
+                    videoPageFromType: VideoPageFromType.tag_detail_relation_list,
+                  ));
                 }),
               );
             },
@@ -225,7 +230,11 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                   videoPageFromType: VideoPageFromType.tag_detail_video_list,
                 ),
                 binding: BindingsBuilder(() {
-                  Get.put(VideoChewiePageController());
+                  Get.put(VideoChewiePageController(
+                    videoId: data.id!,
+                    videoPath: data.path!,
+                    videoPageFromType: VideoPageFromType.tag_detail_video_list,
+                  ));
                 }),
               );
             },

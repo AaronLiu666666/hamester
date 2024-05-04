@@ -52,7 +52,12 @@ class _RelationPageListPage extends State<RelationPageListPage> {
                     videoPageFromType: VideoPageFromType.relation_page,
                   ),
                   binding: BindingsBuilder(() {
-                    Get.put(VideoChewiePageController());
+                    Get.put(VideoChewiePageController(
+                      videoId: data.mediaId!,
+                      videoPath: data.mediaPath!,
+                      seekTo: data.mediaMoment,
+                      videoPageFromType: VideoPageFromType.relation_page,
+                    ));
                   }),
                 );
               },

@@ -49,7 +49,12 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                                 videoPageFromType: VideoPageFromType.relation_detial_page,
                               ),
                               binding: BindingsBuilder(() {
-                                Get.put(VideoChewiePageController());
+                                Get.put(VideoChewiePageController(
+                                  videoId: controller.media.id!,
+                                  videoPath: controller.media.path!,
+                                  seekTo: controller.relation.mediaMoment,
+                                  videoPageFromType: VideoPageFromType.relation_detial_page,
+                                ));
                               }),
                             );
                           },
@@ -83,7 +88,11 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                                 videoPageFromType: VideoPageFromType.relation_detial_page,
                               ),
                               binding: BindingsBuilder(() {
-                                Get.put(VideoChewiePageController());
+                                Get.put(VideoChewiePageController(
+                                  videoId: controller.media.id!,
+                                  videoPath: controller.media.path!,
+                                  videoPageFromType: VideoPageFromType.relation_detial_page,
+                                ));
                               }),
                             );
                           },

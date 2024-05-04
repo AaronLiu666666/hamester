@@ -10,6 +10,7 @@ import 'package:hamster/tag_manage/model/po/tag_info.dart';
 import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../file/file_util.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/tag_manage_service.dart';
@@ -45,7 +46,11 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                             videoPageFromType: VideoPageFromType.media_detail_page,
                           ),
                           binding: BindingsBuilder(() {
-                            Get.put(VideoChewiePageController());
+                            Get.put(VideoChewiePageController(
+                              videoId: controller.mediaFileData.id!,
+                              videoPath: controller.mediaFileData.path!,
+                              videoPageFromType: VideoPageFromType.media_detail_page,
+                            ));
                           }),
                         );
                       },
@@ -59,47 +64,54 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                     ),
                     Text(
                       '文件名: ${controller.mediaFileData.fileName ?? ""}',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
                     Text(
                       '文件时长: ${controller.videoLength.value}',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
+                    Text(
+                      '文件大小: ${controller.videoSize.value}',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 4),
                     Text(
                       '创建时间: ${(controller.mediaFileData.createTimeAsDateTime?.toString() ?? "").split('.')[0]}',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
                     Text(
                       '文件别名:',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
                     TextFormField(
                       controller: controller.aliasTextEditingController,
                       decoration: InputDecoration(
                         hintText: '输入文件别名...',
+                        hintStyle: TextStyle(fontSize: 14),
                       ),
                       onChanged: (value) {
                         controller.updateAliasText(value);
                       },
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
                     Text(
                       '描述:',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
                     TextFormField(
                       controller: controller.descTextEditingController,
                       decoration: InputDecoration(
                         hintText: '输入描述...',
+                        hintStyle: TextStyle(fontSize: 14),
                       ),
                       onChanged: (value) {
                         controller.updateDescText(value);
                       },
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
 
                     Center(
                       child: ElevatedButton(
@@ -111,7 +123,7 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                     ),
                     Text(
                       '标签:',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
                     Wrap(
                       spacing: 8,
@@ -130,9 +142,9 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                     SizedBox(height: 20),
                     Text(
                       '关联列表:',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 4),
                     SizedBox(
                       height: 800,
                       child: GridView.count(
@@ -149,7 +161,12 @@ class MediaDetailPage extends GetView<MediaDetailPageController> {
                                   videoPageFromType: VideoPageFromType.media_detail_page,
                                 ),
                                 binding: BindingsBuilder(() {
-                                  Get.put(VideoChewiePageController());
+                                  Get.put(VideoChewiePageController(
+                                    videoId: data.mediaId??0,
+                                    videoPath: data.mediaPath??"",
+                                    seekTo: data.mediaMoment,
+                                    videoPageFromType: VideoPageFromType.media_detail_page,
+                                  ));
                                 }),
                               );
                             },
@@ -248,6 +265,7 @@ class MediaDetailPageController extends GetxController {
   // yyyy-MM-dd HH:mm:ss
   RxString videoLength = "".obs;
   final isLoading = true.obs;
+  RxString videoSize = "".obs;
 
   MediaDetailPageController({required this.mediaId});
 
@@ -290,6 +308,7 @@ class MediaDetailPageController extends GetxController {
       String secondsString =
           (videoLengthDuration.inSeconds % 60).toString().padLeft(2, '0');
       videoLength.value = '$hoursString:$minutesString:$secondsString';
+      videoSize.value = await calcFileSize(mediaFileData.path??"");
       controller.dispose();
     } finally {
       isLoading.value = false;

@@ -67,7 +67,11 @@ class CardWidget extends StatelessWidget {
                   videoPageFromType: VideoPageFromType.media_page,
                 ),
             binding: BindingsBuilder(() {
-              Get.put(VideoChewiePageController());
+              Get.put(VideoChewiePageController(
+                videoId: data.id!,
+                videoPath: data.path!,
+                videoPageFromType: VideoPageFromType.media_page,
+              ));
             }),
           );
         },

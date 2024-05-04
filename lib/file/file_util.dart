@@ -63,3 +63,26 @@ Future<void> saveUint8ListAsImage(Uint8List data, String filePath) async {
     print('保存图像文件失败: $e');
   }
 }
+
+Future<String> calcFileSize(String path) async {
+  if(path.isEmpty){
+    return "";
+  }
+  File file = File(path);
+  if(!file.existsSync()){
+    return "";
+  }
+  int sizeInBytes = await file.length();
+  double sizeInKB = sizeInBytes / 1024;
+  if (sizeInKB >= 1024) {
+    double sizeInMB = sizeInKB / 1024;
+    if (sizeInMB >= 1024) {
+      double sizeInGB = sizeInMB / 1024;
+      return sizeInGB.toStringAsFixed(2) + 'GB';
+    } else {
+      return sizeInMB.toStringAsFixed(2) + 'MB';
+    }
+  } else {
+    return sizeInKB.toStringAsFixed(2) + 'KB';
+  }
+}

@@ -32,13 +32,17 @@ class CustomMaterialControls extends StatefulWidget {
   CustomMaterialControls({
     this.showPlayButton = true,
     required this.videoId,
-    this.seekTo, // 可选参数 seekTo
+    required this.videoHorizontalScrollWidget, // 接收传递过来的 Widget
+    // 可选参数 seekTo
+    this.seekTo,
     Key? key,
   }) : super(key: key);
 
+
+  final Widget videoHorizontalScrollWidget;
   final bool showPlayButton;
   late int videoId; // 声明 videoId 字段
-  final int? seekTo; // 可选参数 seekTo
+  final int? seekTo;
 
   @override
   State<StatefulWidget> createState() {
@@ -140,7 +144,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
                           _buildSubtitles(context, chewieController.subtitle!),
                     ),
                   // 构建视频切换列表
-                  _buildVideoList(context),
+                  // _buildVideoList(context),
                   //构建了底部的控制栏，包括播放进度条、音量控制等。
                   _buildBottomBar(context),
                 ],
@@ -184,7 +188,6 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       _dispose();
       _initialize();
     }
-
     super.didChangeDependencies();
   }
 
@@ -302,7 +305,12 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         height: 100,
         padding: EdgeInsets.all(2),
         width: double.maxFinite,
-        child: VideoHorizontalScrollWidget(),
+        // child: VideoHorizontalScrollWidget(),
+        // 将相同的 ValueKey 传递给 VideoHorizontalScrollWidget
+        // child: VideoHorizontalScrollWidget(
+        //   key: const ValueKey<String>('video_horizontal_scroll_key'),
+        // ),
+        child: widget.videoHorizontalScrollWidget,
       ),
     );
   }
@@ -600,33 +608,33 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   //     });
   //   _initialize();
   // }
-  void switchVideo(int videoId, String videoPath) {
-    widget.videoId = videoId;
-    _dispose();
-
-    // 停止当前视频的播放
-    controller.dispose();
-
-    // 创建新的 VideoPlayerController
-    controller = VideoPlayerController.file(File(videoPath));
-
-    // 初始化新的 VideoPlayerController
-    controller.initialize().then((_) {
-      setState(() {
-        // 使用新的 VideoPlayerController 更新 ChewieController
-        _chewieController = ChewieController(
-          videoPlayerController: controller,
-          // 其他 ChewieController 的属性...
-        );
-        // 启动播放器
-        controller.play();
-        WakelockPlus.enable();
-
-        // 初始化 ChewieController
-        _initialize();
-      });
-    });
-  }
+  // void switchVideo(int videoId, String videoPath) {
+  //   widget.videoId = videoId;
+  //   _dispose();
+  //
+  //   // 停止当前视频的播放
+  //   controller.dispose();
+  //
+  //   // 创建新的 VideoPlayerController
+  //   controller = VideoPlayerController.file(File(videoPath));
+  //
+  //   // 初始化新的 VideoPlayerController
+  //   controller.initialize().then((_) {
+  //     setState(() {
+  //       // 使用新的 VideoPlayerController 更新 ChewieController
+  //       _chewieController = ChewieController(
+  //         videoPlayerController: controller,
+  //         // 其他 ChewieController 的属性...
+  //       );
+  //       // 启动播放器
+  //       controller.play();
+  //       WakelockPlus.enable();
+  //
+  //       // 初始化 ChewieController
+  //       _initialize();
+  //     });
+  //   });
+  // }
 
   // }
 
