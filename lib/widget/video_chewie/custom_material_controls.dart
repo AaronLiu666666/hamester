@@ -32,17 +32,16 @@ class CustomMaterialControls extends StatefulWidget {
   CustomMaterialControls({
     this.showPlayButton = true,
     required this.videoId,
-    required this.videoHorizontalScrollWidget, // 接收传递过来的 Widget
-    // 可选参数 seekTo
+    // required this.videoHorizontalScrollWidget,
     this.seekTo,
+    this.function,
     Key? key,
   }) : super(key: key);
-
-
-  final Widget videoHorizontalScrollWidget;
+  // final Widget videoHorizontalScrollWidget;
   final bool showPlayButton;
   late int videoId; // 声明 videoId 字段
   final int? seekTo;
+  Function(bool hideStuff)? function;
 
   @override
   State<StatefulWidget> createState() {
@@ -52,6 +51,9 @@ class CustomMaterialControls extends StatefulWidget {
 
 class _MaterialControlsState extends State<CustomMaterialControls>
     with SingleTickerProviderStateMixin {
+  /*
+    notifier 是chewie的状态管理类
+   */
   late PlayerNotifier notifier;
   late VideoPlayerValue _latestValue;
   double? _latestVolume;
@@ -74,14 +76,10 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   // We know that _chewieController is set in didChangeDependencies
   ChewieController get chewieController => _chewieController!;
 
-  // late VideoHorizontalScrollPagingController _videoHorizontalScrollPagingController; // 声明 VideoHorizontalScrollPagingController
-
   @override
   void initState() {
     super.initState();
     notifier = Provider.of<PlayerNotifier>(context, listen: false);
-    // 在 initState 方法中初始化 VideoHorizontalScrollPagingController
-    // _videoHorizontalScrollPagingController = Get.put(VideoHorizontalScrollPagingController());
   }
 
   @override
@@ -162,10 +160,6 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   @override
   void dispose() {
     _dispose();
-    // 不能在这里销毁横向VideoHorizontalScrollPagingController因为全屏的时候也会调用这个dispose
-    // _videoHorizontalScrollPagingController.dispose();
-    // // 如果这里不调用delete 再次进入播放页面会报错 使用一个已经dispose的controller
-    // Get.delete<VideoHorizontalScrollPagingController>();
     super.dispose();
   }
 
@@ -297,23 +291,23 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     );
   }
 
-  AnimatedOpacity _buildVideoList(BuildContext context) {
-    return AnimatedOpacity(
-      opacity: notifier.hideStuff ? 0.0 : 1.0,
-      duration: const Duration(milliseconds: 300),
-      child: Container(
-        height: 100,
-        padding: EdgeInsets.all(2),
-        width: double.maxFinite,
-        // child: VideoHorizontalScrollWidget(),
-        // 将相同的 ValueKey 传递给 VideoHorizontalScrollWidget
-        // child: VideoHorizontalScrollWidget(
-        //   key: const ValueKey<String>('video_horizontal_scroll_key'),
-        // ),
-        child: widget.videoHorizontalScrollWidget,
-      ),
-    );
-  }
+  // AnimatedOpacity _buildVideoList(BuildContext context) {
+  //   return AnimatedOpacity(
+  //     opacity: notifier.hideStuff ? 0.0 : 1.0,
+  //     duration: const Duration(milliseconds: 300),
+  //     child: Container(
+  //       height: 100,
+  //       padding: EdgeInsets.all(2),
+  //       width: double.maxFinite,
+  //       // child: VideoHorizontalScrollWidget(),
+  //       // 将相同的 ValueKey 传递给 VideoHorizontalScrollWidget
+  //       // child: VideoHorizontalScrollWidget(
+  //       //   key: const ValueKey<String>('video_horizontal_scroll_key'),
+  //       // ),
+  //       child: widget.videoHorizontalScrollWidget,
+  //     ),
+  //   );
+  // }
 
   AnimatedOpacity _buildBottomBar(
     BuildContext context,
@@ -444,6 +438,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
           if (_displayTapped) {
             setState(() {
               notifier.hideStuff = true;
+              if(null!=widget.function){
+                widget.function!(true);
+              }
             });
           } else {
             _cancelAndRestartTimer();
@@ -453,6 +450,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
 
           setState(() {
             notifier.hideStuff = true;
+            if(null!=widget.function){
+              widget.function!(true);
+            }
           });
         }
       },
@@ -551,6 +551,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
 
     setState(() {
       notifier.hideStuff = false;
+      if(null!=widget.function){
+        widget.function!(false);
+      }
       _displayTapped = true;
     });
   }
@@ -652,6 +655,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       _initTimer = Timer(const Duration(milliseconds: 200), () {
         setState(() {
           notifier.hideStuff = false;
+          if(null!=widget.function){
+            widget.function!(false);
+          }
         });
       });
     }
@@ -665,6 +671,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
   void _onExpandCollapse() {
     setState(() {
       notifier.hideStuff = true;
+      if(null!=widget.function){
+        widget.function!(true);
+      }
 
       chewieController.toggleFullScreen();
       _showAfterExpandCollapseTimer =
@@ -682,6 +691,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     setState(() {
       if (controller.value.isPlaying) {
         notifier.hideStuff = false;
+        if(null!=widget.function){
+          widget.function!(false);
+        }
         _hideTimer?.cancel();
         controller.pause();
         // 暂停情况，禁用屏幕常量
@@ -716,6 +728,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
     _hideTimer = Timer(hideControlsTimer, () {
       setState(() {
         notifier.hideStuff = true;
+        if(null!=widget.function){
+          widget.function!(true);
+        }
       });
     });
   }

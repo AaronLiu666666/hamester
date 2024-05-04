@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:chewie/chewie.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:chewie/src/chewie_player.dart';
+import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import 'custom_material_controls.dart';
@@ -23,9 +24,11 @@ class VideoChewiePageController extends GetxController {
   late String? _tagId;
   RxBool isIniting = true.obs;
   late CustomMaterialControls customMaterialControls;
+  // late PlayerNotifier notifier;
+  late RxBool hideStuff = false.obs;
 
-   late VideoHorizontalScrollWidget videoHorizontalScrollWidget =
-   VideoHorizontalScrollWidget(key: ValueKey<String>("sdfdsf"));
+  late VideoHorizontalScrollWidget videoHorizontalScrollWidget =
+      VideoHorizontalScrollWidget(key: ValueKey<String>("sdfdsf"));
 
   VideoChewiePageController(
       {required int videoId,
@@ -38,6 +41,10 @@ class VideoChewiePageController extends GetxController {
     _seekTo.value = seekTo ?? 0;
     _videoPageFromType = videoPageFromType;
     _tagId = tagId;
+  }
+
+  void setHideStuffValue(bool value){
+    hideStuff.value = value;
   }
 
   String getTagId() {
@@ -100,9 +107,10 @@ class VideoChewiePageController extends GetxController {
       print("VideoPlayerController initialized successfully.");
 
       customMaterialControls = CustomMaterialControls(
-          videoHorizontalScrollWidget: videoHorizontalScrollWidget,
+          // videoHorizontalScrollWidget: videoHorizontalScrollWidget,
           videoId: _videoId.value,
-          seekTo: _seekTo.value);
+          seekTo: _seekTo.value,
+      function: setHideStuffValue,);
 
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,
@@ -138,40 +146,14 @@ class VideoChewiePageController extends GetxController {
     super.dispose();
   }
 
-  // void switchVideo(
-  //     {required int videoId, required String videoPath, int? seekTo}) async {
-  //   _videoId.value = videoId;
-  //   _videoPath.value = videoPath;
-  //   _seekTo.value = seekTo ?? 0;
-  //   await _videoPlayerController.pause();
-  //   await _videoPlayerController.dispose();
-  //   _chewieController.dispose();
-  //
-  //   // update();
-  // }
-  // }
-
-  // Future<void> toggleVideo() async {
-  //   await _videoPlayerController.pause();
-  //   List<VideoDTO> videoDTOList = _videoHorizontalScrollPagingController.pagingState.data;
-  //   _videoHorizontalScrollPagingController.loadMoreData()
-  //   currPlayIndex.value += 1;
-  //   if (currPlayIndex >= playList.length) {
-  //     currPlayIndex.value = 0;
-  //   }
-  //   await _initializePlayer();
-  // }
-
   void switchVideo(
       {required int videoId, required String videoPath, int? seekTo}) async {
     isIniting.value = true;
     _videoId.value = videoId;
     _videoPath.value = videoPath;
     _seekTo.value = seekTo ?? 0;
-
     // 停止视频播放
     await _videoPlayerController.pause();
-
     // 释放已经存在的 VideoPlayerController
     await _videoPlayerController.dispose();
     // 初始化新的视频控制器
@@ -191,17 +173,18 @@ class VideoChewiePageController extends GetxController {
       //         VideoChewiePageController.videoHorizontalScrollWidget,
       //     videoId: _videoId.value,
       //     seekTo: _seekTo.value),
-      customControls: customMaterialControls,
+      customControls: CustomMaterialControls(
+        videoId: _videoId.value,
+        seekTo: _seekTo.value,
+        function: setHideStuffValue,),
       aspectRatio: _videoPlayerController.value.aspectRatio,
     );
     _chewieController.dispose();
     _chewieController = newChewieController;
     isIniting.value = false;
-    // 不再调用 update() 方法
   }
 }
 
-// class VideoChewiePage extends GetView<VideoChewiePageController> {
 class VideoChewiePage extends GetView<VideoChewiePageController> {
   final int videoId;
   final String videoPath;
@@ -220,96 +203,61 @@ class VideoChewiePage extends GetView<VideoChewiePageController> {
   Widget build(BuildContext context) {
     VideoChewiePageController controller =
         Get.find<VideoChewiePageController>();
-    // controller.setVideoInfo(
-    //   videoId: videoId,
-    //   videoPath: videoPath,
-    //   seekTo: seekTo,
-    //   videoPageFromType: videoPageFromType,
-    //   tagId: tagId,
-    // );
-    // return GetBuilder<VideoChewiePageController>(builder: (controller) {
-    // return FutureBuilder<Widget>(
-    //   future: controller.buildVideoWidget(),
-    //   builder: (context, snapshot) {
-    //     if (snapshot.connectionState == ConnectionState.waiting) {
-    //       return Center(child: CircularProgressIndicator());
-    //     } else {
-    //       return snapshot.data ?? Container();
-    //     }
-    //   },
-    // );
-    // });
-    // return Obx(
-    //   () => controller.isIniting.value
-    //       ? const Center(child: CircularProgressIndicator())
-    //       : Chewie(
-    //           key: ValueKey<String>("sdfdsfs"),
-    //           controller: controller.getChewieController(),
-    //         ),
-    // );
-    // return Scaffold(
-    //     body: SafeArea(
-    //         child: Stack(children: [
-    //   Positioned(
-    //     top: 0,
-    //     left: 0,
-    //     right: 0,
-    //     child: Container(
-    //         color: Colors.black,
-    //         height: MediaQuery.of(context).size.width / (controller.getVideoPlayerController().value.aspectRatio),
-    //         child: Obx(() {
-    //           return controller.isIniting.value == false
-    //               ? Chewie(
-    //                   controller: controller.getChewieController(),
-    //                 )
-    //               : const Column(
-    //                   mainAxisAlignment: MainAxisAlignment.center,
-    //                   children: [
-    //                     CircularProgressIndicator(),
-    //                   ],
-    //                 );
-    //         })),
-    //   ),
-    // ])));
-   return Scaffold(
-     backgroundColor: Colors.black,
+    // controller.notifier = Provider.of<PlayerNotifier>(context, listen: true);
+    return Scaffold(
+        backgroundColor: Colors.black,
         body: SafeArea(
             child: Stack(children: [
-      Positioned(
-        top: 100,
-        left: 0,
-        right: 0,
-        child: Container(
-            color: Colors.black,
-            height: MediaQuery.of(context).size.width * 9 / 16,
-            child: Obx(() {
-              return controller.isIniting.value == false
-                  ? Chewie(
-                      controller: controller.getChewieController(),
-                    )
-                  : const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                      ],
-                    );
-            })),
-      ),
-              Positioned(bottom: 0,left: 0,right: 0,
-                  child:
-                  Container(
-                    height: 100,
-                    padding: EdgeInsets.all(2),
-                    width: double.maxFinite,
-                    // child: VideoHorizontalScrollWidget(),
-                    // 将相同的 ValueKey 传递给 VideoHorizontalScrollWidget
-                    // child: VideoHorizontalScrollWidget(
-                    //   key: const ValueKey<String>('video_horizontal_scroll_key'),
-                    // ),
-                    child: controller.videoHorizontalScrollWidget,
-                  ),
-              )
-    ])));
+          // Positioned(
+          //   top: 100,
+          //   left: 0,
+          //   right: 0,
+          //   child: Container(
+          //       color: Colors.black,
+          //       height: MediaQuery.of(context).size.width * 9 / 16,
+          //       child: Obx(() {
+          //         return controller.isIniting.value == false
+          //             ? Chewie(
+          //                 controller: controller.getChewieController(),
+          //               )
+          //             : const Column(
+          //                 mainAxisAlignment: MainAxisAlignment.center,
+          //                 children: [
+          //                   CircularProgressIndicator(),
+          //                 ],
+          //               );
+          //       })),
+          // ),
+          Center(
+            child: Container(
+              height: MediaQuery.of(context).size.width * 9 / 16,
+              child: Obx(() {
+                return controller.isIniting.value == false
+                    ? Chewie(
+                        controller: controller.getChewieController(),
+                      )
+                    : CircularProgressIndicator();
+              }),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Obx((){
+              return AnimatedOpacity(
+                opacity: controller.hideStuff.value?0:1,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  height: 100,
+                  padding: EdgeInsets.all(2),
+                  width: double.maxFinite,
+                  child: controller.videoHorizontalScrollWidget,
+                ),
+              );
+            }),
+          ),
+        ])));
   }
 }
 

@@ -15,6 +15,7 @@ import '../detail_page/media_detail_page.dart';
 import '../detail_page/tag_detail_page.dart';
 import '../list_page/media_home_page.dart';
 
+
 class VideoDTO {
   int id;
   String path;
@@ -26,87 +27,43 @@ class VideoDTO {
 
 class VideoHorizontalScrollWidget extends StatelessWidget {
 
-
-
-  // VideoHorizontalScrollWidget({Key? key}) : super(key: key);
-  //
-  // @override
-  // Widget build(BuildContext context) {
-  //   print("build VideoHorizontalScrollWidget");
-  //   return GetBuilder<VideoHorizontalScrollPagingController>(
-  //     builder: (controller) {
-  //       return buildCustomRefreshListWidget<VideoDTO,
-  //           VideoHorizontalScrollPagingController>(
-  //         shrinkWrap: true,
-  //         scrollDirection: Axis.horizontal,
-  //         listEnum: ListEnum.list,
-  //         enablePullDown: true,
-  //         enablePullUp: true,
-  //         physics: AlwaysScrollableScrollPhysics(),
-  //         onItemClick: (data, index) {
-  //           Get.find<VideoChewiePageController>().switchVideo(
-  //               videoId: data.id ?? 0,
-  //               videoPath: data.path ?? "",
-  //               seekTo: data.seekTo);
-  //         },
-  //         itemBuilder: (data, index) => Padding(
-  //           padding: EdgeInsets.symmetric(horizontal: 2),
-  //           child: Card(
-  //             color: Colors.white.withOpacity(0.3),
-  //             child: SizedBox(
-  //               height: 70,
-  //               width: 80,
-  //               child: Image.file(
-  //                 File(data.cover ?? ""),
-  //                 fit: BoxFit.cover,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-  // VideoHorizontalScrollWidget({Key? key}) : super(key: key);
-  const VideoHorizontalScrollWidget({Key? key}) : super(key: key);
+  VideoHorizontalScrollWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print("build VideoHorizontalScrollWidget");
-    return Obx(() {
-      final controller = Get.find<VideoHorizontalScrollPagingController>();
-      return controller.shouldUpdate.value
-          ? buildCustomRefreshListWidget<VideoDTO,
-          VideoHorizontalScrollPagingController>(
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        listEnum: ListEnum.list,
-        enablePullDown: true,
-        enablePullUp: true,
-        physics: AlwaysScrollableScrollPhysics(),
-        onItemClick: (data, index) {
-          Get.find<VideoChewiePageController>().switchVideo(
-            videoId: data.id ?? 0,
-            videoPath: data.path ?? "",
-            seekTo: data.seekTo,
-          );
-        },
-        itemBuilder: (data, index) => Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2),
-          child: Card(
-            color: Colors.white.withOpacity(0.3),
-            child: SizedBox(
-              height: 70,
-              width: 80,
-              child: Image.file(
-                File(data.cover ?? ""),
-                fit: BoxFit.cover,
+    return GetBuilder<VideoHorizontalScrollPagingController>(
+      builder: (controller) {
+        return buildCustomRefreshListWidget<VideoDTO,
+            VideoHorizontalScrollPagingController>(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          listEnum: ListEnum.list,
+          enablePullDown: true,
+          enablePullUp: true,
+          physics: AlwaysScrollableScrollPhysics(),
+          onItemClick: (data, index) {
+            Get.find<VideoChewiePageController>().switchVideo(
+                videoId: data.id ?? 0,
+                videoPath: data.path ?? "",
+                seekTo: data.seekTo);
+          },
+          itemBuilder: (data, index) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Card(
+              color: Colors.white.withOpacity(0.3),
+              child: SizedBox(
+                height: 70,
+                width: 80,
+                child: Image.file(
+                  File(data.cover ?? ""),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
-        ),
-      ) : SizedBox.shrink(); // 如果不需要更新，则返回一个空的 SizedBox
-    });
+        );
+      },
+    );
   }
 }
 
