@@ -31,12 +31,27 @@ abstract class PagingController<M, S extends PagingState<M>>
   /// 刷新控件的 Controller
   RefreshController refreshController = RefreshController();
 
+  final ScrollController scrollController = ScrollController();
+
   @override
   void onInit() {
     super.onInit();
-
+    scrollController.addListener(_sendScrollNotification);
     /// 保存 State
     pagingState = getState();
+  }
+
+
+  @override
+  void onClose() {
+    scrollController.removeListener(_sendScrollNotification);
+    super.onClose();
+  }
+
+  // 主要为了视频播放页面 VideoChewiePage 在滑动横向列表时，通知VideoChewiePage将控制横线滚动列表显示隐藏的计时器进行重新计时
+  void _sendScrollNotification() {
+    final scrollOffset = scrollController.offset;
+    CustomScrollNotification(scrollOffset).dispatch(Get.context!);
   }
 
   @override
@@ -331,6 +346,7 @@ Widget buildCustomListView<T>(
     //   width: double.maxFinite,
     //   child:
     return ListView.builder(
+      physics:physics,
       scrollDirection: scrollDirection,
       shrinkWrap: shrinkWrap,
       itemCount: data.length, // 指定列表项的数量
@@ -365,3 +381,9 @@ Widget buildCustomListView<T>(
 }
 
 enum ListEnum { grid, list }
+
+class CustomScrollNotification extends Notification {
+  final double scrollOffset;
+
+  CustomScrollNotification(this.scrollOffset);
+}
