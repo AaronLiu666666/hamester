@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -21,6 +22,14 @@ class PagingState<T> {
 
   /// 列表数据
   List<T> data = <T>[];
+
+  /// 总记录数
+  int totalCount = 0;
+
+  int pageSize = 15;
+
+  /// 总页数
+  int totalPages = 0;
 }
 
 abstract class PagingController<M, S extends PagingState<M>>
@@ -37,10 +46,10 @@ abstract class PagingController<M, S extends PagingState<M>>
   void onInit() {
     super.onInit();
     scrollController.addListener(_sendScrollNotification);
+
     /// 保存 State
     pagingState = getState();
   }
-
 
   @override
   void onClose() {
@@ -66,7 +75,8 @@ abstract class PagingController<M, S extends PagingState<M>>
   void refreshData() async {
     initPaging();
     await initBeforeLoadData();
-    await _loadData();
+    // await _loadMoreData();
+    await _loadPageData();
 
     /// 刷新完成
     refreshController.refreshCompleted();
@@ -74,7 +84,7 @@ abstract class PagingController<M, S extends PagingState<M>>
 
   void refreshDataNotScan() async {
     initPaging();
-    await _loadData();
+    await _loadPageData();
 
     /// 刷新完成
     refreshController.refreshCompleted();
@@ -87,10 +97,82 @@ abstract class PagingController<M, S extends PagingState<M>>
     pagingState.data.clear();
   }
 
+  Future<void> pageNavigate() async {
+    pagingState.hasMore = pagingState.pageSize < pagingState.totalPages;
+    pagingState.data.clear();
+    await _loadPageAndBeforeData();
+  }
+
+  // void scrollToBottom() {
+  //   // 滚动到列表的最底部
+  //   // scrollController.animateTo(
+  //   //   scrollController.jumpTo(value),
+  //   //   duration: const Duration(milliseconds: 500),
+  //   //   curve: Curves.easeInOut,
+  //   // );
+  //
+  // }
+
+  Future scrollToBottom() async {
+    // while (scrollController.position.pixels != scrollController.position.maxScrollExtent) {
+    //   scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    //   await SchedulerBinding.instance!.endOfFrame;
+    // }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // scrollController.animateTo(
+      //   scrollController.position.maxScrollExtent,
+      //   duration: const Duration(milliseconds: 100),
+      //   curve: Curves.easeIn,
+      // );
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
+  }
+  Future scrollToTop() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // scrollController.animateTo(
+      //   0.0,
+      //   duration: const Duration(milliseconds: 100),
+      //   curve: Curves.easeIn,
+      // );
+      scrollController.jumpTo(0.0);
+    });
+  }
+
+  Future scrollToBottom2() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // scrollController.animateTo(
+      //   scrollController.position.maxScrollExtent,
+      //   duration: const Duration(milliseconds: 100),
+      //   curve: Curves.easeIn,
+      // );
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
+  }
+
+  Future<void> pageAdd() async {
+    print("向下翻页：当前页 ${pagingState.pageIndex}");
+    if (pagingState.hasMore && pagingState.pageIndex < pagingState.totalPages) {
+      pagingState.pageIndex++;
+      await pageNavigate();
+      await scrollToBottom();
+    }
+    print("向下翻页：结果页 ${pagingState.pageIndex}");
+  }
+
+  Future<void> pageSub() async {
+    print("向上翻页：当前页 " + pagingState.pageIndex.toString());
+    if (pagingState.pageIndex > 1) {
+      pagingState.pageIndex--;
+      await pageNavigate();
+      await scrollToBottom();
+      print("向上翻页：结果页 " + pagingState.pageIndex.toString());
+    }
+  }
+
   /// 数据加载
-  Future<List<M>?> _loadData() async {
+  Future<List<M>?> _loadMoreData() async {
     PagingParams pagingParams =
-        PagingParams.create(pageIndex: pagingState.pageIndex);
+        PagingParams.create(pageIndex: pagingState.pageIndex + 1);
     PagingData<M>? pagingData = await loadData(pagingParams);
     List<M>? list = pagingData?.data;
 
@@ -103,6 +185,55 @@ abstract class PagingController<M, S extends PagingState<M>>
 
     /// 判断是否有更多数据
     pagingState.hasMore = pagingState.data.length < (pagingData?.total ?? 0);
+    pagingState.totalCount = pagingData?.total ?? 0;
+    pagingState.totalPages = pagingData?.pages ?? 0;
+
+    /// 更新界面
+    update([pagingState.refreshId]);
+    return list;
+  }
+
+  Future<List<M>?> _loadPageData() async {
+    PagingParams pagingParams =
+        PagingParams.create(pageIndex: pagingState.pageIndex);
+    PagingData<M>? pagingData = await loadData(pagingParams);
+    List<M>? list = pagingData?.data;
+
+    /// 数据不为空，则将数据添加到 data 中
+    /// 并且分页页数 pageIndex + 1
+    if (list != null && list.isNotEmpty) {
+      pagingState.data.addAll(list);
+    }
+
+    /// 判断是否有更多数据
+    pagingState.hasMore = pagingState.data.length < (pagingData?.total ?? 0);
+    pagingState.totalCount = pagingData?.total ?? 0;
+    pagingState.totalPages = pagingData?.pages ?? 0;
+
+    /// 更新界面
+    update([pagingState.refreshId]);
+    return list;
+  }
+
+
+  Future<List<M>?> _loadPageAndBeforeData() async {
+    PagingParams pagingParams =
+    PagingParams.create(pageIndex: 1);
+    int num = pagingState.pageIndex * pagingState.pageSize;
+    pagingParams.size = num;
+    PagingData<M>? pagingData = await loadData(pagingParams);
+    List<M>? list = pagingData?.data;
+
+    /// 数据不为空，则将数据添加到 data 中
+    /// 并且分页页数 pageIndex + 1
+    if (list != null && list.isNotEmpty) {
+      pagingState.data.addAll(list);
+    }
+
+    /// 判断是否有更多数据
+    pagingState.hasMore = pagingState.data.length < (pagingData?.total ?? 0);
+    pagingState.totalCount = pagingData?.total ?? 0;
+    pagingState.totalPages = ((pagingData?.total??0)/15).ceil();
 
     /// 更新界面
     update([pagingState.refreshId]);
@@ -111,7 +242,7 @@ abstract class PagingController<M, S extends PagingState<M>>
 
   /// 加载更多
   void loadMoreData() async {
-    await _loadData();
+    await _loadMoreData();
 
     /// 加载完成
     refreshController.loadComplete();
@@ -160,8 +291,10 @@ Widget buildListView<T>(
     Function(T item, int index)? onItemClick,
     ScrollPhysics? physics,
     bool shrinkWrap = false,
-    Axis scrollDirection = Axis.vertical}) {
+    Axis scrollDirection = Axis.vertical,
+    required ScrollController scrollController}) {
   return GridView.builder(
+    controller: scrollController,
     shrinkWrap: shrinkWrap,
     physics: physics,
     padding: EdgeInsets.zero,
@@ -181,7 +314,7 @@ Widget buildListView<T>(
   );
 }
 
-Widget buildRefreshWidget({
+Widget buildRefreshWidget<T, C extends PagingController<T, PagingState<T>>>({
   required Widget Function() builder,
   VoidCallback? onRefresh,
   VoidCallback? onLoad,
@@ -189,7 +322,52 @@ Widget buildRefreshWidget({
   bool enablePullUp = true,
   bool enablePullDown = true,
   Axis scrollDirection = Axis.vertical,
+  bool showPageBar = false,
+  required C controller,
+  required ScrollController scrollController,
 }) {
+  if (showPageBar) {
+    return Column(
+      children: [
+        Expanded(
+          child: SmartRefresher(
+            enablePullUp: enablePullUp,
+            enablePullDown: enablePullDown,
+            controller: refreshController,
+            onRefresh: onRefresh,
+            onLoading: onLoad,
+            header: ClassicHeader(
+              // idleText: "下拉刷新",
+              // releaseText: "松开刷新",
+              // completeText: "刷新完成",
+              // refreshingText: "加载中......",
+              idleText: "",
+              releaseText: "",
+              completeText: "",
+              refreshingText: "",
+              idleIcon: scrollDirection == Axis.horizontal
+                  ? const Icon(Icons.arrow_right, color: Colors.grey)
+                  : const Icon(Icons.arrow_downward, color: Colors.grey),
+            ),
+            footer: ClassicFooter(
+              // idleText: "上拉加载更多",
+              // canLoadingText: "松开加载更多",
+              // loadingText: "加载中......",
+              idleText: "",
+              canLoadingText: "",
+              loadingText: "",
+              idleIcon: scrollDirection == Axis.horizontal
+                  ? const Icon(Icons.arrow_left, color: Colors.grey)
+                  : const Icon(Icons.arrow_upward, color: Colors.grey),
+            ),
+            child: builder(),
+          ),
+        ),
+        buildPageNavigationBar(controller),
+      ],
+    );
+  }
+
   return SmartRefresher(
     enablePullUp: enablePullUp,
     enablePullDown: enablePullDown,
@@ -209,7 +387,7 @@ Widget buildRefreshWidget({
           ? const Icon(Icons.arrow_right, color: Colors.grey)
           : const Icon(Icons.arrow_downward, color: Colors.grey),
     ),
-    footer:  ClassicFooter(
+    footer: ClassicFooter(
       // idleText: "上拉加载更多",
       // canLoadingText: "松开加载更多",
       // loadingText: "加载中......",
@@ -221,6 +399,7 @@ Widget buildRefreshWidget({
           : const Icon(Icons.arrow_upward, color: Colors.grey),
     ),
     child: builder(),
+    scrollController:scrollController,
   );
 }
 
@@ -237,7 +416,7 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
   C controller = Get.find(tag: tag);
   return GetBuilder<C>(
     builder: (controller) {
-      return buildRefreshWidget(
+      return buildRefreshWidget<T, PagingController<T, PagingState<T>>>(
         builder: () => buildListView<T>(
             data: controller.pagingState.data,
             separatorBuilder: separatorBuilder,
@@ -245,12 +424,15 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
             onItemClick: onItemClick,
             physics: physics,
             shrinkWrap: shrinkWrap,
-            scrollDirection: scrollDirection),
+            scrollDirection: scrollDirection,
+        scrollController: controller.scrollController),
         refreshController: controller.refreshController,
         onRefresh: controller.refreshData,
         onLoad: controller.loadMoreData,
         enablePullDown: enablePullDown,
         enablePullUp: enablePullUp && controller.pagingState.hasMore,
+        controller: controller,
+        scrollController: controller.scrollController,
       );
     },
     tag: tag,
@@ -258,39 +440,6 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
   );
 }
 
-// Widget buildCustomRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>({
-//   required Widget Function(T item, int index) itemBuilder,
-//   bool enablePullUp = true,
-//   bool enablePullDown = true,
-//   String? tag,
-//   Widget Function(T item, int index)? separatorBuilder,
-//   Function(T item, int index)? onItemClick,
-//   ScrollPhysics? physics,
-//   bool shrinkWrap = false,
-//   Axis scrollDirection = Axis.vertical,
-//   ListEnum listEnum = ListEnum.grid,
-// }) {
-//   C controller = Get.find(tag: tag);
-//   return Obx(
-//         () => buildRefreshWidget(
-//       builder: () => buildCustomListView<T>(
-//         data: controller.pagingState.data,
-//         separatorBuilder: separatorBuilder,
-//         itemBuilder: itemBuilder,
-//         onItemClick: onItemClick,
-//         physics: physics,
-//         shrinkWrap: shrinkWrap,
-//         scrollDirection: scrollDirection,
-//         listEnum: listEnum,
-//       ),
-//       refreshController: controller.refreshController,
-//       onRefresh: controller.refreshData,
-//       onLoad: controller.loadMoreData,
-//       enablePullDown: enablePullDown,
-//       enablePullUp: enablePullUp && controller.pagingState.hasMore,
-//     ),
-//   );
-// }
 Widget buildCustomRefreshListWidget<T,
     C extends PagingController<T, PagingState<T>>>({
   required Widget Function(T item, int index) itemBuilder,
@@ -303,26 +452,34 @@ Widget buildCustomRefreshListWidget<T,
   bool shrinkWrap = false,
   Axis scrollDirection = Axis.vertical,
   ListEnum listEnum = ListEnum.grid,
+  bool showPageBar = false,
 }) {
   C controller = Get.find(tag: tag);
   return GetBuilder<C>(
     builder: (controller) {
-      return buildRefreshWidget(
-        builder: () => buildCustomListView<T>(
-            data: controller.pagingState.data,
-            separatorBuilder: separatorBuilder,
-            itemBuilder: itemBuilder,
-            onItemClick: onItemClick,
-            physics: physics,
-            shrinkWrap: shrinkWrap,
-            scrollDirection: scrollDirection,
-            listEnum: listEnum),
+      return buildRefreshWidget<T, PagingController<T, PagingState<T>>>(
+        builder: () =>
+            buildCustomListView<T, PagingController<T, PagingState<T>>>(
+                data: controller.pagingState.data,
+                separatorBuilder: separatorBuilder,
+                itemBuilder: itemBuilder,
+                onItemClick: onItemClick,
+                physics: physics,
+                shrinkWrap: shrinkWrap,
+                scrollDirection: scrollDirection,
+                listEnum: listEnum,
+                showPageBar: showPageBar,
+                controller: controller,
+                scrollController: controller.scrollController),
         scrollDirection: scrollDirection,
         refreshController: controller.refreshController,
         onRefresh: controller.refreshData,
         onLoad: controller.loadMoreData,
         enablePullDown: enablePullDown,
         enablePullUp: enablePullUp && controller.pagingState.hasMore,
+        showPageBar: showPageBar,
+        controller: controller,
+        scrollController: controller.scrollController,
       );
     },
     tag: tag,
@@ -330,37 +487,45 @@ Widget buildCustomRefreshListWidget<T,
   );
 }
 
-Widget buildCustomListView<T>(
-    {required Widget Function(T item, int index) itemBuilder,
-    required List<T> data,
-    Widget Function(T item, int index)? separatorBuilder,
-    Function(T item, int index)? onItemClick,
-    ScrollPhysics? physics,
-    bool shrinkWrap = false,
-    Axis scrollDirection = Axis.vertical,
-    ListEnum listEnum = ListEnum.grid}) {
-  if (listEnum == ListEnum.list) {
-    // return Container(
-    //   height: 100,
-    //   padding: EdgeInsets.all(2),
-    //   width: double.maxFinite,
-    //   child:
-    return ListView.builder(
-      physics:physics,
-      scrollDirection: scrollDirection,
-      shrinkWrap: shrinkWrap,
-      itemCount: data.length, // 指定列表项的数量
-      itemBuilder: (ctx, index) {
-        return GestureDetector(
-          onTap: () => onItemClick?.call(data[index], index),
-          child: itemBuilder(data[index], index),
-        );
-      },
-    );
-    // );
-  }
+Widget buildListViewWidget<T>({
+  required Widget Function(T item, int index) itemBuilder,
+  required List<T> data,
+  Widget Function(T item, int index)? separatorBuilder,
+  Function(T item, int index)? onItemClick,
+  ScrollPhysics? physics,
+  bool shrinkWrap = false,
+  Axis scrollDirection = Axis.vertical,
 
+required ScrollController scrollController
+}) {
+  return ListView.builder(
+    controller: scrollController,
+    physics: physics,
+    scrollDirection: scrollDirection,
+    shrinkWrap: shrinkWrap,
+    itemCount: data.length,
+    // 指定列表项的数量
+    itemBuilder: (ctx, index) {
+      return GestureDetector(
+        onTap: () => onItemClick?.call(data[index], index),
+        child: itemBuilder(data[index], index),
+      );
+    },
+  );
+}
+
+Widget buildGridViewWidget<T>({
+  required Widget Function(T item, int index) itemBuilder,
+  required List<T> data,
+  Widget Function(T item, int index)? separatorBuilder,
+  Function(T item, int index)? onItemClick,
+  ScrollPhysics? physics,
+  bool shrinkWrap = false,
+  Axis scrollDirection = Axis.vertical,
+required ScrollController scrollController
+}) {
   return GridView.builder(
+    controller: scrollController,
     shrinkWrap: shrinkWrap,
     physics: physics,
     padding: EdgeInsets.zero,
@@ -378,6 +543,88 @@ Widget buildCustomListView<T>(
       );
     },
   );
+}
+
+/// 构建页码导航栏
+Widget buildPageNavigationBar<T, C extends PagingController<T, PagingState<T>>>(
+    C controller) {
+  return Container(
+    padding: EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.first_page_rounded, size: 24),
+          onPressed: () async {
+            controller.pagingState.pageIndex = 1;
+            await controller.pageNavigate();
+            await controller.scrollToTop();
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.navigate_before_rounded, size: 24),
+          onPressed: () async {
+            await controller.pageSub();
+          },
+        ),
+        // Obx(() => Text(
+        //   '${controller.pagingState.pageIndex} / ${controller.pagingState.totalPages}',
+        //   style: TextStyle(fontSize: 14),
+        // )),
+        IconButton(
+          icon: Icon(Icons.navigate_next_rounded, size: 24),
+          onPressed: () async {
+            await controller.pageAdd();
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.last_page_rounded, size: 24),
+          onPressed: () async {
+            controller.pagingState.pageIndex =
+                controller.pagingState.totalPages;
+            await controller.pageNavigate();
+            await controller.scrollToBottom();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+Widget buildCustomListView<T, C extends PagingController<T, PagingState<T>>>(
+    {required Widget Function(T item, int index) itemBuilder,
+    required List<T> data,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical,
+    ListEnum listEnum = ListEnum.grid,
+    bool showPageBar = false,
+    required C controller,
+      required ScrollController scrollController}) {
+  if (listEnum == ListEnum.list) {
+    return buildListViewWidget(
+        itemBuilder: itemBuilder,
+        data: data,
+        separatorBuilder: separatorBuilder,
+        onItemClick: onItemClick,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        scrollDirection: scrollDirection,
+        scrollController:scrollController);
+    // );
+  }
+
+  return buildGridViewWidget(
+      itemBuilder: itemBuilder,
+      data: data,
+      separatorBuilder: separatorBuilder,
+      onItemClick: onItemClick,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      scrollDirection: scrollDirection,
+      scrollController:scrollController,);
 }
 
 enum ListEnum { grid, list }

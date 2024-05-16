@@ -40,7 +40,7 @@ class _MediaPageListPageState extends State<MediaPageListPage> {
       body: GetBuilder<MediaPagingController>(
         init: MediaPagingController(),
         builder: (controller) {
-          return buildRefreshListWidget<MediaFileData, MediaPagingController>(
+          return buildCustomRefreshListWidget<MediaFileData, MediaPagingController>(
             itemBuilder: (data, index) => CardWidget(
                 data: CardContentData(
               id: data.id ?? 0,
@@ -51,6 +51,7 @@ class _MediaPageListPageState extends State<MediaPageListPage> {
             )),
             enablePullDown: true,
             enablePullUp: true,
+            showPageBar: true,
             physics: AlwaysScrollableScrollPhysics(),
             onItemClick: (data, index) {
               // 处理点击事件

@@ -37,7 +37,7 @@ class _TagPageListPageState extends State<TagPageListPage> {
     return GetBuilder<TagPagingController>(
       init: TagPagingController(),
       builder: (controller) {
-        return buildRefreshListWidget<TagInfo, TagPagingController>(
+        return buildCustomRefreshListWidget<TagInfo, TagPagingController>(
             itemBuilder: (data, index) => GestureDetector(
                   onTap: () async {
                     List<MediaTagRelation> relationList = await queryRelationsByTagIdWithMediaPath(data.id!);
@@ -93,6 +93,7 @@ class _TagPageListPageState extends State<TagPageListPage> {
                 ),
             enablePullDown: true,
             enablePullUp: true,
+            showPageBar: true,
             physics: AlwaysScrollableScrollPhysics(),
             onItemClick: (data, index) {});
       },

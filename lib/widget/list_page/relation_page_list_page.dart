@@ -41,7 +41,7 @@ class _RelationPageListPage extends State<RelationPageListPage> {
     return GetBuilder<RelationPagingController>(
       init: RelationPagingController(),
       builder: (controller){
-        return buildRefreshListWidget<MediaTagRelation,RelationPagingController>(
+        return buildCustomRefreshListWidget<MediaTagRelation,RelationPagingController>(
             itemBuilder: (data,index)=>GestureDetector(
               onTap: () {
                 Get.to(
@@ -91,6 +91,7 @@ class _RelationPageListPage extends State<RelationPageListPage> {
             ),
             enablePullDown: true,
             enablePullUp: true,
+            showPageBar: true,
             physics: AlwaysScrollableScrollPhysics(),
             onItemClick: (data,index){
             }
