@@ -103,48 +103,19 @@ abstract class PagingController<M, S extends PagingState<M>>
     await _loadPageAndBeforeData();
   }
 
-  // void scrollToBottom() {
-  //   // 滚动到列表的最底部
-  //   // scrollController.animateTo(
-  //   //   scrollController.jumpTo(value),
-  //   //   duration: const Duration(milliseconds: 500),
-  //   //   curve: Curves.easeInOut,
-  //   // );
-  //
-  // }
-
   Future scrollToBottom() async {
-    // while (scrollController.position.pixels != scrollController.position.maxScrollExtent) {
-    //   scrollController.jumpTo(scrollController.position.maxScrollExtent);
-    //   await SchedulerBinding.instance!.endOfFrame;
-    // }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // scrollController.animateTo(
-      //   scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 100),
-      //   curve: Curves.easeIn,
-      // );
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
   }
   Future scrollToTop() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // scrollController.animateTo(
-      //   0.0,
-      //   duration: const Duration(milliseconds: 100),
-      //   curve: Curves.easeIn,
-      // );
       scrollController.jumpTo(0.0);
     });
   }
 
   Future scrollToBottom2() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // scrollController.animateTo(
-      //   scrollController.position.maxScrollExtent,
-      //   duration: const Duration(milliseconds: 100),
-      //   curve: Curves.easeIn,
-      // );
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
   }
