@@ -88,4 +88,15 @@ abstract class MediaTagRelationDao {
     ''')
   Future<void> deleteRelationById(String relationId);
 
+  @Query('''
+    SELECT
+      r.* 
+    FROM
+      tag_info t
+      LEFT JOIN r_media_tag r ON t.id = r.tag_id 
+    WHERE
+      t.tag_name LIKE :tagName || '%'
+  ''')
+  Future<List<MediaTagRelation>> queryRelationsByTagNameLeftLike(String tagName);
+
 }

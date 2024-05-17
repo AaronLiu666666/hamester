@@ -35,6 +35,14 @@ Future<void> updateData(TagInfo tagInfo) async {
   await dataBase.tagInfoDao.updateData(tagInfo);
 }
 
+Future<List<TagInfo>> queryTagsByTagName(String tagName) async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  // 查询是否有重名标签，标签名为标签唯一标识，重名即认为是同一个标签
+  List<TagInfo> tagInfos =
+      await dataBase.tagInfoDao.queryTagsByTagName(tagName);
+  return tagInfos;
+}
+
 /// 创建标签-媒体关联数据 （如果同名标签不存在则先创建标签再创建关联关系）
 Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
@@ -50,6 +58,7 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
     if (null == tagPicConcat || tagPicConcat.isEmpty) {
       tagPicConcat = dto.picPath;
       // 更新tag
+      tagInfo.tagPic = tagPicConcat;
       dataBase.tagInfoDao.updateData(tagInfo);
     }
   } else {
@@ -72,6 +81,32 @@ Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
       updateTime: nowMilliseconds);
   // 插入标签-媒体关联信息
   await dataBase.mediaTagRelationDao.insertOne(mediaTagRelation);
+}
+
+Future<void> insertOrUpdateTagInfo(String tagName,String? tagDesc,List<String> picList) async{
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  // 查询是否有重名标签，标签名为标签唯一标识，重名即认为是同一个标签
+  List<TagInfo> tagInfos =
+      await dataBase.tagInfoDao.queryTagsByTagName(tagName);
+  TagInfo tagInfo;
+  int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
+  if (tagInfos.isNotEmpty) {
+    tagInfo = tagInfos[0];
+    tagInfo.updateTime = nowMilliseconds;
+    tagInfo.tagName = tagName;
+    tagInfo.tagDesc = tagDesc;
+    tagInfo.tagPic = picList.join(",");
+    dataBase.tagInfoDao.updateData(tagInfo);
+  } else {
+    tagInfo = TagInfo();
+    tagInfo.id = UuidGenerator.generateUuid();
+    tagInfo.tagName = tagName;
+    tagInfo.tagDesc= tagDesc;
+    tagInfo.tagPic = picList.join(",");
+    tagInfo.createTime = nowMilliseconds;
+    tagInfo.updateTime = nowMilliseconds;
+    await dataBase.tagInfoDao.insertOne(tagInfo);
+  }
 }
 
 class CreateMediaTagRelationDTO {

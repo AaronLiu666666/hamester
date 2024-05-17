@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:hamster/media_manage/model/po/media_file_data.dart';
 import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,6 +32,8 @@ class GetxTagDetailController extends GetxController {
   final TextEditingController tagNameController = TextEditingController();
   final TextEditingController tagDescController = TextEditingController();
 
+  RxList<String> levels = <String>[].obs;
+
   List<MediaFileData> getMediaList() {
     return mediaList;
   }
@@ -59,7 +62,7 @@ class GetxTagDetailController extends GetxController {
   Future<void> loadData() async {
     try {
       tagInfo = await queryDataById(id.value) ?? TagInfo();
-      title.value = tagInfo.tagName??"";
+      title.value = tagInfo.tagName ?? "";
       relationList = await queryRelationsByTagId(id.value);
       final mediaIds = relationList
           .where((relation) => relation.mediaId != null)
@@ -83,6 +86,7 @@ class GetxTagDetailController extends GetxController {
       if (tagInfo.tagPic != null && tagInfo.tagPic!.isNotEmpty) {
         picPath.value = tagInfo.tagPic!.split(',');
       }
+      levels.value = title.value.split('/');
     } finally {
       isLoading.value = false;
     }
@@ -96,24 +100,86 @@ class GetxTagDetailController extends GetxController {
     }
   }
 
+  Future<void> loadDataByTagNameLeftLike(String tagName) async {
+    try {
+      // 设置加载数据 加载动画
+      isLoading.value = true;
+      List<TagInfo> tagsWithTagName = await queryTagsByTagName(tagName);
+      if (tagsWithTagName.isNotEmpty) {
+        tagInfo = tagsWithTagName[0];
+        id.value = tagInfo.id??"";
+      } else {
+        tagInfo = TagInfo();
+        id.value = '';
+      }
+      title.value = tagName;
+
+      relationList = await queryRelationsByTagNameLeftLike(tagName);
+      final mediaIds = relationList
+          .where((relation) => relation.mediaId != null)
+          .map((relation) => relation.mediaId!)
+          .toSet();
+      mediaList = await queryDatasByIds(List.from(mediaIds));
+      await generateMediaListThumbnailImages(mediaList);
+
+      final mediaMap = Map.fromIterable(mediaList, key: (e) => e.id);
+      // 清空relation map
+      relationMediaMap = {};
+      for (var relation in relationList) {
+        if (relation.mediaId != null) {
+          final mediaFileData = mediaMap[relation.mediaId!];
+          if (mediaFileData != null) {
+            relationMediaMap[relation.id!] = mediaFileData;
+          }
+        }
+      }
+      tagNameController.text = tagName;
+      tagDescController.text = tagInfo.tagDesc ?? '';
+      picPath.value = [];
+      if (tagInfo.tagPic != null && tagInfo.tagPic!.isNotEmpty) {
+        picPath.value = tagInfo.tagPic!.split(',');
+      }
+      levels.value = title.value.split('/');
+    } catch (e){
+      print("切换标签层级失败："+e.toString());
+    }finally {
+      isLoading.value = false;
+    }
+  }
+
   void removeImage(int index) {
     picPath.removeAt(index);
   }
 
   Future<void> saveChanges() async {
+    String needSaveTagName = tagNameController.text;
+    if(needSaveTagName==null||needSaveTagName.isEmpty||needSaveTagName.contains("//")){
+      Get.snackbar('失败', '标签名不能为空');
+      return;
+    }
     tagInfo.tagName = tagNameController.text;
     tagInfo.tagDesc = tagDescController.text;
     tagInfo.tagPic = picPath.join(",");
-    tagInfo.updateTime = DateTime.now().millisecondsSinceEpoch;
-    await updateData(tagInfo);
-    // Get.snackbar('成功', '保存成功');
+    if(tagInfo==null||tagInfo.id==null||tagInfo.id!.isEmpty){
+      await insertOrUpdateTagInfo(tagInfo.tagName!, tagInfo.tagDesc, picPath);
+    } else {
+      tagInfo.updateTime = DateTime.now().millisecondsSinceEpoch;
+      await updateData(tagInfo);
+    }
   }
 
   void deleteTag() async {
-    if(id.value.isEmpty){
+    if (id.value.isEmpty) {
       return;
     }
     await deleteTagAndRelation(id.value);
+  }
+
+  void onTagLevelClicked(int level) {
+    if (level < levels.length) {
+      String tagName = levels.sublist(0, level + 1).join('/');
+      loadDataByTagNameLeftLike(tagName); // 重新加载数据
+    }
   }
 }
 
@@ -123,7 +189,8 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(
-          () => Text('标签详情: ${controller.title ?? ""}'),
+          // () => Text('标签详情: ${controller.title ?? ""}'),
+          () => _buildBreadcrumbs(),
         ),
       ),
       body: Obx(
@@ -158,6 +225,55 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
     );
   }
 
+  // 如果既不想水平滚动也不想省略显示，可以考虑使用换行的方式来显示长标签路径。我们可以利用 Wrap 小部件来实现这个功能，这样当一行显示不下时，就会自动换行。
+  // Widget _buildBreadcrumbs() {
+  //   List<String> levels = controller.levels;
+  //   List<Widget> breadcrumbs = [];
+  //   for (int i = 0; i < levels.length; i++) {
+  //     breadcrumbs.add(InkWell(
+  //       onTap: () => controller.onTagLevelClicked(i),
+  //       child: Text(
+  //         levels[i],
+  //         style: TextStyle(
+  //           color: Colors.blue,
+  //           decoration: TextDecoration.underline,
+  //         ),
+  //       ),
+  //     ));
+  //     if (i < levels.length - 1) {
+  //       breadcrumbs.add(Text(' / '));
+  //     }
+  //   }
+  //   return Wrap(
+  //     children: breadcrumbs,
+  //   );
+  // }
+  Widget _buildBreadcrumbs() {
+    List<String> levels = controller.levels;
+    List<Widget> breadcrumbs = [];
+    for (int i = 0; i < levels.length; i++) {
+      breadcrumbs.add(InkWell(
+        onTap: () => controller.onTagLevelClicked(i),
+        child: Text(
+          levels[i],
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ));
+      if (i < levels.length - 1) {
+        breadcrumbs.add(Text(' / '));
+      }
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: breadcrumbs,
+      ),
+    );
+  }
+
   Widget _buildRelationList() {
     return Expanded(
       child: GridView.count(
@@ -178,7 +294,8 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
                     videoId: controller.relationMediaMap[data.id!]!.id!,
                     videoPath: controller.relationMediaMap[data.id!]!.path!,
                     seekTo: data.mediaMoment,
-                    videoPageFromType: VideoPageFromType.tag_detail_relation_list,
+                    videoPageFromType:
+                        VideoPageFromType.tag_detail_relation_list,
                   ));
                 }),
               );
@@ -186,8 +303,9 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
             onLongPress: () {
               Get.to(() => GetxRelationDetailPage(),
                   binding: BindingsBuilder(() {
-                    Get.put(GetxRelationDetailPageController(id:controller.relationList[index].id??""));
-                  }));
+                Get.put(GetxRelationDetailPageController(
+                    id: controller.relationList[index].id ?? ""));
+              }));
             },
             child: Card(
               margin: EdgeInsets.all(10),
@@ -239,10 +357,10 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
               );
             },
             onLongPress: () {
-              Get.to(() => MediaDetailPage(),
-                  binding: BindingsBuilder(() {
-                    Get.put(MediaDetailPageController(mediaId:controller.mediaList[index].id??0));
-                  }));
+              Get.to(() => MediaDetailPage(), binding: BindingsBuilder(() {
+                Get.put(MediaDetailPageController(
+                    mediaId: controller.mediaList[index].id ?? 0));
+              }));
             },
             child: Card(
               margin: EdgeInsets.all(10),
@@ -273,14 +391,14 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
   Widget _buildTagDetail(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16),
-      child:  Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
             controller: controller.tagNameController,
             decoration: InputDecoration(labelText: '标签名称'),
-            onChanged: (value){
-              controller.title.value=value;
+            onChanged: (value) {
+              controller.title.value = value;
             },
           ),
           SizedBox(height: 16.0),

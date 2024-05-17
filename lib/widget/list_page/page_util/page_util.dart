@@ -102,7 +102,7 @@ abstract class PagingController<M, S extends PagingState<M>>
     pagingState.data.clear();
     await _loadPageAndBeforeData();
   }
-
+  // todo liurong 这个方法有点问题，如果第一页滑动页面翻到第二页，这时候点击跳转到最后一页，跳到的是第二页的最后
   Future scrollToBottom() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
@@ -305,6 +305,7 @@ Widget buildRefreshWidget<T, C extends PagingController<T, PagingState<T>>>({
             enablePullUp: enablePullUp,
             enablePullDown: enablePullDown,
             controller: refreshController,
+            // todo liurong 改这个header refresh的逻辑，上划就往上加载数据放到data列表里面，去掉refresh的初始化刷新
             onRefresh: onRefresh,
             onLoading: onLoad,
             header: ClassicHeader(

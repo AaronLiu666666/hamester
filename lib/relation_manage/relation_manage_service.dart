@@ -27,6 +27,16 @@ Future<List<MediaTagRelation>> queryRelationsByTagId(String id) async {
   return list;
 }
 
+Future<List<MediaTagRelation>> queryRelationsByTagNameLeftLike(String tagName) async {
+  if(null==tagName || tagName.isEmpty){
+    return List.empty(growable: true);
+  }
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaTagRelation> list =
+  await dataBase.mediaTagRelationDao.queryRelationsByTagNameLeftLike(tagName);
+  return list;
+}
+
 Future<List<MediaTagRelation>> queryRelationsByMediaId(int id) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   List<MediaTagRelation> list =
