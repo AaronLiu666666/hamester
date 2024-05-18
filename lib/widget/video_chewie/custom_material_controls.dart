@@ -557,89 +557,11 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       _displayTapped = true;
     });
   }
-
-  // void switchVideo(int videoId, String videoPath) {
-  // widget.videoId = videoId;
-  // _dispose();
-  // // 停止当前视频的播放
-  // controller.dispose();
-  // controller = final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
-  //
-  //   Future<int> getVideoLength(String videoPath) async {
-  //     try {
-  //       final mediaInformation = await _flutterFFmpeg.getMediaInformation(videoPath);
-  //       final duration = mediaInformation.getMediaProperties()['duration'];
-  //       final durationInSeconds = (duration != null) ? duration / 1000 : 0;
-  //       return durationInSeconds.round();
-  //     } catch (e) {
-  //       print('Error getting video length: $e');
-  //       return 0;
-  //     }
-  //   }
-  //   ..initialize().then((_) {
-  //     setState(() {});
-  //   });
-  // this.chewieController.videoPlayerController = controller;
-  // _initialize();
-  // widget.videoId = videoId;
-  // _dispose();
-  // // 停止当前视频的播放
-  // controller.dispose();
-  // controller = VideoPlayerController.file(File(videoPath))
-  //   ..initialize().then((_) {
-  //     setState(() {
-  //       // 创建一个新的 ChewieController 实例来更新 videoPlayerController
-  //       _chewieController = ChewieController(
-  //         videoPlayerController: controller,
-  //         // 其他 ChewieController 的属性...
-  //       );
-  //     });
-  //   });
-  // _initialize();
-  // void switchVideo(int videoId, String videoPath) {
-  //   widget.videoId = videoId;
-  //   _dispose();
-  //   // 停止当前视频的播放
-  //   controller.dispose();
-  //   controller = VideoPlayerController.file(File(videoPath))
-  //     ..initialize().then((_) {
-  //       setState(() {
-  //         _chewieController = _chewieController?.copyWith(
-  //           videoPlayerController: controller,
-  //         );
-  //       });
-  //     });
-  //   _initialize();
-  // }
-  // void switchVideo(int videoId, String videoPath) {
-  //   widget.videoId = videoId;
-  //   _dispose();
-  //
-  //   // 停止当前视频的播放
-  //   controller.dispose();
-  //
-  //   // 创建新的 VideoPlayerController
-  //   controller = VideoPlayerController.file(File(videoPath));
-  //
-  //   // 初始化新的 VideoPlayerController
-  //   controller.initialize().then((_) {
-  //     setState(() {
-  //       // 使用新的 VideoPlayerController 更新 ChewieController
-  //       _chewieController = ChewieController(
-  //         videoPlayerController: controller,
-  //         // 其他 ChewieController 的属性...
-  //       );
-  //       // 启动播放器
-  //       controller.play();
-  //       WakelockPlus.enable();
-  //
-  //       // 初始化 ChewieController
-  //       _initialize();
-  //     });
-  //   });
-  // }
-
-  // }
+  // 新增: seekTo方法实现
+  Future<void> seekTo(int seekTo) async {
+    await controller.seekTo(Duration(milliseconds: seekTo));
+    _play();
+  }
 
   Future<void> _initialize() async {
     _subtitleOn = chewieController.subtitle?.isNotEmpty ?? false;
@@ -683,6 +605,27 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         });
       });
     });
+  }
+
+  void _play(){
+    final isFinished = _latestValue.position >= _latestValue.duration;
+    WakelockPlus.enable();
+    _cancelAndRestartTimer();
+
+    if (!controller.value.isInitialized) {
+      controller.initialize().then((_) {
+        controller.play();
+        // 启用屏幕常量
+        WakelockPlus.enable();
+      });
+    } else {
+      if (isFinished) {
+        controller.seekTo(Duration.zero);
+      }
+      controller.play();
+      // 启用屏幕常量
+      WakelockPlus.enable();
+    }
   }
 
   void _playPause() {
