@@ -584,9 +584,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
       });
     }
     // 如果 seekTo 不为空，并且视频已经初始化，则跳转到指定位置
-    if (widget.seekTo != null && controller.value.isInitialized) {
-      await controller.seekTo(Duration(milliseconds: widget.seekTo!));
-    }
+    // if (widget.seekTo != null && controller.value.isInitialized) {
+    //   await controller.seekTo(Duration(milliseconds: widget.seekTo!));
+    // }
     WakelockPlus.enable();
   }
 

@@ -57,6 +57,11 @@ class VideoRelationHorizontalScrollPagingController
   Future<PagingData<MediaTagRelation>?> loadData(
       PagingParams pagingParams) async {
     List<MediaTagRelation> relationList = await queryRelationsByMediaId(videoId.value);
+    // 剔除 mediaMoment 为 null 的项
+    relationList = relationList.where((relation) => relation.mediaMoment != null).toList();
+
+    // 按 mediaMoment 正序排序
+    relationList.sort((a, b) => a.mediaMoment!.compareTo(b.mediaMoment!));
     return PagingData<MediaTagRelation>()
       ..current = 1
       ..pages = 1

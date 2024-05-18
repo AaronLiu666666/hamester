@@ -150,6 +150,7 @@ class VideoChewiePageController extends GetxController {
         showControls: true,
         customControls: customMaterialControls,
         aspectRatio: _videoPlayerController.value.aspectRatio,
+        startAt: Duration(milliseconds: _seekTo.value??0)
       );
 
       videoHorizontalScrollWidgetHideStuffTimer =
@@ -208,6 +209,7 @@ class VideoChewiePageController extends GetxController {
       looping: false,
       showControls: true,
       autoInitialize: true,
+      startAt: Duration(milliseconds: _seekTo.value??0),
       customControls: CustomMaterialControls(
         videoId: _videoId.value,
         seekTo: _seekTo.value,
@@ -241,6 +243,7 @@ class VideoChewiePageController extends GetxController {
       looping: false,
       showControls: true,
       autoInitialize: true,
+      startAt: Duration(milliseconds: _seekTo.value??0),
       customControls: CustomMaterialControls(
         videoId: _videoId.value,
         seekTo: _seekTo.value,
