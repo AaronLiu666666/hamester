@@ -46,41 +46,58 @@ Future<List<TagInfo>> queryTagsByTagName(String tagName) async {
 /// 创建标签-媒体关联数据 （如果同名标签不存在则先创建标签再创建关联关系）
 Future<void> createMediaTagRelation(CreateMediaTagRelationDTO dto) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
-  // 查询是否有重名标签，标签名为标签唯一标识，重名即认为是同一个标签
-  List<TagInfo> tagInfos =
-      await dataBase.tagInfoDao.queryTagsByTagName(dto.tagName);
-  TagInfo tagInfo;
-  int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
-  if (tagInfos.isNotEmpty) {
-    tagInfo = tagInfos[0];
-    String? tagPicConcat = tagInfo.tagPic;
-    // 如果标签没有图片，选择第一次建立关联的关联时刻图作为tag的图片和封面
-    if (null == tagPicConcat || tagPicConcat.isEmpty) {
-      tagPicConcat = dto.picPath;
-      // 更新tag
-      tagInfo.tagPic = tagPicConcat;
-      dataBase.tagInfoDao.updateData(tagInfo);
+  // 判断tagName是否含有逗号（中文或英文）有逗号，说明是多个标签
+  // todo liurong 这里数据库表设计有问题，精彩时刻跟视频肯定是1-1 但是精彩时刻跟标签可不是1-1，1个精彩时刻可能对应多个标签！！！ 改动太大后面再搞
+  String tagName = dto.tagName;
+  List<String> tagNames = List.empty(growable: true);
+  if(tagName.contains(",")||tagName.contains("，")) {
+    if (tagName.contains("，")) {
+      tagName.replaceAll("，", ",");
     }
+    tagNames = tagName.split(",");
   } else {
-    tagInfo = TagInfo();
-    tagInfo.id = UuidGenerator.generateUuid();
-    tagInfo.tagName = dto.tagName;
-    tagInfo.createTime = nowMilliseconds;
-    tagInfo.updateTime = nowMilliseconds;
-    tagInfo.tagPic = dto.picPath;
-    await dataBase.tagInfoDao.insertOne(tagInfo);
+    tagNames.add(tagName);
   }
-  MediaTagRelation mediaTagRelation = MediaTagRelation(
-      id: UuidGenerator.generateUuid(),
-      mediaId: dto.mediaId,
-      tagId: tagInfo.id,
-      mediaMoment: dto.mediaMoment,
-      relationDesc: dto.description,
-      mediaMomentPic: dto.picPath,
-      createTime: nowMilliseconds,
-      updateTime: nowMilliseconds);
-  // 插入标签-媒体关联信息
-  await dataBase.mediaTagRelationDao.insertOne(mediaTagRelation);
+  for (String name in tagNames){
+    if(name.isEmpty){
+      continue;
+    }
+    // 查询是否有重名标签，标签名为标签唯一标识，重名即认为是同一个标签
+    List<TagInfo> tagInfos =
+    await dataBase.tagInfoDao.queryTagsByTagName(name);
+    TagInfo tagInfo;
+    int nowMilliseconds = DateTime.now().millisecondsSinceEpoch;
+    if (tagInfos.isNotEmpty) {
+      tagInfo = tagInfos[0];
+      String? tagPicConcat = tagInfo.tagPic;
+      // 如果标签没有图片，选择第一次建立关联的关联时刻图作为tag的图片和封面
+      if (null == tagPicConcat || tagPicConcat.isEmpty) {
+        tagPicConcat = dto.picPath;
+        // 更新tag
+        tagInfo.tagPic = tagPicConcat;
+        dataBase.tagInfoDao.updateData(tagInfo);
+      }
+    } else {
+      tagInfo = TagInfo();
+      tagInfo.id = UuidGenerator.generateUuid();
+      tagInfo.tagName = name;
+      tagInfo.createTime = nowMilliseconds;
+      tagInfo.updateTime = nowMilliseconds;
+      tagInfo.tagPic = dto.picPath;
+      await dataBase.tagInfoDao.insertOne(tagInfo);
+    }
+    MediaTagRelation mediaTagRelation = MediaTagRelation(
+        id: UuidGenerator.generateUuid(),
+        mediaId: dto.mediaId,
+        tagId: tagInfo.id,
+        mediaMoment: dto.mediaMoment,
+        relationDesc: dto.description,
+        mediaMomentPic: dto.picPath,
+        createTime: nowMilliseconds,
+        updateTime: nowMilliseconds);
+    // 插入标签-媒体关联信息
+    await dataBase.mediaTagRelationDao.insertOne(mediaTagRelation);
+  }
 }
 
 Future<void> insertOrUpdateTagInfo(String tagName,String? tagDesc,List<String> picList) async{

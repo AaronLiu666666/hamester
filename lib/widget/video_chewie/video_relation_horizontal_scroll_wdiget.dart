@@ -8,6 +8,7 @@ import 'package:hamster/widget/list_page/page_util/page_util.dart';
 import 'package:hamster/widget/video_chewie/video_chewie_page.dart';
 
 import '../../relation_manage/relation_manage_service.dart';
+import '../detail_page/relation_detial_page.dart';
 
 class VideoRelationHorizontalScrollWidget extends StatelessWidget {
   VideoRelationHorizontalScrollWidget({Key? key}) : super(key: key);
@@ -26,6 +27,13 @@ class VideoRelationHorizontalScrollWidget extends StatelessWidget {
           physics: AlwaysScrollableScrollPhysics(),
           onItemClick: (data, index) {
             Get.find<VideoChewiePageController>().seekTo(data.mediaMoment ?? 0);
+          },
+          onItemLongPress: (data,index) {
+            Get.find<VideoChewiePageController>().pause();
+              Get.to(() => GetxRelationDetailPage(),
+                  binding: BindingsBuilder(() {
+                    Get.put(GetxRelationDetailPageController(id:data.id??""));
+                  }))?.then((value) => Get.find<VideoChewiePageController>().play());
           },
           itemBuilder: (data, index) => Padding(
             padding: EdgeInsets.symmetric(horizontal: 2),
@@ -57,9 +65,23 @@ class VideoRelationHorizontalScrollPagingController
   Future<PagingData<MediaTagRelation>?> loadData(
       PagingParams pagingParams) async {
     List<MediaTagRelation> relationList = await queryRelationsByMediaId(videoId.value);
-    // 剔除 mediaMoment 为 null 的项
     relationList = relationList.where((relation) => relation.mediaMoment != null).toList();
+  // 创建一个 Map 来保存每个 mediaMoment 的第一个记录
+    final Map<int, MediaTagRelation> filteredMap = {};
 
+    for (var relation in relationList) {
+      // 过滤掉mediaMoment为null的
+      if(relation.mediaMoment == null){
+        continue;
+      }
+      // 过滤掉相同时刻的精彩时刻，只保留一条
+      if (!filteredMap.containsKey(relation.mediaMoment)) {
+        filteredMap[relation.mediaMoment!] = relation;
+      }
+    }
+
+    // 将 Map 转换回 List
+    relationList = filteredMap.values.toList();
     // 按 mediaMoment 正序排序
     relationList.sort((a, b) => a.mediaMoment!.compareTo(b.mediaMoment!));
     return PagingData<MediaTagRelation>()

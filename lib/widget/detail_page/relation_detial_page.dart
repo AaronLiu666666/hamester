@@ -66,6 +66,8 @@ class GetxRelationDetailPage extends GetView<GetxRelationDetailPageController> {
                           maxLines: null,
                         ),
                         SizedBox(height: 16),
+                        Text("创建时间：${DateTime.fromMillisecondsSinceEpoch(controller.relation.createTime??0).toString().split('.')[0]}"??""),
+                        SizedBox(height: 16),
                         Text(
                           '标签:',
                           style: TextStyle(fontSize: 18),

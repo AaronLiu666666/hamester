@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../../tag_manage/tag_manage_service.dart';
 
@@ -79,6 +81,10 @@ class _VideoTagAddPageState extends State<VideoTagAddPage> {
                 // 提交按钮逻辑，这里可以使用 tagName 和 description 变量
                 print('标签名称：$tagName');
                 print('描述内容：$description');
+                if(null==tagName||tagName.isEmpty||tagName.contains("//")){
+                  Get.snackbar('失败', '标签名不能为空');
+                  return;
+                }
                 createMediaTagRelation(CreateMediaTagRelationDTO(
                   mediaId: widget.videoId,
                   tagName: tagName,

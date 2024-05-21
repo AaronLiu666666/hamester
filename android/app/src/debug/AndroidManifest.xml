@@ -14,7 +14,7 @@
 
     <application
         android:label="hamster"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/hamester_logo"
         android:requestLegacyExternalStorage="true"> <!-- 添加这行 -->
     </application>
 

@@ -47,6 +47,13 @@ class VideoHorizontalScrollWidget extends StatelessWidget {
                 videoPath: data.path ?? "",
                 seekTo: data.seekTo);
           },
+          onItemLongPress: (data,index) {
+            Get.find<VideoChewiePageController>().pause();
+                Get.to(() => MediaDetailPage(),
+                  binding: BindingsBuilder(() {
+                    Get.put(MediaDetailPageController(mediaId:data.id));
+                  }))?.then((value) => Get.find<VideoChewiePageController>().play());
+          },
           itemBuilder: (data, index) => Padding(
             padding: EdgeInsets.symmetric(horizontal: 2),
             child: Card(

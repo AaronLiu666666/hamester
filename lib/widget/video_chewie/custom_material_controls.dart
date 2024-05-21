@@ -15,7 +15,10 @@ import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
+import 'package:hamster/widget/video_chewie/video_relation_horizontal_scroll_wdiget.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -767,6 +770,9 @@ class _MaterialControlsState extends State<CustomMaterialControls>
         ).then((_) {
           // 返回视频播放页面后继续播放视频
           _playPause();
+          VideoRelationHorizontalScrollPagingController videoRelationHorizontalScrollPagingController = Get.find<VideoRelationHorizontalScrollPagingController>();
+          // todo liurong 这里有问题，那边数据可能没有入库，这边查不出来
+          videoRelationHorizontalScrollPagingController.refreshData();
         });
       },
       child: AnimatedOpacity(

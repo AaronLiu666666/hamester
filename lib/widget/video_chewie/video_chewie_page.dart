@@ -222,6 +222,16 @@ class VideoChewiePageController extends GetxController {
     isIniting.value = false;
   }
 
+  // liurong todo 这个暂停播放还涉及其他内容，比如显示隐藏等其他变量，应该调用customcontrols的方法
+  void pause(){
+    _videoPlayerController.pause();
+  }
+
+  // liurong todo 这个暂停播放还涉及其他内容，比如显示隐藏等其他变量，应该调用customcontrols的方法
+  void play(){
+    _videoPlayerController.play();
+  }
+
   void switchVideo(
       {required int videoId, required String videoPath, int? seekTo}) async {
     isIniting.value = true;

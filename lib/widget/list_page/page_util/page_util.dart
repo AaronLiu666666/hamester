@@ -102,12 +102,14 @@ abstract class PagingController<M, S extends PagingState<M>>
     pagingState.data.clear();
     await _loadPageAndBeforeData();
   }
+
   // todo liurong 这个方法有点问题，如果第一页滑动页面翻到第二页，这时候点击跳转到最后一页，跳到的是第二页的最后
   Future scrollToBottom() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
   }
+
   Future scrollToTop() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollController.jumpTo(0.0);
@@ -186,10 +188,8 @@ abstract class PagingController<M, S extends PagingState<M>>
     return list;
   }
 
-
   Future<List<M>?> _loadPageAndBeforeData() async {
-    PagingParams pagingParams =
-    PagingParams.create(pageIndex: 1);
+    PagingParams pagingParams = PagingParams.create(pageIndex: 1);
     int num = pagingState.pageIndex * pagingState.pageSize;
     pagingParams.size = num;
     PagingData<M>? pagingData = await loadData(pagingParams);
@@ -204,7 +204,7 @@ abstract class PagingController<M, S extends PagingState<M>>
     /// 判断是否有更多数据
     pagingState.hasMore = pagingState.data.length < (pagingData?.total ?? 0);
     pagingState.totalCount = pagingData?.total ?? 0;
-    pagingState.totalPages = ((pagingData?.total??0)/15).ceil();
+    pagingState.totalPages = ((pagingData?.total ?? 0) / 15).ceil();
 
     /// 更新界面
     update([pagingState.refreshId]);
@@ -371,7 +371,7 @@ Widget buildRefreshWidget<T, C extends PagingController<T, PagingState<T>>>({
           : const Icon(Icons.arrow_upward, color: Colors.grey),
     ),
     child: builder(),
-    scrollController:scrollController,
+    scrollController: scrollController,
   );
 }
 
@@ -397,7 +397,7 @@ Widget buildRefreshListWidget<T, C extends PagingController<T, PagingState<T>>>(
             physics: physics,
             shrinkWrap: shrinkWrap,
             scrollDirection: scrollDirection,
-        scrollController: controller.scrollController),
+            scrollController: controller.scrollController),
         refreshController: controller.refreshController,
         onRefresh: controller.refreshData,
         onLoad: controller.loadMoreData,
@@ -420,6 +420,7 @@ Widget buildCustomRefreshListWidget<T,
   String? tag,
   Widget Function(T item, int index)? separatorBuilder,
   Function(T item, int index)? onItemClick,
+  Function(T item, int index)? onItemLongPress,
   ScrollPhysics? physics,
   bool shrinkWrap = false,
   Axis scrollDirection = Axis.vertical,
@@ -436,6 +437,7 @@ Widget buildCustomRefreshListWidget<T,
                 separatorBuilder: separatorBuilder,
                 itemBuilder: itemBuilder,
                 onItemClick: onItemClick,
+                onItemLongPress: onItemLongPress,
                 physics: physics,
                 shrinkWrap: shrinkWrap,
                 scrollDirection: scrollDirection,
@@ -459,17 +461,16 @@ Widget buildCustomRefreshListWidget<T,
   );
 }
 
-Widget buildListViewWidget<T>({
-  required Widget Function(T item, int index) itemBuilder,
-  required List<T> data,
-  Widget Function(T item, int index)? separatorBuilder,
-  Function(T item, int index)? onItemClick,
-  ScrollPhysics? physics,
-  bool shrinkWrap = false,
-  Axis scrollDirection = Axis.vertical,
-
-required ScrollController scrollController
-}) {
+Widget buildListViewWidget<T>(
+    {required Widget Function(T item, int index) itemBuilder,
+    required List<T> data,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    Function(T item, int index)? onItemLongPress,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical,
+    required ScrollController scrollController}) {
   return ListView.builder(
     controller: scrollController,
     physics: physics,
@@ -480,22 +481,22 @@ required ScrollController scrollController
     itemBuilder: (ctx, index) {
       return GestureDetector(
         onTap: () => onItemClick?.call(data[index], index),
+        onLongPress: ()=>onItemLongPress?.call(data[index],index),
         child: itemBuilder(data[index], index),
       );
     },
   );
 }
 
-Widget buildGridViewWidget<T>({
-  required Widget Function(T item, int index) itemBuilder,
-  required List<T> data,
-  Widget Function(T item, int index)? separatorBuilder,
-  Function(T item, int index)? onItemClick,
-  ScrollPhysics? physics,
-  bool shrinkWrap = false,
-  Axis scrollDirection = Axis.vertical,
-required ScrollController scrollController
-}) {
+Widget buildGridViewWidget<T>(
+    {required Widget Function(T item, int index) itemBuilder,
+    required List<T> data,
+    Widget Function(T item, int index)? separatorBuilder,
+    Function(T item, int index)? onItemClick,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    Axis scrollDirection = Axis.vertical,
+    required ScrollController scrollController}) {
   return GridView.builder(
     controller: scrollController,
     shrinkWrap: shrinkWrap,
@@ -568,35 +569,38 @@ Widget buildCustomListView<T, C extends PagingController<T, PagingState<T>>>(
     required List<T> data,
     Widget Function(T item, int index)? separatorBuilder,
     Function(T item, int index)? onItemClick,
+    Function(T item, int index)? onItemLongPress,
     ScrollPhysics? physics,
     bool shrinkWrap = false,
     Axis scrollDirection = Axis.vertical,
     ListEnum listEnum = ListEnum.grid,
     bool showPageBar = false,
     required C controller,
-      required ScrollController scrollController}) {
+    required ScrollController scrollController}) {
   if (listEnum == ListEnum.list) {
     return buildListViewWidget(
         itemBuilder: itemBuilder,
         data: data,
         separatorBuilder: separatorBuilder,
         onItemClick: onItemClick,
+        onItemLongPress: onItemLongPress,
         physics: physics,
         shrinkWrap: shrinkWrap,
         scrollDirection: scrollDirection,
-        scrollController:scrollController);
+        scrollController: scrollController);
     // );
   }
 
   return buildGridViewWidget(
-      itemBuilder: itemBuilder,
-      data: data,
-      separatorBuilder: separatorBuilder,
-      onItemClick: onItemClick,
-      physics: physics,
-      shrinkWrap: shrinkWrap,
-      scrollDirection: scrollDirection,
-      scrollController:scrollController,);
+    itemBuilder: itemBuilder,
+    data: data,
+    separatorBuilder: separatorBuilder,
+    onItemClick: onItemClick,
+    physics: physics,
+    shrinkWrap: shrinkWrap,
+    scrollDirection: scrollDirection,
+    scrollController: scrollController,
+  );
 }
 
 enum ListEnum { grid, list }
