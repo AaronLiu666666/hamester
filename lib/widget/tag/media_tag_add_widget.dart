@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../tag_manage/tag_manage_service.dart';
+import '../video_chewie/video_relation_horizontal_scroll_wdiget.dart';
 
 /// 视频截图添加视频标签页面
 class VideoTagAddPage extends StatefulWidget {
@@ -77,7 +78,7 @@ class _VideoTagAddPageState extends State<VideoTagAddPage> {
             SizedBox(height: 20), // 输入框和按钮之间的间距
             // 提交按钮
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // 提交按钮逻辑，这里可以使用 tagName 和 description 变量
                 print('标签名称：$tagName');
                 print('描述内容：$description');
@@ -85,13 +86,15 @@ class _VideoTagAddPageState extends State<VideoTagAddPage> {
                   Get.snackbar('失败', '标签名不能为空');
                   return;
                 }
-                createMediaTagRelation(CreateMediaTagRelationDTO(
+                await createMediaTagRelation(CreateMediaTagRelationDTO(
                   mediaId: widget.videoId,
                   tagName: tagName,
                   description: description,
                   picPath: widget.imagePath,
                   mediaMoment: widget.mediaMoment
                 ));
+                // VideoRelationHorizontalScrollPagingController videoRelationHorizontalScrollPagingController = Get.find<VideoRelationHorizontalScrollPagingController>();
+                // videoRelationHorizontalScrollPagingController.refreshData();
                 // 返回上一个页面
                 Navigator.pop(context);
               },

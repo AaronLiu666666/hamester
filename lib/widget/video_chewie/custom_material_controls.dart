@@ -771,7 +771,7 @@ class _MaterialControlsState extends State<CustomMaterialControls>
           // 返回视频播放页面后继续播放视频
           _playPause();
           VideoRelationHorizontalScrollPagingController videoRelationHorizontalScrollPagingController = Get.find<VideoRelationHorizontalScrollPagingController>();
-          // todo liurong 这里有问题，那边数据可能没有入库，这边查不出来
+          // todo liurong 这里有问题，那边数据可能没有入库，这边查不出来 在关联插入界面 等待保存插入之后再回到该页面，应该可以解决该问题
           videoRelationHorizontalScrollPagingController.refreshData();
         });
       },

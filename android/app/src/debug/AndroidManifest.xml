@@ -15,7 +15,7 @@
     <application
         android:label="hamster"
         android:icon="@mipmap/hamester_logo"
-        android:requestLegacyExternalStorage="true"> <!-- 添加这行 -->
+        android:requestLegacyExternalStorage="true">
     </application>
 
 </manifest>
