@@ -1,8 +1,8 @@
-# Hamester - 仓鼠
+# Hamster - 仓鼠
 
 <div align=center><img src="https://github.com/AaronLiu666666/hamester/blob/master/android/app/src/main/res/mipmap-hdpi/hamester_logo.png" width="100px" height="100px"></div>
 
-**Hamester** 是一个用于本地视频媒体文件播放和管理的安卓应用。应用名称 "Hamester"（仓鼠）寓意着像仓鼠一样收藏和管理视频。主要功能包括视频播放、标签管理和精彩时刻的标记。
+**Hamster** 是一个用于本地视频媒体文件播放和管理的安卓应用。应用名称 "Hamster"（仓鼠）寓意着像仓鼠一样收藏和管理视频。主要功能包括视频播放、标签管理和精彩时刻的标记。
 
 ## 主要功能模块
 
