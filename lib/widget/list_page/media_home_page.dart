@@ -10,6 +10,7 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
+import 'package:hamster/widget/custom_widget/card_flying_widget.dart';
 import 'package:hamster/widget/list_page/relation_page_list_page.dart';
 import 'package:hamster/widget/list_page/tag_page_list_page.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
@@ -79,24 +80,68 @@ class _MediaHomePageState extends State<MediaHomePage> {
           ),
         ],
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.tag),
+      //       label: '标签库',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.movie),
+      //       label: '媒体库',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.link),
+      //       label: '关联库',
+      //     ),
+      //   ],
+      //   currentIndex: _selectedIndex,
+      //   selectedItemColor: Colors.blue,
+      //   onTap: _onItemTapped,
+      // ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.tag),
+        items: [
+          _buildBottomNavigationBarItem(
+            icon: Icons.tag,
             label: '标签库',
+            index: 0,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.movie),
+          _buildBottomNavigationBarItem(
+            icon: Icons.movie,
             label: '媒体库',
+            index: 1,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.link),
+          _buildBottomNavigationBarItem(
+            icon: Icons.link,
             label: '关联库',
+            index: 2,
           ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem(
+      {required IconData icon, required String label, required int index}) {
+    return BottomNavigationBarItem(
+      icon: GestureDetector(
+        onLongPress: () {
+          _onItemLongPressed(index);
+        },
+        child: Icon(icon),
+      ),
+      label: label,
+    );
+  }
+
+  void _onItemLongPressed(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardFlyingPage(),
       ),
     );
   }
