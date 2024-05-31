@@ -29,7 +29,7 @@ import '../../media_manage/model/po/media_file_data.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../tag/media_tag_add_widget.dart';
 
-class GetxCustomMaterialControls extends StatelessWidget {
+class GetxCustomMaterialControls extends GetView<MaterialControlsController> {
   final bool showPlayButton;
   final int videoId;
   final int? seekTo;
@@ -45,6 +45,49 @@ class GetxCustomMaterialControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Obx(()=>controller.latestValue.hasError? Center(
+          child: Icon(Icons.error, color: Colors.white, size: 42)):
+    MouseRegion(
+      onHover: (_) {
+        controller.cancelAndRestartTimer();
+      },
+      child: GestureDetector(
+        onTap: () => controller.cancelAndRestartTimer(),
+        /*
+        AbsorbPointer 是 Flutter 中的一个小部件，用于在其子树中吸收用户输入事件，从而阻止用户与其子树中的小部件进行交互。当 AbsorbPointer 的 absorbing 属性为 true 时，它会阻止其子树中的小部件接收指针事件。
+        这个小部件通常用于在特定情况下禁用用户与某些小部件的交互，比如在显示某些信息时，禁止用户点击按钮或输入框等。
+         */
+        child: AbsorbPointer(
+          absorbing: controller.notifier.hideStuff,
+          //  Stack 小部件，它允许将子部件堆叠在一起。在这里，它被用于布局视频播放器控件的各个组成部分。
+          child: Stack(
+            children: [
+              // _displayBufferingIndicator 为 true，则显示一个圆形进度条，用于指示视频正在缓冲。
+              if (controller.displayBufferingIndicator)
+                const Center(
+                  child: CircularProgressIndicator(),
+                )
+              else
+              //_buildHitArea()，即视频播放区域的命中区域
+                controller._buildHitArea(),
+
+              //这个部分构建了视频播放器的操作栏，用于显示一些操作按钮，比如字幕切换按钮等
+              controller._buildActionBar(),
+              // 这里是一个 Column，包含了视频播放器底部的内容。
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  controller._buildBottomBar(context),
+                ],
+              ),
+              // 添加实时截图按钮组件
+              // CameraIcon(),
+              controller._buildCameraButton(),
+            ],
+          ),
+        ),
+      ),
+    ));
     return GetBuilder<MaterialControlsController>(
       init: MaterialControlsController(
         showPlayButton: showPlayButton,
@@ -58,31 +101,6 @@ class GetxCustomMaterialControls extends StatelessWidget {
           return Center(
               child: Icon(Icons.error, color: Colors.white, size: 42));
         }
-
-        // return GestureDetector(
-        //   onTap: controller.toggleControlsVisibility,
-        //   child: Stack(
-        //     children: [
-        //       if (controller.displayBufferingIndicator)
-        //         Center(child: CircularProgressIndicator()),
-        //       if (controller.showPlayButton && !controller.controller.value.isPlaying)
-        //         CenterPlayButton(
-        //           backgroundColor: Colors.black54,
-        //           iconColor: Colors.white,
-        //           isFinished: controller.isFinished,
-        //           isPlaying: controller.controller.value.isPlaying,
-        //           show: showPlayButton,
-        //           onPressed: controller.togglePlayPause,
-        //         ),
-        //       Align(
-        //         alignment: Alignment.bottomCenter,
-        //         child: MaterialControlsBar(
-        //           controller: controller,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // );
         return MouseRegion(
           onHover: (_) {
             controller.cancelAndRestartTimer();
