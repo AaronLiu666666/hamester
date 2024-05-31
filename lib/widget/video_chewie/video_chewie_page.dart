@@ -5,6 +5,7 @@ import 'package:chewie/chewie.dart';
 import 'package:chewie/src/chewie_player.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hamster/widget/video_chewie/getx_custom_material_controls.dart';
 import 'package:hamster/widget/video_chewie/video_horizontal_scroll_widget.dart';
 import 'package:hamster/widget/video_chewie/video_relation_horizontal_scroll_wdiget.dart';
 import 'package:video_player/video_player.dart';
@@ -25,7 +26,7 @@ class VideoChewiePageController extends GetxController {
   late VideoPageFromType _videoPageFromType;
   late String? _tagId;
   RxBool isIniting = true.obs;
-  late CustomMaterialControls customMaterialControls;
+  late GetxCustomMaterialControls customMaterialControls;
 
   // late PlayerNotifier notifier;
   late RxBool playerHideStuff = false.obs;
@@ -136,11 +137,16 @@ class VideoChewiePageController extends GetxController {
       await _videoPlayerController.initialize();
       print("VideoPlayerController initialized successfully.");
 
-      customMaterialControls = CustomMaterialControls(
-        // videoHorizontalScrollWidget: videoHorizontalScrollWidget,
-        videoId: _videoId.value,
-        seekTo: _seekTo.value,
-        function: setHideStuffValue,
+      // customMaterialControls = CustomMaterialControls(
+      //   // videoHorizontalScrollWidget: videoHorizontalScrollWidget,
+      //   videoId: _videoId.value,
+      //   seekTo: _seekTo.value,
+      //   function: setHideStuffValue,
+      // );
+      customMaterialControls = GetxCustomMaterialControls(
+          videoId: _videoId.value,
+          seekTo: _seekTo.value,
+          function: setHideStuffValue,
       );
 
       _chewieController = ChewieController(

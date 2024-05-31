@@ -139,12 +139,8 @@ class _MediaHomePageState extends State<MediaHomePage> {
   }
 
   void _onItemLongPressed(int index) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CardFlyingPage2(),
-      ),
-    );
+    // 注意：Getx的组件跳转要用Get.to如果不用可能导致Getx控制器不会被正常销毁
+    Get.to(() => CardFlyingPage2(),);
   }
 
   void _onItemTapped(int index) {
