@@ -7,14 +7,13 @@ import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
 import '../custom_widget/card_flying_widget.dart';
 import '../detail_page/relation_detial_page.dart';
-import '../detail_page/tag_detail_page.dart';
 import '../video_chewie/video_chewie_page.dart';
 
 class RelationCardFlyingController
     extends CardFlyingController<MediaTagRelation> {
   @override
   Future<List<MediaTagRelation>> loadData() async {
-    List<MediaTagRelation> allRelations = await getAllRelationInfo();
+    List<MediaTagRelation> allRelations = await getAllRelationInfoWithMediaPath();
     return allRelations;
   }
 }

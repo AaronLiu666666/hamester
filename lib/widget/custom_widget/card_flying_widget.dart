@@ -153,19 +153,48 @@ Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
               (controller.animation.value.dx * screenWidth + position.dx) %
                       (screenWidth + 100) -
                   100;
+          // return Transform.translate(
+          //   offset: Offset(cardPositionX, position.dy),
+          //   child: GestureDetector(
+          //     /*
+          //     GestureDetector 的behavior处理事件的方式有以下三种：
+          //     HitTestBehavior.opaque、 HitTestBehavior.deferToChild、HitTestBehavior.translucent
+          //
+          //     HitTestBehavior.opaque 自己处理事件
+          //     HitTestBehavior.deferToChild child处理事件
+          //     HitTestBehavior.translucent 自己和child都可以接收事件
+          //      */
+          //     behavior: HitTestBehavior.translucent,
+          //     onTap: (){
+          //       print("onTapxx");
+          //       controller.stopAnimation();
+          //       onItemClick?.call(controller.currentDisplayData[index], index);
+          //     },
+          //     onLongPress: () {
+          //       print("onLongpressxx");
+          //       controller.stopAnimation();
+          //       onItemLongPress?.call(controller.currentDisplayData[index], index);
+          //     },
+          //     child: itemBuilder(controller.currentDisplayData[index], index),
+          //     // child:Container(
+          //     //   width: 160,
+          //     //   height: 120,
+          //     //   child: Image.asset('assets/image/no-pictures.png'),
+          //     // ),
+          //   ),
+          // );
+          /*
+            Transform可以在其子组件绘制时对其应用一些矩阵变换来实现一些特效
+            Transform.translate 平移
+            Transform.rotate 旋转
+            Transform.scale 缩放
+
+           */
           return Transform.translate(
             offset: Offset(cardPositionX, position.dy),
             child: GestureDetector(
-              /*
-              GestureDetector 的behavior处理事件的方式有以下三种：
-              HitTestBehavior.opaque、 HitTestBehavior.deferToChild、HitTestBehavior.translucent
-
-              HitTestBehavior.opaque 自己处理事件
-              HitTestBehavior.deferToChild child处理事件
-              HitTestBehavior.translucent 自己和child都可以接收事件
-               */
               behavior: HitTestBehavior.translucent,
-              onTap: (){
+              onTap: () {
                 print("onTapxx");
                 controller.stopAnimation();
                 onItemClick?.call(controller.currentDisplayData[index], index);
@@ -175,12 +204,12 @@ Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
                 controller.stopAnimation();
                 onItemLongPress?.call(controller.currentDisplayData[index], index);
               },
-              child: itemBuilder(controller.currentDisplayData[index], index),
-              // child:Container(
-              //   width: 160,
-              //   height: 120,
-              //   child: Image.asset('assets/image/no-pictures.png'),
-              // ),
+              child: Container(
+                width: 160,
+                height: 120,
+                color: Colors.white, // 确保点击区域可见
+                child: itemBuilder(controller.currentDisplayData[index], index),
+              ),
             ),
           );
         },

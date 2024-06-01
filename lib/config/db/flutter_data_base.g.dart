@@ -536,6 +536,24 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   }
 
   @override
+  Future<List<MediaTagRelation>> queryAllDataListWithMediaPath() async {
+    return _queryAdapter.queryList(
+        'SELECT       r.*,m.path as mediaPath     FROM       r_media_tag r       LEFT JOIN media_file_data m on r.media_id = m.id',
+        mapper: (Map<String, Object?> row) => MediaTagRelation(
+            id: row['id'] as String?,
+            mediaId: row['media_id'] as int?,
+            tagId: row['tag_id'] as String?,
+            mediaMoment: row['media_moment'] as int?,
+            relationDesc: row['relation_desc'] as String?,
+            mediaMomentPic: row['media_moment_pic'] as String?,
+            createTime: row['create_time'] as int?,
+            updateTime: row['update_time'] as int?,
+            tagName: row['tagName'] as String?,
+            mediaPath: row['mediaPath'] as String?
+        ));
+  }
+
+  @override
   Future<List<MediaTagRelation>> queryRelationsByTagId(String tagId) async {
     return _queryAdapter.queryList(
         'select * from r_media_tag where tag_id = ?1',
