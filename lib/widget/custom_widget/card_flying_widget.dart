@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 abstract class CardFlyingController<M> extends GetxController
     with GetSingleTickerProviderStateMixin {
   late AnimationController animationController;
@@ -25,13 +26,15 @@ abstract class CardFlyingController<M> extends GetxController
     update(); // 更新状态
   }
 
-
   Future<List<M>> loadData();
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    datas = await loadData();
+    List<M> loadedDatas = await loadData();
+    // 打乱随机操作
+    loadedDatas.shuffle();
+    datas = loadedDatas;
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20), // 调整滚动速度，增加动画持续时间
@@ -139,8 +142,28 @@ Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
                       (screenWidth + 100) -
                   100;
           return Transform.translate(
-              offset: Offset(cardPositionX, position.dy),
-              child: itemBuilder(controller.currentDisplayData[index], index));
+            offset: Offset(cardPositionX, position.dy),
+            child: GestureDetector(
+              // behavior: HitTestBehavior.translucent,
+              // onTap: () => onItemClick?.call(controller.currentDisplayData[index], index),
+              onTap: (){
+                print("onTapxx");
+                controller.toggleAnimation();
+                onItemClick?.call(controller.currentDisplayData[index], index);
+              },
+              onLongPress: () {
+                print("onLongpressxx");
+                controller.toggleAnimation();
+                onItemLongPress?.call(controller.currentDisplayData[index], index);
+              },
+              child: itemBuilder(controller.currentDisplayData[index], index),
+              // child:Container(
+              //   width: 160,
+              //   height: 120,
+              //   child: Image.asset('assets/image/no-pictures.png'),
+              // ),
+            ),
+          );
         },
       );
     }),

@@ -1,18 +1,12 @@
-import 'dart:ui';
-
-import 'package:floor/floor.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
+import 'package:hamster/widget/list_page/media_card_flying_page.dart';
 import 'package:hamster/widget/list_page/relation_card_flying_page.dart';
 import 'package:hamster/widget/list_page/relation_page_list_page.dart';
+import 'package:hamster/widget/list_page/tag_card_flying_page.dart';
 import 'package:hamster/widget/list_page/tag_page_list_page.dart';
+
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/tag_info.dart';
 import '../../tag_manage/tag_manage_service.dart';
@@ -80,25 +74,6 @@ class _MediaHomePageState extends State<MediaHomePage> {
           ),
         ],
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.tag),
-      //       label: '标签库',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.movie),
-      //       label: '媒体库',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.link),
-      //       label: '关联库',
-      //     ),
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: Colors.blue,
-      //   onTap: _onItemTapped,
-      // ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           _buildBottomNavigationBarItem(
@@ -139,8 +114,20 @@ class _MediaHomePageState extends State<MediaHomePage> {
 
   void _onItemLongPressed(int index) {
     // 注意：Getx的组件跳转要用Get.to如果不用可能导致Getx控制器不会被正常销毁
-    if(index==2){
-      Get.to(() => RelationCardFlyingPage(),);
+    if (index == 0) {
+      Get.to(
+        () => TagCardFlyingPage(),
+      );
+    }
+    if (index == 1) {
+      Get.to(
+        () => MediaCardFlyingPage(),
+      );
+    }
+    if (index == 2) {
+      Get.to(
+        () => RelationCardFlyingPage(),
+      );
     }
   }
 
@@ -191,7 +178,6 @@ class SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final CustomSearchController controller = Get.put(CustomSearchController(onSearch: onSearch)); // 初始化并放置控制器
     final CustomSearchController controller =
         Get.find<CustomSearchController>();
     return Padding(
@@ -264,96 +250,6 @@ class SearchWidget extends StatelessWidget {
                 )
               ],
             ),
-            // InkWell(
-            //   onTap: () {
-            //     controller.convertDrawerState();
-            //   },
-            //   child: Icon(
-            //     controller.getDrawerState()
-            //         ? Icons.keyboard_arrow_up
-            //         : Icons.keyboard_arrow_down,
-            //     size: 15,
-            //   ),
-            // ),
-            // if (controller.getDrawerState())
-            //   Visibility(
-            //     visible: controller.getDrawerState(),
-            //     child: Column(
-            //       children: [
-            //         SizedBox(height: 10),
-            //         Container(
-            //           height: 30, // 控制Container的高度
-            //           padding: EdgeInsets.symmetric(horizontal: 8),
-            //           decoration: BoxDecoration(
-            //             borderRadius: BorderRadius.circular(5),
-            //             border: Border.all(color: Colors.grey),
-            //           ),
-            //           child: Wrap(
-            //             spacing: 2, // 标签之间的间距
-            //             children: controller.selectedItems
-            //                 .map((item) => Row(
-            //                       mainAxisSize: MainAxisSize.min,
-            //                       children: [
-            //                         Text(item.tagName ?? ''),
-            //                         IconButton(
-            //                           icon: Icon(Icons.clear),
-            //                           onPressed: () {
-            //                             controller.selectedItems.remove(item);
-            //                           },
-            //                         ),
-            //                       ],
-            //                     ))
-            //                 .toList(),
-            //           ),
-            //         ),
-            //         // Expanded( // 使用Expanded确保子组件填满剩余空间
-            //         // child: Column(
-            //         //   crossAxisAlignment: CrossAxisAlignment.stretch,
-            //         //   children: [
-            //         TextFormField(
-            //           controller: controller.tagSearchController,
-            //           onChanged: (value) {
-            //             controller.updateTagSearchText(value);
-            //             controller.searchTagItems(value);
-            //           },
-            //           decoration: InputDecoration(
-            //             hintText: '标签搜索...',
-            //             prefixIcon: Icon(Icons.search),
-            //             border: OutlineInputBorder(
-            //               borderRadius: BorderRadius.circular(10.0),
-            //               borderSide: BorderSide(color: Colors.grey),
-            //             ),
-            //             focusedBorder: OutlineInputBorder(
-            //               borderRadius: BorderRadius.circular(10.0),
-            //               borderSide: BorderSide(color: Colors.blue),
-            //             ),
-            //             contentPadding: EdgeInsets.symmetric(
-            //                 vertical: 8.0, horizontal: 10.0),
-            //           ),
-            //         ),
-            //         SizedBox(height: 5),
-            //         if (controller.dropdownItems.isNotEmpty)
-            //           Expanded(
-            //             child: ListView.builder(
-            //               itemCount: controller.dropdownItems.length,
-            //               itemBuilder: (context, index) {
-            //                 final item = controller.dropdownItems[index];
-            //                 return ListTile(
-            //                   title: Text(item.tagName ?? ''),
-            //                   onTap: () {
-            //                     // 处理选项点击事件
-            //                     controller.selectedItems.add(item);
-            //                   },
-            //                 );
-            //               },
-            //             ),
-            //           ),
-            //       ],
-            //       // ),
-            //       // ),
-            //       // ],
-            //     ),
-            //   ),
           ],
         );
       }),

@@ -146,6 +146,13 @@ Future<List<MediaFileData>> getMediaData(SearchDTO searchDto) async {
   return list;
 }
 
+Future<List<MediaFileData>> queryAllMedias() async{
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaFileData> list =
+      await dataBase.mediaFileDataDao.queryAllMediaFileDataList();
+  return list;
+}
+
 Future<List<MediaFileData>> queryDatasByIds(List<int> ids) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   List<MediaFileData> mediaDataList =

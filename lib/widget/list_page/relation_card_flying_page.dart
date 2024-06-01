@@ -6,6 +6,9 @@ import 'package:get/get.dart';
 import '../../relation_manage/relation_manage_service.dart';
 import '../../tag_manage/model/po/media_tag_relation.dart';
 import '../custom_widget/card_flying_widget.dart';
+import '../detail_page/relation_detial_page.dart';
+import '../detail_page/tag_detail_page.dart';
+import '../video_chewie/video_chewie_page.dart';
 
 class RelationCardFlyingController
     extends CardFlyingController<MediaTagRelation> {
@@ -37,22 +40,38 @@ class RelationCardFlyingPage extends StatelessWidget {
       body: GetBuilder<RelationCardFlyingController>(
         builder: (controller) {
           return buildCardFlyingWidget<MediaTagRelation,
-                  RelationCardFlyingController>(
-              itemBuilder: (data, index) {
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0), // 设置圆角
-                  ),
-                  elevation: 5, // 设置阴影
-                  color: Colors.blue[(index % 9 + 1) * 100],
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15.0), // 设置图片圆角
-                    child: _buildImageWidget(data.mediaMomentPic),
-                  ),
-                );
-              },
-              onItemClick: (data, index) {},
-              onItemLongPress: (data, index) {});
+              RelationCardFlyingController>(itemBuilder: (data, index) {
+            return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0), // 设置圆角
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0), // 设置图片圆角
+                child: _buildImageWidget(data.mediaMomentPic),
+              ),
+            );
+          }, onItemClick: (data, index) async {
+            Get.to(
+              () => VideoChewiePage(
+                videoId: data.mediaId!,
+                videoPath: data.mediaPath!,
+                seekTo: data.mediaMoment,
+                videoPageFromType: VideoPageFromType.relation_page,
+              ),
+              binding: BindingsBuilder(() {
+                Get.put(VideoChewiePageController(
+                  videoId: data.mediaId!,
+                  videoPath: data.mediaPath!,
+                  seekTo: data.mediaMoment,
+                  videoPageFromType: VideoPageFromType.relation_page,
+                ));
+              }),
+            );
+          }, onItemLongPress: (data, index) {
+            Get.to(() => GetxRelationDetailPage(), binding: BindingsBuilder(() {
+              Get.put(GetxRelationDetailPageController(id: data.id ?? ""));
+            }));
+          });
         },
       ),
     );

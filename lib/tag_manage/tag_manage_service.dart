@@ -15,6 +15,13 @@ Future<List<TagInfo>> getTagData(SearchDTO searchDto) async {
   return list;
 }
 
+// 根据条件查询符合条件的媒体信息列表
+Future<List<TagInfo>> queryAllTagData() async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<TagInfo> list = await dataBase.tagInfoDao.queryAllDataList();
+  return list;
+}
+
 Future<TagInfo?> queryDataById(String id) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   TagInfo? tagInfo = await dataBase.tagInfoDao.queryDataById(id);
