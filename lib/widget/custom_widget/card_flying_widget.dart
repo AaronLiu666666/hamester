@@ -47,7 +47,7 @@ abstract class CardFlyingController<M> extends GetxController with GetSingleTick
       duration: const Duration(seconds: 1),
     )..addListener(() {
       for (int i = 0; i < cardPositions.length; i++) {
-        double newX = cardPositions[i].dx - 2;
+        double newX = cardPositions[i].dx - 0.5;
         if (newX < -160) {
           cardPositions[i] = getRandomPosition();
           currentDisplayData[i] = datas[random.nextInt(datas.length)];
