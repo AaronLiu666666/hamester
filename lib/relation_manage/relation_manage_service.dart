@@ -12,6 +12,13 @@ Future<List<MediaTagRelation>> getAllRelationInfo() async {
   return list;
 }
 
+Future<List<MediaTagRelation>> getAllRelationInfoWithMediaPath() async {
+  final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+  List<MediaTagRelation> list =
+  await dataBase.mediaTagRelationDao.queryAllDataList();
+  return list;
+}
+
 Future<List<MediaTagRelation>> getRelationInfoWithTagName(SearchDTO) async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   List<MediaTagRelation> list =

@@ -26,6 +26,18 @@ abstract class CardFlyingController<M> extends GetxController
     update(); // 更新状态
   }
 
+  void stopAnimation(){
+    animationController.stop();
+    isAnimating= false;
+    update(); // 更新状态
+  }
+
+  void startAnimation(){
+    animationController.repeat(reverse: false);
+    isAnimating= true;
+    update(); // 更新状态
+  }
+
   Future<List<M>> loadData();
 
   @override
@@ -144,16 +156,23 @@ Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
           return Transform.translate(
             offset: Offset(cardPositionX, position.dy),
             child: GestureDetector(
-              // behavior: HitTestBehavior.translucent,
-              // onTap: () => onItemClick?.call(controller.currentDisplayData[index], index),
+              /*
+              GestureDetector 的behavior处理事件的方式有以下三种：
+              HitTestBehavior.opaque、 HitTestBehavior.deferToChild、HitTestBehavior.translucent
+
+              HitTestBehavior.opaque 自己处理事件
+              HitTestBehavior.deferToChild child处理事件
+              HitTestBehavior.translucent 自己和child都可以接收事件
+               */
+              behavior: HitTestBehavior.translucent,
               onTap: (){
                 print("onTapxx");
-                controller.toggleAnimation();
+                controller.stopAnimation();
                 onItemClick?.call(controller.currentDisplayData[index], index);
               },
               onLongPress: () {
                 print("onLongpressxx");
-                controller.toggleAnimation();
+                controller.stopAnimation();
                 onItemLongPress?.call(controller.currentDisplayData[index], index);
               },
               child: itemBuilder(controller.currentDisplayData[index], index),

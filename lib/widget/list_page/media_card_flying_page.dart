@@ -68,13 +68,17 @@ class MediaCardFlyingPage extends StatelessWidget {
                       videoPageFromType: VideoPageFromType.media_page,
                     ));
                   }),
-                );
+                )?.then((value) {
+                  controller.toggleAnimation();
+                });
               },
               onItemLongPress: (data, index) {
                 Get.to(() => MediaDetailPage(),
                     binding: BindingsBuilder(() {
                       Get.put(MediaDetailPageController(mediaId:data.id!));
-                    }));
+                    }))?.then((value) {
+                  controller.toggleAnimation();
+                });
               });
         },
       ),

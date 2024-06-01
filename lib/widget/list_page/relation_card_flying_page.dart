@@ -66,11 +66,15 @@ class RelationCardFlyingPage extends StatelessWidget {
                   videoPageFromType: VideoPageFromType.relation_page,
                 ));
               }),
-            );
+            )?.then((value) {
+              controller.toggleAnimation();
+            });
           }, onItemLongPress: (data, index) {
             Get.to(() => GetxRelationDetailPage(), binding: BindingsBuilder(() {
               Get.put(GetxRelationDetailPageController(id: data.id ?? ""));
-            }));
+            }))?.then((value) {
+              controller.toggleAnimation();
+            });
           });
         },
       ),

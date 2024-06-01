@@ -74,13 +74,17 @@ class TagCardFlyingPage extends StatelessWidget {
                     tagId: data.id,
                   ));
                 }),
-              );
+              )?.then((value) {
+                controller.toggleAnimation();
+              });
             }
           }, onItemLongPress: (data, index) {
             Get.to(() => GetxTagDetailPage(), arguments: data.id!,
                 binding: BindingsBuilder(() {
               Get.put(GetxTagDetailController());
-            }));
+            }))?.then((value) {
+              controller.toggleAnimation();
+            });
           });
         },
       ),
