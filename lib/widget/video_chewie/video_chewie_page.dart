@@ -26,7 +26,7 @@ class VideoChewiePageController extends GetxController {
   late VideoPageFromType _videoPageFromType;
   late String? _tagId;
   RxBool isIniting = true.obs;
-  late GetxCustomMaterialControls customMaterialControls;
+  late CustomMaterialControls customMaterialControls;
 
   // late PlayerNotifier notifier;
   late RxBool playerHideStuff = false.obs;
@@ -137,17 +137,18 @@ class VideoChewiePageController extends GetxController {
       await _videoPlayerController.initialize();
       print("VideoPlayerController initialized successfully.");
 
-      // customMaterialControls = CustomMaterialControls(
-      //   // videoHorizontalScrollWidget: videoHorizontalScrollWidget,
-      //   videoId: _videoId.value,
-      //   seekTo: _seekTo.value,
-      //   function: setHideStuffValue,
-      // );
-      customMaterialControls = GetxCustomMaterialControls(
-          videoId: _videoId.value,
-          seekTo: _seekTo.value,
-          function: setHideStuffValue,
+      customMaterialControls = CustomMaterialControls(
+        // videoHorizontalScrollWidget: videoHorizontalScrollWidget,
+        videoId: _videoId.value,
+        seekTo: _seekTo.value,
+        function: setHideStuffValue,
       );
+      // Get.lazyPut<MaterialControlsController>(() => MaterialControlsController(showPlayButton: true, videoId: _videoId.value,seekTo: _seekTo.value),fenix: true);
+      // customMaterialControls = GetxCustomMaterialControls(
+      //     videoId: _videoId.value,
+      //     seekTo: _seekTo.value,
+      //     function: setHideStuffValue,
+      // );
 
       _chewieController = ChewieController(
         videoPlayerController: _videoPlayerController,

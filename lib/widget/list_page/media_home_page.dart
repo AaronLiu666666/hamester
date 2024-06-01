@@ -10,13 +10,12 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
-import 'package:hamster/widget/custom_widget/card_flying_widget.dart';
+import 'package:hamster/widget/list_page/relation_card_flying_page.dart';
 import 'package:hamster/widget/list_page/relation_page_list_page.dart';
 import 'package:hamster/widget/list_page/tag_page_list_page.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/tag_info.dart';
 import '../../tag_manage/tag_manage_service.dart';
-import '../custom_widget/card_flying_widget_2.dart';
 import 'media_page_list_page.dart';
 
 /// 首页：展示 标签列表 媒体列表 关联列表 并切换，有搜索框
@@ -140,7 +139,9 @@ class _MediaHomePageState extends State<MediaHomePage> {
 
   void _onItemLongPressed(int index) {
     // 注意：Getx的组件跳转要用Get.to如果不用可能导致Getx控制器不会被正常销毁
-    Get.to(() => CardFlyingPage2(),);
+    if(index==2){
+      Get.to(() => RelationCardFlyingPage(),);
+    }
   }
 
   void _onItemTapped(int index) {

@@ -5,7 +5,7 @@ import 'package:hamster/tag_manage/model/dto/search_dto.dart';
 
 import '../tag_manage/model/po/media_tag_relation.dart';
 
-Future<List<MediaTagRelation>> getRelationInfo(SearchDTO) async {
+Future<List<MediaTagRelation>> getAllRelationInfo() async {
   final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
   List<MediaTagRelation> list =
       await dataBase.mediaTagRelationDao.queryAllDataList();

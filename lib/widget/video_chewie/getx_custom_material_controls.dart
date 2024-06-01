@@ -1,35 +1,24 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/chewie_player.dart';
 import 'package:chewie/src/chewie_progress_colors.dart';
 import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/material/material_progress_bar.dart';
-import 'package:chewie/src/material/widgets/options_dialog.dart';
-import 'package:chewie/src/material/widgets/playback_speed_dialog.dart';
-import 'package:chewie/src/models/option_item.dart';
-import 'package:chewie/src/models/subtitle_model.dart';
 import 'package:chewie/src/notifiers/index.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hamster/widget/video_chewie/video_relation_horizontal_scroll_wdiget.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../config/id_generator/id_generator.dart';
-import '../../file/file_finder_enhanced.dart';
 import '../../file/thumbnail_util.dart';
 import '../../media_manage/model/po/media_file_data.dart';
 import '../../media_manage/service/media_manager_service.dart';
 import '../tag/media_tag_add_widget.dart';
 
-class GetxCustomMaterialControls extends GetView<MaterialControlsController> {
+class GetxCustomMaterialControls extends StatelessWidget {
   final bool showPlayButton;
   final int videoId;
   final int? seekTo;
@@ -45,49 +34,54 @@ class GetxCustomMaterialControls extends GetView<MaterialControlsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(()=>controller.latestValue.hasError? Center(
-          child: Icon(Icons.error, color: Colors.white, size: 42)):
-    MouseRegion(
-      onHover: (_) {
-        controller.cancelAndRestartTimer();
-      },
-      child: GestureDetector(
-        onTap: () => controller.cancelAndRestartTimer(),
-        /*
+    MaterialControlsController controller = MaterialControlsController(
+        showPlayButton: true,
+        videoId: videoId,
+        context: context,
+        seekTo: seekTo);
+    // 生成之后如果不put，那么controller不会被初始化
+    Get.put(controller);
+    return Obx(() => MouseRegion(
+          onHover: (_) {
+            controller.cancelAndRestartTimer();
+          },
+          child: GestureDetector(
+            onTap: () => controller.cancelAndRestartTimer(),
+            /*
         AbsorbPointer 是 Flutter 中的一个小部件，用于在其子树中吸收用户输入事件，从而阻止用户与其子树中的小部件进行交互。当 AbsorbPointer 的 absorbing 属性为 true 时，它会阻止其子树中的小部件接收指针事件。
         这个小部件通常用于在特定情况下禁用用户与某些小部件的交互，比如在显示某些信息时，禁止用户点击按钮或输入框等。
          */
-        child: AbsorbPointer(
-          absorbing: controller.notifier.hideStuff,
-          //  Stack 小部件，它允许将子部件堆叠在一起。在这里，它被用于布局视频播放器控件的各个组成部分。
-          child: Stack(
-            children: [
-              // _displayBufferingIndicator 为 true，则显示一个圆形进度条，用于指示视频正在缓冲。
-              if (controller.displayBufferingIndicator)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else
-              //_buildHitArea()，即视频播放区域的命中区域
-                controller._buildHitArea(),
+            child: AbsorbPointer(
+              absorbing: controller.notifier.hideStuff,
+              //  Stack 小部件，它允许将子部件堆叠在一起。在这里，它被用于布局视频播放器控件的各个组成部分。
+              child: Stack(
+                children: [
+                  // _displayBufferingIndicator 为 true，则显示一个圆形进度条，用于指示视频正在缓冲。
+                  if (controller.displayBufferingIndicator)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  else
+                    //_buildHitArea()，即视频播放区域的命中区域
+                    controller._buildHitArea(),
 
-              //这个部分构建了视频播放器的操作栏，用于显示一些操作按钮，比如字幕切换按钮等
-              controller._buildActionBar(),
-              // 这里是一个 Column，包含了视频播放器底部的内容。
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  controller._buildBottomBar(context),
+                  //这个部分构建了视频播放器的操作栏，用于显示一些操作按钮，比如字幕切换按钮等
+                  controller._buildActionBar(),
+                  // 这里是一个 Column，包含了视频播放器底部的内容。
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      controller._buildBottomBar(context),
+                    ],
+                  ),
+                  // 添加实时截图按钮组件
+                  // CameraIcon(),
+                  controller._buildCameraButton(),
                 ],
               ),
-              // 添加实时截图按钮组件
-              // CameraIcon(),
-              controller._buildCameraButton(),
-            ],
+            ),
           ),
-        ),
-      ),
-    ));
+        ));
     return GetBuilder<MaterialControlsController>(
       init: MaterialControlsController(
         showPlayButton: showPlayButton,
@@ -364,7 +358,7 @@ class MaterialControlsController extends GetxController
           //   _dragging = true;
           // });
 
-          update(){
+          update() {
             dragging = true;
           }
 
@@ -377,7 +371,7 @@ class MaterialControlsController extends GetxController
           // setState(() {
           //   _dragging = false;
           // });
-          update(){
+          update() {
             dragging = false;
           }
 
@@ -388,7 +382,7 @@ class MaterialControlsController extends GetxController
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
               bufferedColor:
-              Theme.of(context).colorScheme.background.withOpacity(0.5),
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),
@@ -442,14 +436,13 @@ class MaterialControlsController extends GetxController
     // }
 
     chewieController!.toggleFullScreen();
-    showAfterExpandCollapseTimer =
-        Timer(const Duration(milliseconds: 300), () {
-          // setState(() {
-          //   _cancelAndRestartTimer();
-          // });
-          cancelAndRestartTimer();
-          update();
-        });
+    showAfterExpandCollapseTimer = Timer(const Duration(milliseconds: 300), () {
+      // setState(() {
+      //   _cancelAndRestartTimer();
+      // });
+      cancelAndRestartTimer();
+      update();
+    });
     update();
   }
 
@@ -480,8 +473,8 @@ class MaterialControlsController extends GetxController
   }
 
   AnimatedOpacity _buildBottomBar(
-      BuildContext context,
-      ) {
+    BuildContext context,
+  ) {
     final iconColor = Theme.of(context).textTheme.labelLarge!.color;
 
     return AnimatedOpacity(
@@ -508,8 +501,7 @@ class MaterialControlsController extends GetxController
                       const Expanded(child: Text('LIVE'))
                     else
                       _buildPosition(iconColor),
-                    if (chewieController!.allowMuting)
-                      _buildMuteButton(),
+                    if (chewieController!.allowMuting) _buildMuteButton(),
                     const Spacer(),
                     if (chewieController!.allowFullScreen) _buildExpandButton(),
                   ],
@@ -523,7 +515,7 @@ class MaterialControlsController extends GetxController
                   child: Container(
                     // 上下左右都设置会导致进度条在竖屏情况下拖动点击失败，被覆盖？ 应该调整整个Column外面的Container的高度
                     // padding: const EdgeInsets.fromLTRB(0, 20, 20, 0), // 上右下左
-                    padding: const EdgeInsets.only(right:20), // 上右下左
+                    padding: const EdgeInsets.only(right: 20), // 上右下左
                     child: Row(
                       children: [
                         _buildProgressBar(),
@@ -548,11 +540,11 @@ class MaterialControlsController extends GetxController
           if (displayTapped) {
             // setState(() {
             //   notifier.hideStuff = true;
-              // if(null!=widget.function){
-              //   widget.function!(true);
-              // }
+            // if(null!=widget.function){
+            //   widget.function!(true);
+            // }
             // });
-            update(){
+            update() {
               notifier.hideStuff = true;
             }
           } else {
@@ -560,14 +552,14 @@ class MaterialControlsController extends GetxController
           }
         } else {
           togglePlayPause();
-          update(){
+          update() {
             notifier.hideStuff = true;
           }
           // setState(() {
           //   notifier.hideStuff = true;
-            // if(null!=widget.function){
-            //   widget.function!(true);
-            // }
+          // if(null!=widget.function){
+          //   widget.function!(true);
+          // }
           // });
         }
       },
