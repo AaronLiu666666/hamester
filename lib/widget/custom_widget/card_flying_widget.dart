@@ -1,18 +1,13 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-abstract class CardFlyingController<M> extends GetxController
-    with GetSingleTickerProviderStateMixin {
+abstract class CardFlyingController<M> extends GetxController with GetSingleTickerProviderStateMixin {
   late AnimationController animationController;
-  late Animation<Offset> animation;
   final Random random = Random();
   bool isAnimating = true;
   int cardNum = 15;
-
   late List<M> datas;
-
   final List<Offset> cardPositions = [];
   final List<M> currentDisplayData = [];
 
@@ -20,24 +15,22 @@ abstract class CardFlyingController<M> extends GetxController
     if (isAnimating) {
       animationController.stop();
     } else {
-      // animationController.repeat(reverse: false);
-      animationController.forward();
+      animationController.repeat();
     }
     isAnimating = !isAnimating;
-    update(); // 更新状态
+    update();
   }
 
   void stopAnimation() {
     animationController.stop();
     isAnimating = false;
-    update(); // 更新状态
+    update();
   }
 
   void startAnimation() {
-    // animationController.repeat(reverse: false);
-    animationController.forward();
+    animationController.repeat();
     isAnimating = true;
-    update(); // 更新状态
+    update();
   }
 
   Future<List<M>> loadData();
@@ -46,39 +39,74 @@ abstract class CardFlyingController<M> extends GetxController
   Future<void> onInit() async {
     super.onInit();
     List<M> loadedDatas = await loadData();
-    // 打乱随机操作
     loadedDatas.shuffle();
     datas = loadedDatas;
+
     animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20), // 调整滚动速度，增加动画持续时间
-    );
-
-    animation = Tween<Offset>(
-      begin: Offset(1.0, 0.0),
-      end: Offset(-2.0, 0.0), // 改变动画范围
-    ).animate(animationController);
-    updateCurrentDisplayData();
-    animationController.forward();
-    // animationController.repeat(reverse: false);
-    animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed ||
-          status == AnimationStatus.dismissed) {
-        updateCurrentDisplayData();
-        animationController.forward(from: 0.0);
+      duration: const Duration(seconds: 1),
+    )..addListener(() {
+      for (int i = 0; i < cardPositions.length; i++) {
+        double newX = cardPositions[i].dx - 2;
+        if (newX < -160) {
+          cardPositions[i] = getRandomPosition();
+          currentDisplayData[i] = datas[random.nextInt(datas.length)];
+        } else {
+          cardPositions[i] = Offset(newX, cardPositions[i].dy);
+        }
       }
+      update();
     });
+
+    updateCurrentDisplayData();
+    animationController.repeat();
   }
 
   void updateCurrentDisplayData() {
-    print("updateCurrentDisplayData");
     cardPositions.clear();
     currentDisplayData.clear();
     for (int i = 0; i < cardNum; i++) {
       int randomIndex = random.nextInt(datas.length);
       currentDisplayData.add(datas[randomIndex]);
+      cardPositions.add(getRandomPosition());
     }
-    update(); // 更新状态以刷新UI
+    update();
+  }
+
+  Offset getRandomPosition() {
+    const double cardWidth = 160;
+    const double cardHeight = 120;
+    const int maxAttempts = 100;
+    final double maxHeight = MediaQuery.of(Get.context!).size.height - cardHeight;
+    final double maxWidth = MediaQuery.of(Get.context!).size.width + cardWidth;
+    Offset position;
+    int attempts = 0;
+
+    bool isOverlapping(Offset pos) {
+      for (var cardPosition in cardPositions) {
+        if (pos.dx < cardPosition.dx + cardWidth &&
+            pos.dx + cardWidth > cardPosition.dx &&
+            pos.dy < cardPosition.dy + cardHeight &&
+            pos.dy + cardHeight > cardPosition.dy) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    do {
+      double yOffset = random.nextDouble() * maxHeight;
+      double xOffset = random.nextDouble() * maxWidth;
+      position = Offset(xOffset, yOffset);
+      attempts++;
+    } while (isOverlapping(position) && attempts < maxAttempts);
+
+    if (attempts >= maxAttempts) {
+      position = Offset(
+          random.nextDouble() * maxWidth, random.nextDouble() * maxHeight);
+    }
+
+    return position;
   }
 
   @override
@@ -92,71 +120,23 @@ abstract class CardFlyingController<M> extends GetxController
     animationController.dispose();
     super.dispose();
   }
-
-  Offset getRandomPosition(double maxHeight, double maxWidth) {
-    const double cardWidth = 100;
-    const double cardHeight = 150;
-    const int maxAttempts = 100; // 最大尝试次数
-    Offset position;
-
-    bool isOverlapping(Offset pos) {
-      for (var cardPosition in cardPositions) {
-        if ((pos.dx < cardPosition.dx + cardWidth &&
-            pos.dx + cardWidth > cardPosition.dx &&
-            pos.dy < cardPosition.dy + cardHeight &&
-            pos.dy + cardHeight > cardPosition.dy)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    int attempts = 0;
-    do {
-      double yOffset = random.nextDouble() * maxHeight;
-      double xOffset = random.nextDouble() * maxWidth;
-      position = Offset(xOffset, yOffset);
-      attempts++;
-    } while (isOverlapping(position) && attempts < maxAttempts);
-
-    // 如果超过最大尝试次数，则返回一个默认位置
-    if (attempts >= maxAttempts) {
-      position = Offset(
-          random.nextDouble() * maxWidth, random.nextDouble() * maxHeight);
-    }
-
-    cardPositions.add(position);
-    return position;
-  }
 }
 
-Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
-    {required Widget Function(T item, int index) itemBuilder,
-      Function(T item, int index)? onItemClick,
-      Function(T item, int index)? onItemLongPress,
-      String? tag}) {
+Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>({
+  required Widget Function(T item, int index) itemBuilder,
+  Function(T item, int index)? onItemClick,
+  Function(T item, int index)? onItemLongPress,
+  String? tag,
+}) {
   C controller = Get.find(tag: tag);
-  final double maxHeight = MediaQuery.of(Get.context!).size.height - 150;
-  final double maxWidth = MediaQuery.of(Get.context!).size.width - 100;
-  return Stack(
-    children: List.generate(controller.currentDisplayData.length, (index) {
-      if (controller.cardPositions.length < controller.cardNum) {
-        controller.cardPositions
-            .add(controller.getRandomPosition(maxHeight, maxWidth));
-      }
-      Offset position = controller.cardPositions[index];
-      T data = controller.currentDisplayData[index];
-      return AnimatedBuilder(
-        animation: controller.animationController,
-        builder: (context, child) {
-          double screenWidth = MediaQuery.of(context).size.width;
-          double cardPositionX =
-              (controller.animation.value.dx * screenWidth + position.dx) %
-                  (screenWidth + 100) -
-                  100;
-          return AnimatedPositioned(
-            duration: const Duration(milliseconds: 500),
-            left: cardPositionX,
+  return GetBuilder<C>(
+    builder: (_) {
+      return Stack(
+        children: List.generate(controller.currentDisplayData.length, (index) {
+          Offset position = controller.cardPositions[index];
+          T data = controller.currentDisplayData[index];
+          return Positioned(
+            left: position.dx,
             top: position.dy,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -176,8 +156,8 @@ Widget buildCardFlyingWidget<T, C extends CardFlyingController<T>>(
               ),
             ),
           );
-        },
+        }),
       );
-    }),
+    },
   );
 }
