@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:hamster/repository/entities/dto/dto.dart';
 import 'package:hamster/widget/detail_page/relation_detial_page.dart';
 import 'package:hamster/widget/list_page/page_util/page_util.dart';
 
@@ -133,6 +134,7 @@ class RelationPagingController extends PagingController<MediaTagRelation,PagingS
     );
     int total = await searchRelationCount(searchDTO);
     final List<MediaTagRelation> list = await searchRelationPage(searchDTO);
+    List<MediaTagRelationWithTagName> listTest = await test();
     int pages = (total/pagingParams.size).ceil();
     return PagingData<MediaTagRelation>()
       ..current = pagingParams.current

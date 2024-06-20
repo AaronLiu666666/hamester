@@ -1,5 +1,6 @@
 
 import 'package:floor/floor.dart';
+import 'package:hamster/repository/entities/dto/dto.dart';
 
 import '../model/po/media_tag_relation.dart';
 
@@ -82,6 +83,12 @@ abstract class MediaTagRelationDao {
     LIMIT :limit OFFSET :offset
   ''')
   Future<List<MediaTagRelation>> searchRelationPage(String content, int limit, int offset);
+
+
+  @Query('''
+    SELECT * from myJoinedObject
+  ''')
+  Future<List<MediaTagRelationWithTagName>> findAllMediaTagRelations();
 
   @Query('''
     delete from r_media_tag where media_id = :mediaId

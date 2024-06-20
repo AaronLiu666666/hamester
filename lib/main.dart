@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:hamster/config/db/db_manager.dart';
 import 'package:hamster/providers/search_provider.dart';
 import 'package:hamster/widget/list_page/media_home_page.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  // 加载配置
   WidgetsFlutterBinding.ensureInitialized();
+  // 加载配置
   await dotenv.load();
-  runApp(new MyApp());
+  // 数据库初始化
+  await DbManager().initDB();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

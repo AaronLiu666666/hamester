@@ -1,6 +1,7 @@
 import 'package:hamster/config/db/data_base_provider.dart';
 import 'package:hamster/config/db/flutter_data_base.dart';
 import 'package:hamster/config/db/flutter_database_manager.dart';
+import 'package:hamster/repository/entities/dto/dto.dart';
 import 'package:hamster/tag_manage/model/dto/search_dto.dart';
 
 import '../tag_manage/model/po/media_tag_relation.dart';
@@ -85,6 +86,12 @@ Future<int> searchRelationCount(SearchDTO searchDTO) async {
     int page = searchDTO.page??1;
     int offset = (page - 1) * pageSize;
     List<MediaTagRelation> list = await dataBase.mediaTagRelationDao.searchRelationPage(searchDTO.content??"",pageSize,offset);
+    return list;
+  }
+
+  Future<List<MediaTagRelationWithTagName>> test() async{
+    final FlutterDataBase dataBase = await FlutterDataBaseManager.database();
+    List<MediaTagRelationWithTagName> list = await dataBase.mediaTagRelationDao.findAllMediaTagRelations();
     return list;
   }
 

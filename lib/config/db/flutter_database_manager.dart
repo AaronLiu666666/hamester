@@ -10,6 +10,7 @@ import 'flutter_data_base.dart';
  * flutter packages pub run build_runner build
  */
 class FlutterDataBaseManager {
+
   static database() async {
     final externalDir = await getExternalStorageDirectory();
     final dbPath = join(externalDir!.path,'db', 'data.db');
