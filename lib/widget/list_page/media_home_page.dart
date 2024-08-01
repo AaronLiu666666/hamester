@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hamster/widget/config_page/config_page.dart';
 import 'package:hamster/widget/config_page/media_search_config_page.dart';
 import 'package:hamster/widget/list_page/media_card_flying_page.dart';
 import 'package:hamster/widget/list_page/relation_card_flying_page.dart';
@@ -15,6 +16,8 @@ import 'media_page_list_page.dart';
 
 /// 首页：展示 标签列表 媒体列表 关联列表 并切换，有搜索框
 class MediaHomePage extends StatefulWidget {
+  const MediaHomePage({super.key});
+
   @override
   _MediaHomePageState createState() => _MediaHomePageState();
 }
@@ -34,28 +37,55 @@ class _MediaHomePageState extends State<MediaHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0), // 设置高度为0
+        preferredSize: const Size.fromHeight(0), // 设置高度为0
         child: AppBar(
           backgroundColor: Colors.transparent, // 设置背景色为透明
           elevation: 0,
         ),
       ),
       drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            ListTile(
-              title: Text('媒体文件扫描目录'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MediaSearchConfigPage(),
-                  ),
-                );
-              },
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(),
+              // child: ListView(
+              //   children: <Widget>[
+              //     ListTile(
+              //       title: const Text('媒体文件扫描目录'),
+              //       onTap: () {
+              //         Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder: (context) => MediaSearchConfigPage(),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ],
+              // ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // 执行某些操作
+                      Get.to(()=>ConfigPage());
+                    },
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.settings),
+                        Text('设置'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
-        ),
+        )
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
