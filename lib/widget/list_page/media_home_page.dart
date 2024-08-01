@@ -10,6 +10,7 @@ import 'package:hamster/widget/list_page/tag_page_list_page.dart';
 import '../../tag_manage/model/dto/search_dto.dart';
 import '../../tag_manage/model/po/tag_info.dart';
 import '../../tag_manage/tag_manage_service.dart';
+import '../bruno/bruno_test.dart';
 import 'media_page_list_page.dart';
 
 /// 首页：展示 标签列表 媒体列表 关联列表 并切换，有搜索框
@@ -69,6 +70,7 @@ class _MediaHomePageState extends State<MediaHomePage> {
               ],
             ),
           ),
+          BrunoTest(),
           Expanded(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),

@@ -69,8 +69,6 @@ class _$FlutterDataBase extends FlutterDataBase {
 
   AppConfigDao? _appConfigDaoInstance;
 
-  BrilliantTimeDao? _brilliantDaoInstance;
-
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -100,11 +98,6 @@ class _$FlutterDataBase extends FlutterDataBase {
             'CREATE TABLE IF NOT EXISTS `r_media_tag` (`id` TEXT, `media_id` INTEGER, `tag_id` TEXT, `media_moment` INTEGER, `relation_desc` TEXT, `media_moment_pic` TEXT, `create_time` INTEGER, `update_time` INTEGER, `tagName` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `app_config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `type` TEXT, `content` TEXT, `createTime` INTEGER, `updateTime` INTEGER)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `brilliant_time` (`id` TEXT, `type` INTEGER, `brilliant_desc` TEXT, `brilliant_pic` TEXT, `begin_moment` INTEGER NOT NULL, `end_moment` INTEGER NOT NULL, `create_time` INTEGER NOT NULL, `update_time` INTEGER NOT NULL, PRIMARY KEY (`id`))');
-
-        await database.execute(
-            'CREATE VIEW IF NOT EXISTS `myJoinedObject` AS     SELECT\n      r.*, t.tag_name as tagName, m.path as mediaPath\n    FROM\n      r_media_tag r\n      LEFT JOIN tag_info t ON r.tag_id = t.id \n      LEFT JOIN media_file_data m ON r.media_id = m.id\n      ');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -132,12 +125,6 @@ class _$FlutterDataBase extends FlutterDataBase {
   @override
   AppConfigDao get appConfigDao {
     return _appConfigDaoInstance ??= _$AppConfigDao(database, changeListener);
-  }
-
-  @override
-  BrilliantTimeDao get brilliantDao {
-    return _brilliantDaoInstance ??=
-        _$BrilliantTimeDao(database, changeListener);
   }
 }
 
@@ -651,22 +638,6 @@ class _$MediaTagRelationDao extends MediaTagRelationDao {
   }
 
   @override
-  Future<List<MediaTagRelationWithTagName>> findAllMediaTagRelations() async {
-    return _queryAdapter.queryList('SELECT * from myJoinedObject',
-        mapper: (Map<String, Object?> row) => MediaTagRelationWithTagName(
-            id: row['id'] as String?,
-            mediaId: row['mediaId'] as int?,
-            tagId: row['tagId'] as String?,
-            mediaMoment: row['mediaMoment'] as int?,
-            relationDesc: row['relationDesc'] as String?,
-            mediaMomentPic: row['mediaMomentPic'] as String?,
-            createTime: row['createTime'] as int?,
-            updateTime: row['updateTime'] as int?,
-            tagName: row['tagName'] as String?,
-            mediaPath: row['mediaPath'] as String?));
-  }
-
-  @override
   Future<void> deleteRelationByMediaId(int mediaId) async {
     await _queryAdapter.queryNoReturn(
         'delete from r_media_tag where media_id = ?1',
@@ -774,15 +745,4 @@ class _$AppConfigDao extends AppConfigDao {
   Future<void> updateAppConfig(AppConfig appConfig) async {
     await _appConfigUpdateAdapter.update(appConfig, OnConflictStrategy.abort);
   }
-}
-
-class _$BrilliantTimeDao extends BrilliantTimeDao {
-  _$BrilliantTimeDao(
-    this.database,
-    this.changeListener,
-  );
-
-  final sqflite.DatabaseExecutor database;
-
-  final StreamController<String> changeListener;
 }

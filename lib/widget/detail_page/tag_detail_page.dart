@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bruno/bruno.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -107,7 +108,7 @@ class GetxTagDetailController extends GetxController {
       List<TagInfo> tagsWithTagName = await queryTagsByTagName(tagName);
       if (tagsWithTagName.isNotEmpty) {
         tagInfo = tagsWithTagName[0];
-        id.value = tagInfo.id??"";
+        id.value = tagInfo.id ?? "";
       } else {
         tagInfo = TagInfo();
         id.value = '';
@@ -140,9 +141,9 @@ class GetxTagDetailController extends GetxController {
         picPath.value = tagInfo.tagPic!.split(',');
       }
       levels.value = title.value.split('/');
-    } catch (e){
-      print("切换标签层级失败："+e.toString());
-    }finally {
+    } catch (e) {
+      print("切换标签层级失败：" + e.toString());
+    } finally {
       isLoading.value = false;
     }
   }
@@ -153,14 +154,16 @@ class GetxTagDetailController extends GetxController {
 
   Future<void> saveChanges() async {
     String needSaveTagName = tagNameController.text;
-    if(needSaveTagName==null||needSaveTagName.isEmpty||needSaveTagName.contains("//")){
+    if (needSaveTagName == null ||
+        needSaveTagName.isEmpty ||
+        needSaveTagName.contains("//")) {
       Get.snackbar('失败', '标签名不能为空');
       return;
     }
     tagInfo.tagName = tagNameController.text;
     tagInfo.tagDesc = tagDescController.text;
     tagInfo.tagPic = picPath.join(",");
-    if(tagInfo==null||tagInfo.id==null||tagInfo.id!.isEmpty){
+    if (tagInfo == null || tagInfo.id == null || tagInfo.id!.isEmpty) {
       await insertOrUpdateTagInfo(tagInfo.tagName!, tagInfo.tagDesc, picPath);
     } else {
       tagInfo.updateTime = DateTime.now().millisecondsSinceEpoch;
@@ -225,29 +228,6 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
     );
   }
 
-  // 如果既不想水平滚动也不想省略显示，可以考虑使用换行的方式来显示长标签路径。我们可以利用 Wrap 小部件来实现这个功能，这样当一行显示不下时，就会自动换行。
-  // Widget _buildBreadcrumbs() {
-  //   List<String> levels = controller.levels;
-  //   List<Widget> breadcrumbs = [];
-  //   for (int i = 0; i < levels.length; i++) {
-  //     breadcrumbs.add(InkWell(
-  //       onTap: () => controller.onTagLevelClicked(i),
-  //       child: Text(
-  //         levels[i],
-  //         style: TextStyle(
-  //           color: Colors.blue,
-  //           decoration: TextDecoration.underline,
-  //         ),
-  //       ),
-  //     ));
-  //     if (i < levels.length - 1) {
-  //       breadcrumbs.add(Text(' / '));
-  //     }
-  //   }
-  //   return Wrap(
-  //     children: breadcrumbs,
-  //   );
-  // }
   Widget _buildBreadcrumbs() {
     List<String> levels = controller.levels;
     List<Widget> breadcrumbs = [];
@@ -394,13 +374,32 @@ class GetxTagDetailPage extends GetView<GetxTagDetailController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: controller.tagNameController,
-            decoration: InputDecoration(labelText: '标签名称'),
-            onChanged: (value) {
-              controller.title.value = value;
+          Text("标签名称"),
+          BrnInputText(
+
+            maxHeight: 100,
+            minHeight: 30,
+            minLines: 1,
+            maxLength: 10,
+            bgColor: Colors.grey[200]!,
+            textString: controller.tagNameController.text ?? '',
+            textInputAction: TextInputAction.newline,
+            maxHintLines: 20,
+            hint: 'input动态算高input动态算高input动态算高input动态算高input动态算高',
+            padding: EdgeInsets.fromLTRB(20, 10, 20, 14),
+            onTextChange: (text) {
+              print(text);
+              controller.tagNameController.text = text;
+              controller.title.value = text;
             },
           ),
+          // TextField(
+          //   controller: controller.tagNameController,
+          //   decoration: InputDecoration(labelText: '标签名称'),
+          //   onChanged: (value) {
+          //     controller.title.value = value;
+          //   },
+          // ),
           SizedBox(height: 16.0),
           TextField(
             controller: controller.tagDescController,
