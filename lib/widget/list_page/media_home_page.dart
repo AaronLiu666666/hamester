@@ -71,13 +71,22 @@ class _MediaHomePageState extends State<MediaHomePage> {
                   GestureDetector(
                     onTap: () {
                       // 执行某些操作
-                      Get.to(()=>ConfigPage());
+                      Get.to(()=>const ConfigPage());
                     },
-                    child: const Column(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.settings),
-                        Text('设置'),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.settings, color: Colors.white),
+                        ),
+                        const SizedBox(height: 8), // 间隔
+                        const Text('设置'),
                       ],
                     ),
                   ),
@@ -100,7 +109,7 @@ class _MediaHomePageState extends State<MediaHomePage> {
               ],
             ),
           ),
-          BrunoTest(),
+          // BrunoTest(),
           Expanded(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),

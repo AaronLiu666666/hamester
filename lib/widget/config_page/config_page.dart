@@ -23,7 +23,7 @@ class ConfigPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(8.0),
         children: <Widget>[
-          _buildGroupedTiles(
+          _buildGroupedRows(
             context,
             [
               _buildRow(
@@ -52,7 +52,7 @@ class ConfigPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 15), // 加大空隙
-          _buildGroupedTiles(context, [
+          _buildGroupedRows(context, [
             _buildRow(
               context,
               '关于 hamster',
@@ -64,32 +64,60 @@ class ConfigPage extends StatelessWidget {
     );
   }
 
+  // Widget _buildRow(
+  //     BuildContext context, String title, VoidCallback onTap) {
+  //   return GestureDetector(
+  //     onTap: onTap,
+  //     child: Container(
+  //       height: 40.0, // 设置行的高度
+  //       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+  //       decoration: const BoxDecoration(
+  //         color: Colors.grey,
+  //       ),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             title,
+  //             style: const TextStyle(fontSize: 16),
+  //           ),
+  //           const Icon(Icons.chevron_right),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildRow(
       BuildContext context, String title, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 40.0, // 设置行的高度
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        decoration: const BoxDecoration(
-          color: Colors.grey,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16),
+      child: Material(
+        color: Colors.grey,
+        // InkWell 添加点击水波纹动效
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            height: 40.0, // 设置行的高度
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
             ),
-            const Icon(Icons.chevron_right),
-          ],
+          ),
         ),
       ),
     );
   }
 
 
-  Widget _buildGroupedTiles(BuildContext context, List<Widget> tiles) {
+  Widget _buildGroupedRows(BuildContext context, List<Widget> tiles) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8.0),
       child: Column(
